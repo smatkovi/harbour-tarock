@@ -13,7 +13,15 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAILFISHAPP REQUIRED sailfishapp)
 
 # The Qt-free rule core (src/core/…, docs/design.md §4) is added in M1.
-set(TAROCK_CORE_SOURCES)
+set(TAROCK_CORE_SOURCES
+    src/core/Card.cpp
+    src/core/Deck.cpp
+    src/core/Action.cpp
+    src/core/Reason.cpp
+    src/core/RuleProfile.cpp
+    src/core/profiles/AtKrOoe2023.cpp
+    src/core/profiles/HuIlluItvb2019.cpp
+)
 
 add_executable(harbour-tarock
     src/main.cpp
@@ -46,7 +54,7 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_skeleton)
+    foreach(t test_skeleton test_cards)
         add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} src/TarockEngine.cpp)
         target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
         target_compile_definitions(${t} PRIVATE TAROCK_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
