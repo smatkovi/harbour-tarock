@@ -1,0 +1,14 @@
+/build/
+/android/build/
+*.qm
+*.o
+*.rpm
+*.apk
+*.aab
+*.tar.gz
+*.zip
+*.user
+.qmake.stash
+CMakeCache.txt
+CMakeFiles/
+__pycache__/

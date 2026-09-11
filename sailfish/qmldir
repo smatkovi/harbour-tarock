@@ -1,0 +1,6 @@
+singleton Style 1.0 Style.qml
+AboutPage 1.0 AboutPage.qml
+SubPage 1.0 SubPage.qml
+TableButton 1.0 TableButton.qml
+TablePage 1.0 TablePage.qml
+TarockTable 1.0 TarockTable.qml

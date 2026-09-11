@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Tarock
+Comment=Königrufen and Hungarian Tarokk with a learning mode
+Icon=harbour-tarock
+Exec=harbour-tarock
+Type=Application
+Categories=Game;
+X-Sailfish-ApplicationType=Silica
+
+[X-Sailjail]
+Permissions=Internet
+OrganizationName=org.smatkovi
+ApplicationName=harbour-tarock
