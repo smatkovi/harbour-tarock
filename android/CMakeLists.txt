@@ -12,9 +12,18 @@ qt_standard_project_setup(REQUIRES 6.9)
 
 set(TAROCK_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# The Qt-free rule core (src/core/…, docs/design.md §4) is added in M1; from
-# then on this list mirrors TAROCK_CORE_SOURCES of the Sailfish build.
-set(TAROCK_CORE_SOURCES)
+# The Qt-free rule core (src/core/…, docs/design.md §4); this list mirrors
+# TAROCK_CORE_SOURCES of the Sailfish build one directory up.
+set(TAROCK_CORE_SOURCES
+    ${TAROCK_ROOT}/src/core/Card.cpp
+    ${TAROCK_ROOT}/src/core/Deck.cpp
+    ${TAROCK_ROOT}/src/core/Action.cpp
+    ${TAROCK_ROOT}/src/core/Reason.cpp
+    ${TAROCK_ROOT}/src/core/RuleProfile.cpp
+    ${TAROCK_ROOT}/src/core/profiles/AtKrOoe2023.cpp
+    ${TAROCK_ROOT}/src/core/profiles/HuIlluItvb2019.cpp
+    ${TAROCK_ROOT}/src/core/Scoring.cpp
+)
 
 qt_add_executable(tarock
     main.cpp
