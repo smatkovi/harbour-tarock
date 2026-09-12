@@ -429,8 +429,12 @@ std::vector<Posten> buildPosten(const HandResult& hand)
             party = Party::Defenders;
         if (party == Party::Neutral)
             continue;
+        // Nobody could kontra this one: only the game and each *announced* bonus
+        // are separate kontra targets (§5.6, §7.8). The silent Valat above is the
+        // exception, because it replaces the game Posten and inherits its kontra
+        // (§9.4 V-4).
         Posten posten = makePosten(PostenType::Bonus, party,
-                                   bonusValue(profile, contract, def.id, false), gameKontra);
+                                   bonusValue(profile, contract, def.id, false), 1);
         posten.bonus = def.id;
         items.push_back(posten);
     }

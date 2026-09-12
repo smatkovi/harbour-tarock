@@ -504,6 +504,37 @@ void example16()
     expect("§7.10", 16, ledger, {-15, 5, 5, 5, 0}, {-15, 5, 5, 5, 0});
 }
 
+// --- §7.8, a kontra belongs to exactly one Posten ---------------------------
+
+// Rufer won with a kontra on the game and a silent Trull. Only the game and
+// announced bonuses can be contra'd (§5.6, §7.8), so the silent Trull is paid at
+// factor one: Schrift 1 + 1, money 1 × 2 + 1.
+void silentBonusCarriesNoKontra()
+{
+    HandResult h = hand(ContractId::Rufer, 1);
+    h.calledKing = king(Suit::Club);
+    h.gameKontra = 2;
+    Dealer dealer;
+    CardSet declarer;
+    CardSet defenders;
+    dealer.give(declarer, kSkues);
+    dealer.give(declarer, kMond);
+    dealer.give(declarer, kPagat);
+    dealer.give(declarer, king(Suit::Heart));
+    dealer.give(defenders, king(Suit::Diamond));
+    dealer.give(defenders, king(Suit::Spade));
+    dealer.give(defenders, king(Suit::Club));
+    CHECK(dealer.fill(declarer, 125));
+    h.declarerCards = declarer;
+    h.defenderCards = defenders | dealer.rest();
+    setTricks(h, kMixed);
+
+    const Ledger ledger = settle(h);
+    CHECK(ledger.items.size() == 2);   // game and the silent Trull, no four kings
+    expectItem("§7.8", 1, ledger, PostenType::Bonus, BonusId::Trull, Party::Declarer, 1);
+    expect("§7.8", 1, ledger, {2, 2, -2, -2, 0}, {3, 3, -3, -3, 0});
+}
+
 // --- §7.6, the nine Trischaken rows ----------------------------------------
 
 void trischakenRow(int row, const std::array<int, 4>& thirds, const std::array<int, 5>& schrift)
@@ -612,6 +643,7 @@ int main()
     example14();
     example15();
     example16();
+    silentBonusCarriesNoKontra();
     trischaken();
     fivePlayerTable();
 
@@ -619,7 +651,7 @@ int main()
         std::printf("%d failures\n", failures);
         return 1;
     }
-    std::printf("OK: all 16 worked examples of koenigrufen.md §7.10, the nine Trischaken rows "
-                "of §7.6 and the five-player table\n");
+    std::printf("OK: all 16 worked examples of koenigrufen.md §7.10, the kontra rules of §7.8, "
+                "the nine Trischaken rows of §7.6 and the five-player table\n");
     return 0;
 }
