@@ -502,6 +502,17 @@ Ledger book(const HandResult& hand, std::vector<Posten> items)
     for (std::size_t seat = 0; seat < kMaxSeats; ++seat)
         ledger.seatCards[seat] = profile.count(hand.seatCards[seat]);
     ledger.declarerWon = ledger.declarerCards.units >= profile.winThreshold();
+    // Whether the declarer made his contract is a different question: the
+    // negative games are won by taking no trick, the Piccolo by taking exactly
+    // one, and an announced Valat replaces the game posten outright.
+    ledger.gameWon = ledger.declarerWon;
+    for (const Posten& posten : items) {
+        if (posten.type == PostenType::Game || posten.type == PostenType::Valat
+            || posten.type == PostenType::Concede) {
+            ledger.gameWon = posten.winner == Party::Declarer;
+            break;
+        }
+    }
     ledger.items = std::move(items);
     return ledger;
 }

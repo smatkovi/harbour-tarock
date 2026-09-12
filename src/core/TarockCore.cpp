@@ -122,6 +122,7 @@ void TarockCore::startHand()
     m_conceded = false;
     m_declarations.clear();
     m_announceReady = 0;
+    m_qualifyingBirds.reset();
 
     const DealPlan& plan = profile().dealPlan();
     Deal dealt = deal(profile().deck(), plan, activePlayers(), m_rng);
@@ -227,9 +228,9 @@ std::vector<Action> TarockCore::legalActions(int seat) const
             actions.push_back(Action(ActionType::OpenForehand));
         if (isForehand && m_bid != ContractId::None && m_bidHolder != seat)
             actions.push_back(Action(ActionType::Hold));
-        // Die Vorhand darf nie passen, solange kein Spiel geboten ist: weder
-        // beim ersten Sprechen noch, wenn alle anderen „weiter“ gesagt haben
-        // (§3.3.1 und §3.3.3, Endebedingung B).
+        // The forehand may never pass while no game has been bid: neither when
+        // speaking first nor after all the others have said "weiter"
+        // (docs/koenigrufen.md §3.3.1 and §3.3.3, end condition B).
         if (!(isForehand && m_bid == ContractId::None))
             actions.push_back(Action(ActionType::Pass));
         break;
@@ -300,7 +301,9 @@ std::vector<Action> TarockCore::legalActions(int seat) const
             if (check(seat, kontra).ok())
                 actions.push_back(kontra);
         }
-        actions.push_back(Action(ActionType::Ready));
+        const Action ready(ActionType::Ready);
+        if (check(seat, ready).ok())
+            actions.push_back(ready);
         break;
     }
     case Phase::Play: {
@@ -382,16 +385,27 @@ Reason TarockCore::cardReason(int seat, Card card) const
             return refuse(ReasonCode::DiscardKing, card);
         if (card.honour())
             return refuse(ReasonCode::DiscardTrull, card);
+        CardSet rest = hand(seat);
+        for (Card inTray : toList(m_tray[static_cast<std::size_t>(seat)]))
+            remove(rest, inTray);
+        // The Farbendreier turns the rule around: tarocks go down first and
+        // face down, suit cards only when no tarock is left, and those are
+        // the ones that have to be shown (§4.6).
+        if (m_contract != ContractId::None && contractDef().play == PlayMode::SuitGame) {
+            if (card.tarock())
+                return Reason();
+            for (Card other : toList(rest)) {
+                if (other.tarock() && !other.honour())
+                    return refuse(ReasonCode::DiscardSuitWhileTarock, card);
+            }
+            return refuse(ReasonCode::I_DiscardShownOpen, card);
+        }
         if (card.tarock()) {
-            CardSet rest = hand(seat);
-            for (Card inTray : toList(m_tray[static_cast<std::size_t>(seat)]))
-                remove(rest, inTray);
             for (Card other : toList(rest)) {
                 if (!other.tarock() && !other.king())
                     return refuse(ReasonCode::DiscardTarockWhileSuit, card);
             }
-            Reason info = refuse(ReasonCode::I_DiscardShownOpen, card);
-            return info;   // allowed, but the tarock has to be shown
+            return refuse(ReasonCode::I_DiscardShownOpen, card);   // shown, not forbidden
         }
         return Reason();
     }
@@ -592,17 +606,48 @@ Reason TarockCore::check(int seat, const Action& action) const
         const Declaration& announcement = m_declarations[static_cast<std::size_t>(action.a)];
         if (contractDef().kontra == KontraMode::None)
             return refuse(ReasonCode::TrischakenNoKontra);
-        // Only the other party doubles, and only one step at a time.
-        if (announcement.declarerSide == declarerSide(seat))
-            return refuse(ReasonCode::KontraOwnAnnouncement);
+        // In the negative games every opponent settles with the declarer on
+        // his own, so every opponent carries his own level (§7.5). The
+        // declarer answers a Kontra with "retour" against that one opponent;
+        // action.b names him, -1 means everybody who is standing at two.
+        if (contractDef().kontra == KontraMode::Individual) {
+            if (!declarerSide(seat)) {
+                const int own = m_seatKontra[static_cast<std::size_t>(seat)];
+                return own == 1 || own == 4 ? Reason() : refuse(ReasonCode::KontraLevel);
+            }
+            if (action.b >= 0) {
+                if (!active(action.b) || declarerSide(action.b))
+                    return refuse(ReasonCode::KontraOwnAnnouncement);
+                return m_seatKontra[static_cast<std::size_t>(action.b)] == 2
+                        ? Reason() : refuse(ReasonCode::KontraLevel);
+            }
+            for (int other = 0; other < m_players; ++other) {
+                if (active(other) && !declarerSide(other)
+                    && m_seatKontra[static_cast<std::size_t>(other)] == 2)
+                    return Reason();
+            }
+            return refuse(ReasonCode::KontraLevel);
+        }
         if (announcement.level >= 8)
             return refuse(ReasonCode::KontraLevel);
+        // Kontra comes from the other party, "retour" from the announcing one,
+        // Subkontra from the other party again (§5.6).
+        if ((announcement.declarerSide == declarerSide(seat)) != (announcement.level == 2))
+            return refuse(ReasonCode::KontraOwnAnnouncement);
         return Reason();
     }
     case ActionType::Ready: {
         if (m_phase != Phase::Announce)
             return refuse(ReasonCode::WrongPhase);
-        return ((m_announceReady >> seat) & 1) ? refuse(ReasonCode::AnnounceOnlyOnce) : Reason();
+        if ((m_announceReady >> seat) & 1)
+            return refuse(ReasonCode::AnnounceOnlyOnce);
+        if (seat == m_declarer && m_qualifyingBirds.any() && !announcedQualifyingBird()
+            && canAnnounceQualifyingBird()) {
+            Reason reason = refuse(ReasonCode::BesserruferBirdMandatory);
+            reason.cards = m_qualifyingBirds;
+            return reason;
+        }
+        return Reason();
     }
     case ActionType::PlayCard: {
         if (m_phase != Phase::Play)
@@ -704,10 +749,26 @@ bool TarockCore::apply(int seat, const Action& action, Reason* out)
     }
     case ActionType::Kontra: {
         Declaration& announcement = m_declarations[static_cast<std::size_t>(action.a)];
-        announcement.level = announcement.level < 2 ? 2 : announcement.level * 2;
-        // In the negative games every opponent doubles for himself (§7.5).
-        if (contractDef().kontra == KontraMode::Individual)
-            m_seatKontra[static_cast<std::size_t>(seat)] = announcement.level;
+        if (contractDef().kontra == KontraMode::Individual) {
+            if (!declarerSide(seat)) {
+                int& own = m_seatKontra[static_cast<std::size_t>(seat)];
+                own = own < 2 ? 2 : own * 2;
+            } else {
+                // "Retour" against the opponent who shot, or against all of them.
+                for (int other = 0; other < m_players; ++other) {
+                    int& level = m_seatKontra[static_cast<std::size_t>(other)];
+                    if (active(other) && !declarerSide(other) && level == 2
+                        && (action.b < 0 || other == action.b))
+                        level = 4;
+                }
+            }
+            // The declaration carries the highest level, for the score sheet.
+            for (int other = 0; other < m_players; ++other)
+                announcement.level = std::max(announcement.level,
+                                              m_seatKontra[static_cast<std::size_t>(other)]);
+        } else {
+            announcement.level = announcement.level < 2 ? 2 : announcement.level * 2;
+        }
         advanceAnnounce(seat, AnnounceStep::Doubled);
         break;
     }
@@ -761,6 +822,16 @@ void TarockCore::finishBidding()
     m_contract = m_bid;
     m_declarer = m_bidHolder;
     const ContractDef& def = contractDef();
+    // The Besserrufer must announce the bird the declarer already held before
+    // taking the talon, so it is noted now (§5.3, §4.5 b).
+    m_qualifyingBirds.reset();
+    if (def.bidFlags & RequiresBird) {
+        for (int i = 1; i <= 4; ++i) {
+            const Card bird = tarockCard(i);
+            if (contains(hand(m_declarer), bird))
+                add(m_qualifyingBirds, bird);
+        }
+    }
     // The game itself is the first entry; announcements are added to it.
     Declaration game;
     game.bonus = BonusId::None;
@@ -847,6 +918,52 @@ void TarockCore::advanceAnnounce(int seat, AnnounceStep step)
     m_turn = seat;
 }
 
+namespace {
+
+// The four birds in tarock order: I is the Pagat, IIII the Quapil.
+BonusId birdBonus(int tarockNumber)
+{
+    switch (tarockNumber) {
+    case 1: return BonusId::Pagat;
+    case 2: return BonusId::Uhu;
+    case 3: return BonusId::Kakadu;
+    case 4: return BonusId::Quapil;
+    default: return BonusId::None;
+    }
+}
+
+} // namespace
+
+// Besserrufer: can the declarer still name one of the birds he held before the
+// talon? One he laid away or already announced is gone, and a demand nobody can
+// meet would leave the announcement round without a single legal action (§5.3).
+bool TarockCore::canAnnounceQualifyingBird() const
+{
+    for (int i = 1; i <= 4; ++i) {
+        const BonusId bonus = birdBonus(i);
+        if (!contains(m_qualifyingBirds, tarockCard(i)))
+            continue;
+        if (check(m_declarer, Action(ActionType::AnnounceBonus,
+                                     static_cast<std::int16_t>(bonus))).ok())
+            return true;
+    }
+    return false;
+}
+
+// And has he? Until then "Ich liege" stays barred.
+bool TarockCore::announcedQualifyingBird() const
+{
+    for (const Declaration& declaration : m_declarations) {
+        if (!declaration.announced || declaration.seat != m_declarer)
+            continue;
+        for (int i = 1; i <= 4; ++i) {
+            if (declaration.bonus == birdBonus(i) && contains(m_qualifyingBirds, tarockCard(i)))
+                return true;
+        }
+    }
+    return false;
+}
+
 void TarockCore::beginPlay()
 {
     setPhase(Phase::Play);
@@ -898,7 +1015,17 @@ void TarockCore::dealTalonToWinner()
         // What the declarer did not take belongs to the defenders as a party.
         m_talonToDefenders |= rest;
         break;
-    default:
+    case TalonMode::None:
+        // The negative games never touch the talon: it stays where it lies,
+        // counts for nobody, and must still be there when the cards are
+        // counted at the end.
+        return;
+    case TalonMode::AllHidden:
+    case TalonMode::Distributed:
+        // The declarer took all of it, or it was dealt out; nothing is left
+        // lying. Should a profile ever leave a card over, it belongs to the
+        // defenders like any untaken half.
+        m_talonToDefenders |= rest;
         break;
     }
     m_talonHalf[0].reset();
@@ -997,6 +1124,29 @@ int TarockCore::trickWinner(int trick) const
     return m_trickWinners[static_cast<std::size_t>(trick - 1)];
 }
 
+const CardList& TarockCore::trickCards(int trick) const
+{
+    static const CardList empty;
+    if (trick < 1 || trick > profile().tricks())
+        return empty;
+    if (trick == m_trickNumber && m_phase == Phase::Play)
+        return m_trick;
+    return m_trickCards[static_cast<std::size_t>(trick - 1)];
+}
+
+int TarockCore::trickLeader(int trick) const
+{
+    if (trick < 1 || trick > profile().tricks())
+        return -1;
+    if (trick == m_trickNumber)
+        return m_leader;
+    if (trick > 1)
+        return trickWinner(trick - 1);
+    if (m_contract == ContractId::None)
+        return -1;
+    return contractDef().firstLead == LeadRule::Declarer ? m_declarer : forehand();
+}
+
 CardSet TarockCore::partyCards(bool declarerParty) const
 {
     CardSet cards;
@@ -1044,6 +1194,10 @@ void TarockCore::rotateSeats(int offset)
     }
     m_passed = passed;
     m_announceReady = ready;
+
+    const std::array<int, MaxSeats> kontra = m_seatKontra;
+    for (int seat = 0; seat < n; ++seat)
+        m_seatKontra[static_cast<std::size_t>(seatOf(seat))] = kontra[static_cast<std::size_t>(seat)];
 
     for (Declaration& announcement : m_declarations)
         announcement.seat = seatOf(announcement.seat);
@@ -1099,6 +1253,18 @@ std::string TarockCore::serialize() const
     for (std::int8_t winner : m_trickWinners)
         body << static_cast<int>(winner) << ' ';
     body << '\n';
+    // The finished tricks are public knowledge and the computer players deduce
+    // from them, so a restored hand has to know them too.
+    for (const CardList& cards : m_trickCards) {
+        body << cards.size();
+        for (Card card : cards)
+            body << ' ' << static_cast<int>(card.id);
+        body << '\n';
+    }
+    for (int level : m_seatKontra)
+        body << level << ' ';
+    body << '\n';
+    writeSet(body, m_qualifyingBirds);
     body << m_passed << ' ' << static_cast<int>(m_bid) << ' ' << m_bidHolder << ' '
          << (m_forehandSpoke ? 1 : 0) << '\n';
     body << static_cast<int>(m_contract) << ' ' << m_declarer << ' ' << m_partner << ' '
@@ -1116,7 +1282,7 @@ std::string TarockCore::serialize() const
 
     const std::string payload = body.str();
     std::ostringstream out;
-    out << "TAROCK_STATE_V1\n" << std::hex << checksum(payload) << '\n' << payload;
+    out << "TAROCK_STATE_V2\n" << std::hex << checksum(payload) << '\n' << payload;
     return out.str();
 }
 
@@ -1124,7 +1290,7 @@ bool TarockCore::restore(const std::string& data)
 {
     std::istringstream envelope(data);
     std::string magic, checksumText;
-    if (!std::getline(envelope, magic) || magic != "TAROCK_STATE_V1"
+    if (!std::getline(envelope, magic) || magic != "TAROCK_STATE_V2"
         || !std::getline(envelope, checksumText))
         return false;
     std::uint64_t expected = 0;
@@ -1176,6 +1342,23 @@ bool TarockCore::restore(const std::string& data)
             return false;
         winner = static_cast<std::int8_t>(value);
     }
+    for (CardList& cards : r.m_trickCards) {
+        std::size_t size = 0;
+        if (!(in >> size) || size > 5)
+            return false;
+        for (std::size_t i = 0; i < size; ++i) {
+            int id = 0;
+            if (!(in >> id) || id < 0 || id > 53)
+                return false;
+            cards.push_back(Card(static_cast<std::uint8_t>(id)));
+        }
+    }
+    for (int& level : r.m_seatKontra) {
+        if (!(in >> level) || level < 1 || level > 8)
+            return false;
+    }
+    if (!readSet(in, r.m_qualifyingBirds))
+        return false;
     int bid = 0, forehandSpoke = 0;
     if (!(in >> r.m_passed >> bid >> r.m_bidHolder >> forehandSpoke))
         return false;

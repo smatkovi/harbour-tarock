@@ -12,22 +12,28 @@ find_package(Qt5 REQUIRED COMPONENTS Core LinguistTools Network Qml Quick)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAILFISHAPP REQUIRED sailfishapp)
 
-# The Qt-free rule core (src/core/…, docs/design.md §4) is added in M1.
-set(TAROCK_CORE_SOURCES
-    src/core/Card.cpp
-    src/core/Deck.cpp
-    src/core/Action.cpp
-    src/core/Reason.cpp
-    src/core/RuleProfile.cpp
-    src/core/profiles/AtKrOoe2023.cpp
-    src/core/profiles/HuIlluItvb2019.cpp
-    src/core/Scoring.cpp
+# The Qt-free rule core (src/core/…, docs/design.md §4). Globbed rather than
+# listed: the rule files, the profiles and the AI land one by one over M1..M6,
+# and neither a file that is still missing nor one that is added may break the
+# build of everything else. Both the RPM and the Android package configure from
+# a clean tree, so the glob is evaluated on every real build; after adding a
+# file in a working tree, re-run cmake.
+file(GLOB TAROCK_CORE_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/core/profiles/*.cpp
+)
+list(SORT TAROCK_CORE_SOURCES)
+
+# The QML facade of the core (docs/design.md §5); main.cpp installs it as the
+# context property `tarockEngine`.
+set(TAROCK_ENGINE_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/TarockEngine.cpp
 )
 
 add_executable(harbour-tarock
     src/main.cpp
     ${TAROCK_CORE_SOURCES}
-    src/TarockEngine.cpp
+    ${TAROCK_ENGINE_SOURCES}
 )
 
 target_include_directories(harbour-tarock PRIVATE
@@ -38,6 +44,11 @@ target_include_directories(harbour-tarock PRIVATE
 target_link_libraries(harbour-tarock
     Qt5::Core Qt5::Network Qt5::Qml Qt5::Quick ${SAILFISHAPP_LIBRARIES}
 )
+
+# The QML itself is not compiled in: rpm/harbour-tarock.spec copies sailfish/*.qml,
+# sailfish/qmldir and qml-common/*.qml into /usr/share/harbour-tarock/qml, so
+# the platform types and the shared table end up in one directory and the
+# qmldir declares them all.
 
 # German is the interface language of the rule specifications and of the app;
 # the source strings are English.
@@ -51,15 +62,20 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 
 # The rule, lesson and LAN tests of docs/design.md §11 are added to this list
 # as the milestones that introduce them land; TAROCK_DATA_DIR points them at
-# the lessons and expected ledgers in the source tree.
+# the lessons and expected ledgers in the source tree. A test whose source is
+# not written yet is skipped instead of failing the configure step.
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_cards test_hands test_legality test_scoring test_skeleton)
-        add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} src/TarockEngine.cpp)
-        target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-        target_compile_definitions(${t} PRIVATE TAROCK_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-        target_link_libraries(${t} Qt5::Core)
-        add_test(NAME ${t} COMMAND ${t})
+    foreach(t test_cards test_hands test_legality test_scoring test_selfplay test_skeleton)
+        if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/${t}.cpp)
+            add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
+            target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+            target_compile_definitions(${t} PRIVATE TAROCK_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+            target_link_libraries(${t} Qt5::Core)
+            add_test(NAME ${t} COMMAND ${t})
+        else()
+            message(STATUS "harbour-tarock: tests/${t}.cpp is not there yet, skipping it")
+        endif()
     endforeach()
 endif()

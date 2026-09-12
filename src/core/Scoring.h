@@ -102,7 +102,8 @@ struct Ledger {
     CountResult declarerCards;
     CountResult defenderCards;
     std::array<CountResult, kMaxSeats> seatCards{};   // Trischaken
-    bool declarerWon = false;
+    bool declarerWon = false;   // the declarer's party reached the card threshold
+    bool gameWon = false;       // the declarer made his contract (§7.4, §7.5)
 
     bool zeroSum() const;            // test invariant, both accounts
 };

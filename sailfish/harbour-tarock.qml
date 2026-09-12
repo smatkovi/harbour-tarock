@@ -28,7 +28,7 @@ ApplicationWindow {
     // property; the alias keeps pages pushed at runtime on the same instance.
     property var engine: tarockEngine
 
-    // CoverPage.qml (docs/design.md §6.1) follows with the running match in M3;
-    // until then Sailfish shows the application icon as the cover.
-    initialPage: Component { TablePage { } }
+    // CoverPage.qml (docs/design.md §6.1) follows with the running match in
+    // M4; until then Sailfish shows the application icon as the cover.
+    initialPage: Component { MainPage { } }
 }

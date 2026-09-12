@@ -46,7 +46,7 @@ ApplicationWindow {
             anchors.bottomMargin: safeFrame.SafeArea.margins.bottom
             anchors.leftMargin: safeFrame.SafeArea.margins.left
             anchors.rightMargin: safeFrame.SafeArea.margins.right
-            initialItem: TablePage { }
+            initialItem: MainPage { }
         }
     }
 

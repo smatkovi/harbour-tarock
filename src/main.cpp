@@ -33,6 +33,13 @@
 int main(int argc, char *argv[])
 {
     QGuiApplication *app = SailfishApp::application(argc, argv);
+
+    // Same names as [X-Sailjail] in sailfish/desktop/harbour-tarock.desktop and
+    // as the Android build, so the QSettings the engine saves its profile,
+    // deck and difficulty in land in the private path Sailjail grants us.
+    QCoreApplication::setOrganizationName(QStringLiteral("org.smatkovi"));
+    QCoreApplication::setApplicationName(QStringLiteral("harbour-tarock"));
+
     QQuickView *view = SailfishApp::createView();
 
     QTranslator translator;

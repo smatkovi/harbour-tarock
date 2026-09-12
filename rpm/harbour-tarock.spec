@@ -63,6 +63,11 @@ for size in 86 108 128 172 256; do
         %{buildroot}/usr/share/icons/hicolor/${size}x${size}/apps/%{name}.png
 done
 
+# cp -a keeps the group-writable permissions of the working tree; the package
+# wants plain 755 directories and 644 files (rpmlint non-standard-dir-perm).
+find %{buildroot}/usr/share/%{name} -type d -exec chmod 755 {} \;
+find %{buildroot}/usr/share/%{name} -type f -exec chmod 644 {} \;
+
 mkdir -p %{buildroot}/usr/share/doc/%{name}
 install -m 644 README.md %{buildroot}/usr/share/doc/%{name}/
 install -m 644 CREDITS/ASSETS.md %{buildroot}/usr/share/doc/%{name}/

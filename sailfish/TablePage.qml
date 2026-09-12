@@ -40,11 +40,29 @@ Page {
                 text: qsTr("About")
                 onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
+            MenuItem {
+                text: qsTr("Settings")
+                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
+            }
+            MenuItem {
+                text: qsTr("Scores")
+                onClicked: pageStack.push(Qt.resolvedUrl("ScorePage.qml"))
+            }
         }
 
         TarockTable {
             anchors.fill: parent
             engine: page.engine
+        }
+    }
+
+    // The finished hand is counted up on the score page, from where the next
+    // one is dealt (docs/design.md §6.6).
+    Connections {
+        target: page.engine
+        onHandFinished: {
+            if (page.status === PageStatus.Active)
+                pageStack.push(Qt.resolvedUrl("ScorePage.qml"))
         }
     }
 }

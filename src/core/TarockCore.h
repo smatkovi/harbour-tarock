@@ -68,6 +68,10 @@ public:
     int trickLeader() const { return m_leader; }
     const CardSet& won(int seat) const { return m_won[static_cast<std::size_t>(seat)]; }
     int trickWinner(int trick) const;                        // -1 if not played yet
+    // The cards of a finished trick in playing order, starting at the seat
+    // that led it. Public knowledge: everybody watched it happen.
+    const CardList& trickCards(int trick) const;
+    int trickLeader(int trick) const;                        // -1 if not played yet
 
     const CardSet& talonHalf(int half) const { return m_talonHalf[static_cast<std::size_t>(half)]; }
     const CardSet& talonToDefenders() const { return m_talonToDefenders; }
@@ -84,6 +88,7 @@ public:
     Card calledKing() const;
     bool declarerSide(int seat) const;                       // core view, not a player's view
     int bidHolder() const { return m_bidHolder; }
+    ContractId standingBid() const { return m_bid; }         // during the bidding
     bool hasPassed(int seat) const { return (m_passed >> seat) & 1; }
     const std::vector<Declaration>& declarations() const { return m_declarations; }
     bool conceded() const { return m_conceded; }
@@ -122,6 +127,8 @@ private:
     // How the announcement round continues after an action.
     enum class AnnounceStep { Confirm, Announced, Doubled };
     void advanceAnnounce(int seat, AnnounceStep step);
+    bool announcedQualifyingBird() const;
+    bool canAnnounceQualifyingBird() const;
     void beginPlay();
     void finishTrick();
     void finishHand();
@@ -173,6 +180,9 @@ private:
     bool m_conceded = false;
     std::vector<Declaration> m_declarations;
     int m_announceReady = 0;      // bit per seat: "Ich liege"
+    // Besserrufer: the birds the declarer held before the talon, one of which
+    // he must announce (§5.3).
+    CardSet m_qualifyingBirds{};
 
     std::mt19937 m_rng{1};
 };

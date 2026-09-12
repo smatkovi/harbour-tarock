@@ -58,7 +58,7 @@ die Profil-Abstraktion ist aber so geschnitten, dass beide später ohne Kernänd
 ```
 harbour-tarock/
 ├─ CMakeLists.txt                     # Sailfish-Build (Qt 5.6)
-├─ harbour-tarock.spec                # RPM
+├─ rpm/harbour-tarock.spec            # RPM (mb2 erwartet die Datei in rpm/)
 ├─ LICENSE                            # GPL-3.0-or-later (Code)
 ├─ README.md
 ├─ CREDITS/
@@ -212,7 +212,7 @@ endif()
 `main.cpp` registriert die Kontexteigenschaften `tarockEngine`, `learnEngine`, `lanBrowser`, `appSettings`
 (wie `main.cpp` von Snapszer die `snapszerEngine`/`multiEngine`/`lanBrowser` registriert).
 
-### 3.2 `harbour-tarock.spec`
+### 3.2 `rpm/harbour-tarock.spec`
 
 Wie `harbour-snapszer.spec`, zusätzlich installiert werden `lessons/`, `rules/`, `assets/decks/` und
 `CREDITS/`:

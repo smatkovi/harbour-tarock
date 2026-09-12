@@ -12,18 +12,15 @@ qt_standard_project_setup(REQUIRES 6.9)
 
 set(TAROCK_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
-# The Qt-free rule core (src/core/…, docs/design.md §4); this list mirrors
-# TAROCK_CORE_SOURCES of the Sailfish build one directory up.
-set(TAROCK_CORE_SOURCES
-    ${TAROCK_ROOT}/src/core/Card.cpp
-    ${TAROCK_ROOT}/src/core/Deck.cpp
-    ${TAROCK_ROOT}/src/core/Action.cpp
-    ${TAROCK_ROOT}/src/core/Reason.cpp
-    ${TAROCK_ROOT}/src/core/RuleProfile.cpp
-    ${TAROCK_ROOT}/src/core/profiles/AtKrOoe2023.cpp
-    ${TAROCK_ROOT}/src/core/profiles/HuIlluItvb2019.cpp
-    ${TAROCK_ROOT}/src/core/Scoring.cpp
+# The Qt-free rule core (src/core/…, docs/design.md §4); globbed exactly like
+# TAROCK_CORE_SOURCES of the Sailfish build one directory up, so a file that
+# one milestone adds is picked up by both builds at once and a file that is not
+# written yet breaks neither.
+file(GLOB TAROCK_CORE_SOURCES
+    ${TAROCK_ROOT}/src/core/*.cpp
+    ${TAROCK_ROOT}/src/core/profiles/*.cpp
 )
+list(SORT TAROCK_CORE_SOURCES)
 
 qt_add_executable(tarock
     main.cpp
@@ -36,13 +33,22 @@ target_include_directories(tarock PRIVATE ${TAROCK_ROOT}/src)
 target_link_libraries(tarock PRIVATE
     Qt6::Core Qt6::Gui Qt6::Network Qt6::Qml Qt6::Quick Qt6::QuickControls2)
 
-set_source_files_properties(qml/Theme.qml qml/Style.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
+# Theme and Style are the metrics, Prefs holds the choices that belong to the
+# next match. sailfish/qmldir declares Style and Prefs the same way; Theme
+# comes from Sailfish.Silica there.
+set_source_files_properties(qml/Theme.qml qml/Style.qml qml/Prefs.qml
+                            PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
-# The table and every panel on it are shared with the Sailfish OS build; the
-# list grows with each milestone (docs/design.md §2).
-set(TAROCK_SHARED_QML
-    ${TAROCK_ROOT}/qml-common/TarockTable.qml
-)
+# The table and every panel on it are shared with the Sailfish OS build. The
+# whole directory is taken as it stands, so the panels of docs/design.md §2
+# (TarockTable, SeatPanel, HandFan, TrickArea, BidBar, TalonPanel, DiscardTray,
+# AnnouncePanel, ScoreSheet …) are picked up as they land, and one that is not
+# written yet cannot break the configure step. The Sailfish package copies the
+# same directory into /usr/share/harbour-tarock/qml.
+file(GLOB TAROCK_SHARED_QML ${TAROCK_ROOT}/qml-common/*.qml)
+list(SORT TAROCK_SHARED_QML)
+# Without an alias the shared files would land under qml-common/ in the module
+# and the imports would not find them next to the platform types.
 foreach(file ${TAROCK_SHARED_QML})
     get_filename_component(name ${file} NAME)
     set_source_files_properties(${file} PROPERTIES QT_RESOURCE_ALIAS ${name})
@@ -54,9 +60,18 @@ qt_add_qml_module(tarock
         qml/Main.qml
         qml/Theme.qml
         qml/Style.qml
+        qml/Prefs.qml
+        qml/Card.qml
+        qml/FlyingCard.qml
         qml/TableButton.qml
         qml/SubPage.qml
+        qml/SectionLabel.qml
+        qml/TextBlock.qml
+        qml/MainPage.qml
         qml/TablePage.qml
+        qml/ScorePage.qml
+        qml/SettingsPage.qml
+        qml/RulesPage.qml
         qml/AboutPage.qml
         ${TAROCK_SHARED_QML}
 )

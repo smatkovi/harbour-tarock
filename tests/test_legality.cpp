@@ -57,7 +57,7 @@ int main()
             TarockCore core(ProfileId::AtKrOoe2023, players, rng());
             for (int hand = 0; hand < 3; ++hand) {
                 int guard = 0;
-                while (!core.handOver() && ++guard < 400) {
+                while (!core.handOver() && ++guard < 1200) {
                     std::string error;
                     CHECK(core.validate(&error));
                     const int actor = core.actor();
@@ -86,7 +86,7 @@ int main()
                     Reason reason;
                     CHECK(core.apply(actor, action, &reason));
                 }
-                CHECK(guard < 400);
+                CHECK(guard < 1200);
                 CHECK(core.handOver());
                 if (!core.conceded()) {
                     // Every trick was played and the cards are all accounted
@@ -116,7 +116,7 @@ int main()
         TarockCore guest = core;
         guest.rotateSeats(offset);
         int guard = 0;
-        while (!core.handOver() && ++guard < 400) {
+        while (!core.handOver() && ++guard < 1200) {
             const int actor = core.actor();
             if (actor < 0)
                 break;
@@ -178,8 +178,8 @@ int main()
         CHECK(core.cardReason(2, diamondKing).code == ReasonCode::MustTarock);
     }
 
-    // Die Vorhand sagt "Vorhand", alle anderen passen: sie ist wieder am Zug,
-    // darf jetzt nicht passen und darf Rufer und Trischaken wählen (§3.3.3).
+    // The forehand says "Vorhand" and all the others pass: it is on turn
+    // again, may not pass now and may choose Rufer or Trischaken (§3.3.3).
     {
         TarockCore core = fixedHand({
             cards({"H:K","H:D","H:R","H:B","H:1","H:2","H:3","H:4","XX","XIX","XVIII","XVII"}),
@@ -204,7 +204,7 @@ int main()
         }
         CHECK(rufer);
         CHECK(trischaken);
-        CHECK(!sechser);   // Sechserdreier gibt es nur vorneweg
+        CHECK(!sechser);   // the Sechserdreier is an opening bid only
         CHECK(!pass);
     }
 

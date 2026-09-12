@@ -52,8 +52,26 @@ Item {
     Menu {
         id: menu
         MenuItem {
+            text: qsTr("Scores")
+            onTriggered: page.StackView.view.push(Qt.resolvedUrl("ScorePage.qml"))
+        }
+        MenuItem {
+            text: qsTr("Settings")
+            onTriggered: page.StackView.view.push(Qt.resolvedUrl("SettingsPage.qml"))
+        }
+        MenuItem {
             text: qsTr("About")
             onTriggered: page.StackView.view.push(Qt.resolvedUrl("AboutPage.qml"))
+        }
+    }
+
+    // The finished hand is counted up on the score page, from where the next
+    // one is dealt (docs/design.md §6.6).
+    Connections {
+        target: page.engine
+        function onHandFinished() {
+            if (page.StackView.view && page.StackView.view.currentItem === page)
+                page.StackView.view.push(Qt.resolvedUrl("ScorePage.qml"))
         }
     }
 }
