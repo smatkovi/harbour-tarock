@@ -1,0 +1,135 @@
+{
+  "id": "kr-l7",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L7",
+  "title": "Die Abrechnung",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Wem welche Karten zählen",
+    "Die Schwelle 35 und 2 Blatt",
+    "Posten für Posten abrechnen",
+    "Schrift und Geld"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Der Rufer aus den letzten Modulen ist zu Ende. Jetzt wird gezählt, und zwar nicht nach Stichen, sondern nach Karten: Jede Partei legt alles zusammen, was ihr gehört. Zu dir und Carl gehören eure acht Stiche und deine drei verlegten Karten – 35 Karten. Zu Berta und Dora gehören ihre vier Stiche und die liegen gelassene Talonhälfte – 19 Karten. Zusammen wieder 54.",
+      "anchor": "#1.8",
+      "traps": [
+        {
+          "text": "„Wir haben acht von zwölf Stichen, also haben wir gewonnen.“ Die Zahl der Stiche sagt fast nichts: Ein Stich mit vier kleinen Karten ist gut 1 Punkt wert, einer mit König, Dame und Trullstück über 10. Gezählt werden Punkte, nicht Stiche."
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "text": "Eure 35 Karten ergeben 41 Punkte 2 Blatt, die der Gegner 28 Punkte 1 Blatt – zusammen die 70 Punkte des Spiels. Gebraucht hättet ihr 35 und 2 Blatt. 41/2 liegt klar darüber: Das Spiel ist gewonnen. Der Rufer zählt 1, und weil zwei gegen zwei gespielt wird, bekommt jeder von euch +1 und jeder Gegner −1.",
+      "anchor": "#7.2"
+    },
+    {
+      "id": "s3",
+      "text": "Jetzt kommen die Prämien, und die wichtigste Regel der Abrechnung lautet: Jeder Posten wird getrennt verrechnet – das Spiel und jede einzelne Prämie. Deshalb kannst du das Spiel gewinnen und trotzdem mit Minus aus der Hand gehen.",
+      "anchor": "#7.1"
+    },
+    {
+      "id": "s4",
+      "text": "In dieser Hand gab es zwei stille Prämien. Die Trull – Sküs, Mond und Pagat – liegt am Ende vollständig bei Berta und Dora: Sie bekommen sie still, also die Hälfte des angesagten Wertes, 1 Punkt je Spieler. Alle vier Könige dagegen sind in euren Stichen gelandet: ♣K im 1., ♦K im 3., ♠K im 4. und ♥K im 9. Stich – 1 Punkt je Spieler für euch. Beide Prämien hat niemand angesagt; still muss man sie nur erzielen, verlieren kann man dabei nichts.",
+      "anchor": "#7.3"
+    },
+    {
+      "id": "s5",
+      "text": "Unter dem Strich: Rufer +1, stille Trull −1, stille vier Könige +1 – macht +1 für dich und Carl, −1 für Berta und Dora. Notiert wird das zweimal: als Schrift, die Turnierwertung ohne jedes Kontra, und als Geld, in dem die Kontras mitzählen. Hier wurde nicht kontriert, deshalb sind beide Zeilen gleich.",
+      "anchor": "#7.1"
+    },
+    {
+      "id": "s6",
+      "text": "Und die Lehre daraus: Das Spiel zu gewinnen ist nur die halbe Miete. Die Trull rutschte zu den Gegnern, weil du die drei Trullstücke nie eingefangen hast – ohne die vier Könige wäre unterm Strich null geblieben. Wer gewinnen will, spielt nicht nur auf 35 Punkte, sondern schaut die ganze Hand über, wo Sküs, Mond und Pagat liegen.",
+      "anchor": "#7.3",
+      "traps": [
+        {
+          "text": "Ein verlorenes Spiel ist nicht automatisch ein Minus, und ein gewonnenes nicht automatisch ein Plus. Rechne nach der Hand jeden Posten einzeln durch – die Nachbesprechung der App zeigt dir genau das."
+        }
+      ]
+    }
+  ]
+}

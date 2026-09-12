@@ -36,6 +36,12 @@ Page {
 
     property var engine: tarockEngine
     readonly property var profileKeys: engine.profileKeys()
+    // LearnEngine reaches QML as a property of the engine; if a platform
+    // installs it as its own context property, this one line changes.
+    property var learn: engine.learn === undefined ? null : engine.learn
+
+    // The five switches of docs/design.md §7.8 are properties of LearnEngine
+    // and it saves them itself, in the same QSettings group as the level.
 
     Component.onCompleted: Prefs.adopt(page.engine)
 
@@ -84,6 +90,92 @@ Page {
                     MenuItem { text: qsTr("Five") }
                 }
                 onCurrentIndexChanged: Prefs.players = currentIndex === 1 ? 5 : 4
+            }
+
+            SectionHeader { text: qsTr("Learning mode") }
+
+            ComboBox {
+                width: parent.width
+                label: qsTr("Level")
+                description: qsTr("Takes effect at once, in a LAN match too")
+                enabled: page.learn !== null
+                currentIndex: page.learn === null ? 0 : page.learn.level
+                menu: ContextMenu {
+                    MenuItem { text: qsTr("Off") }
+                    MenuItem { text: qsTr("Learning") }
+                    MenuItem { text: qsTr("Novice") }
+                }
+                onCurrentIndexChanged: {
+                    if (page.learn !== null && page.learn.level !== currentIndex)
+                        page.learn.level = currentIndex
+                }
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Show hints automatically")
+                checked: page.learn !== null && page.learn.autoHint
+                enabled: page.learn !== null
+                onClicked: {
+                    if (page.learn !== null)
+                        page.learn.autoHint = checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Warn before a bonus is lost")
+                checked: page.learn !== null && page.learn.warnBonusLoss
+                enabled: page.learn !== null
+                onClicked: {
+                    if (page.learn !== null)
+                        page.learn.warnBonusLoss = checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Dim illegal cards instead of hiding them")
+                checked: page.learn !== null && page.learn.dimIllegal
+                enabled: page.learn !== null
+                onClicked: {
+                    if (page.learn !== null)
+                        page.learn.dimIllegal = checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Counting help after every trick")
+                checked: page.learn !== null && page.learn.countTutor
+                enabled: page.learn !== null
+                onClicked: {
+                    if (page.learn !== null)
+                        page.learn.countTutor = checked
+                }
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Always play positive games out to the twelfth trick")
+                checked: page.learn !== null && page.learn.playToEnd
+                enabled: page.learn !== null
+                onClicked: {
+                    if (page.learn !== null)
+                        page.learn.playToEnd = checked
+                }
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Lessons")
+                onClicked: pageStack.push(Qt.resolvedUrl("LearnPage.qml"))
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Rules and glossary")
+                onClicked: pageStack.push(Qt.resolvedUrl("RulesPage.qml"))
             }
 
             SectionHeader { text: qsTr("Opponents") }

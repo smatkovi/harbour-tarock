@@ -45,10 +45,14 @@ mkdir -p %{buildroot}/usr/share/%{name}/qml
 cp -a sailfish/*.qml sailfish/qmldir qml-common/*.qml %{buildroot}/usr/share/%{name}/qml/
 cp -a sailfish/icons %{buildroot}/usr/share/%{name}/qml/
 
-# Card decks; filled by the asset pipeline (docs/design.md §10). The lessons
-# and the rule reference are installed here as well once they exist.
+# Card decks; filled by the asset pipeline (docs/design.md §10).
 mkdir -p %{buildroot}/usr/share/%{name}/assets
 cp -a assets/decks %{buildroot}/usr/share/%{name}/assets/
+
+# The lessons of the learning mode (docs/design.md §7.6); LearnEngine looks
+# for them here first on the device.
+mkdir -p %{buildroot}/usr/share/%{name}/lessons
+cp -a assets/lessons/* %{buildroot}/usr/share/%{name}/lessons/
 
 mkdir -p %{buildroot}/usr/share/%{name}/translations
 install -m 644 build/harbour-tarock-de.qm %{buildroot}/usr/share/%{name}/translations/

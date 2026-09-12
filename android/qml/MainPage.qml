@@ -95,6 +95,13 @@ Page {
                 }
             }
 
+            // The way into the learning mode of docs/design.md §7.
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Learn")
+                onClicked: page.StackView.view.push(Qt.resolvedUrl("LearnPage.qml"))
+            }
+
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Rules")

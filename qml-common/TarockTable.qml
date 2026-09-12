@@ -28,6 +28,13 @@
     action band above it. The five-seat variant is prepared (seats 1..4 sit
     around the edge, the seat that sits out is muted) and finished in M7.
 
+    M6 hangs the learning mode of docs/design.md §7 into the same frame: the
+    explanation bar under the header, the lesson band over the table, the hint
+    bubble above the action band, the learning bar at the very bottom and the
+    dialogs for "why not?", the standing and the review after the hand. None of
+    them changes the table when the learning mode is off — every one of them is
+    then invisible and zero high.
+
     Animations are the same protocol as harbour-snapszer/qml-common/MultiTable:
     the engine asks, the table flies, the table acknowledges. Every request is
     acknowledged exactly once, also when no card could be created — otherwise
@@ -56,6 +63,29 @@ Item {
     readonly property var seatList: engine.seats
     readonly property var me: seatList.length > 0 ? seatList[0] : ({})
     readonly property bool meSittingOut: me.isSittingOut === true
+
+    // The learning mode of docs/design.md §7. It reaches QML as a property of
+    // the engine; if a platform installs LearnEngine as its own context
+    // property instead, this one line is the only one that changes.
+    property var learn: engine && engine.learn !== undefined ? engine.learn : null
+    // LearnLevel: 0 off, 1 learning, 2 novice (§7.1).
+    readonly property int learnLevel: learn === null || learn.level === undefined ? 0 : learn.level
+    // Set by LessonPage; the table then keeps the lesson band even between steps.
+    property bool lessonMode: false
+    // The reason of the last refused action, for the "why?" button.
+    property var lastReason: null
+
+    // The page that hosts the table follows these into the rule reference.
+    signal ruleRequested(string anchor)
+    signal glossaryRequested(string term)
+
+    function openRule(anchor) {
+        table.ruleRequested(anchor)
+    }
+
+    function openGlossary(term) {
+        table.glossaryRequested(term)
+    }
 
     // Cards that are currently in the air; they are drawn by the flying copy,
     // not by the trick area.
@@ -293,7 +323,14 @@ Item {
         return reason.text ? reason.text : ""
     }
 
+    // Off shows the short toast, from Lernend on the long dialog opens at once
+    // (§7.1). Either way the reason is kept for the "why?" button.
     function showReason(reason) {
+        table.lastReason = reason
+        if (table.learnLevel > 0 && typeof reason !== "string") {
+            whyDialog.show(reason)
+            return
+        }
         var head = table.reasonShort(reason)
         if (head === "")
             head = qsTr("Not allowed")
@@ -302,6 +339,28 @@ Item {
         noticeBox.expanded = false
         noticeBox.visible = true
         noticeTimer.restart()
+    }
+
+    // Allowed, but it costs a bonus (§7.3, Severity::Warning). The dialog asks
+    // and repeats the action through actConfirmed() if the answer is "anyway".
+    function onActionWarned(reason, type, a, b) {
+        table.lastReason = reason
+        whyDialog.warn(reason, type, a, b)
+    }
+
+    // The learning bar: the hint, the last refusal and the running count.
+    function showWhy() {
+        if (table.lastReason !== null && typeof table.lastReason !== "string")
+            whyDialog.show(table.lastReason)
+        else
+            whyDialog.show({ "short": qsTr("Nothing was refused yet"),
+                             "text": qsTr("Tap a card the rules bar and the reason appears here.") })
+    }
+
+    // After the hand the review opens by itself, over the score sheet (§7.5).
+    function onHandFinished() {
+        if (table.learnLevel > 0 && !table.lessonMode)
+            debriefPanel.open()
     }
 
     // An option the engine marked as not available; its reason is the hint the
@@ -364,6 +423,11 @@ Item {
         engine.speech.connect(onSpeech)
         engine.actionRejected.connect(showReason)
         engine.matchStarted.connect(onReset)
+        // Older engine stubs do not have the warning yet.
+        if (engine.actionWarned)
+            engine.actionWarned.connect(onActionWarned)
+        if (engine.handFinished)
+            engine.handFinished.connect(onHandFinished)
     }
     Component.onDestruction: {
         engine.cardAnimationRequested.disconnect(onCardFlight)
@@ -373,6 +437,10 @@ Item {
         engine.speech.disconnect(onSpeech)
         engine.actionRejected.disconnect(showReason)
         engine.matchStarted.disconnect(onReset)
+        if (engine.actionWarned)
+            engine.actionWarned.disconnect(onActionWarned)
+        if (engine.handFinished)
+            engine.handFinished.disconnect(onHandFinished)
     }
 
     Timer {
@@ -464,13 +532,48 @@ Item {
         return qsTr("Count %1 : %2").arg(mine).arg(theirs)
     }
 
+    // --- learning mode ---------------------------------------------------------------
+
+    // The explanation bar of §7.2 sits between the header and the seats; with
+    // the learning mode off it is zero high and the table is untouched.
+    LearnPanel {
+        id: learnPanel
+        anchors.top: header.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        maxHeight: table.height * 0.28
+        learn: table.learn
+        engine: table.engine
+        panelColor: table.panelColor
+        openAnchor: table.openRule
+        openTerm: table.openGlossary
+    }
+
+    // The running lesson floats over the seats rather than displacing them.
+    LessonOverlay {
+        id: lessonOverlay
+        anchors.top: learnPanel.bottom
+        anchors.topMargin: Style.paddingSmall
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: Style.horizontalPageMargin
+        anchors.rightMargin: Style.horizontalPageMargin
+        maxHeight: table.height * 0.34
+        learn: table.learn
+        engine: table.engine
+        deck: table.engine.deck
+        cardRatio: table.cardRatio
+        panelColor: table.panelColor
+        goodColor: table.partnerColor
+    }
+
     // --- seats --------------------------------------------------------------------
 
     SeatPanel {
         id: topSeat
         visible: table.players === 4
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: header.bottom
+        anchors.top: learnPanel.bottom
         anchors.topMargin: Style.paddingSmall
         width: parent.width * 0.34
         engine: table.engine
@@ -488,7 +591,7 @@ Item {
         visible: table.players === 5
         anchors.left: parent.left
         anchors.leftMargin: parent.width * 0.24
-        anchors.top: header.bottom
+        anchors.top: learnPanel.bottom
         anchors.topMargin: Style.paddingSmall
         width: parent.width * 0.26
         engine: table.engine
@@ -506,7 +609,7 @@ Item {
         visible: table.players === 5
         anchors.right: parent.right
         anchors.rightMargin: parent.width * 0.24
-        anchors.top: header.bottom
+        anchors.top: learnPanel.bottom
         anchors.topMargin: Style.paddingSmall
         width: parent.width * 0.26
         engine: table.engine
@@ -523,7 +626,7 @@ Item {
         id: leftSeat
         anchors.left: parent.left
         anchors.leftMargin: Style.paddingSmall
-        anchors.top: header.bottom
+        anchors.top: learnPanel.bottom
         anchors.topMargin: Style.itemSizeSmall * 1.1
         width: parent.width * 0.3
         engine: table.engine
@@ -592,6 +695,29 @@ Item {
     // The Loader takes its width from the anchors and its height from the
     // implicit height of the panel it holds; the panels never set a height of
     // their own, or the two would chase each other.
+    // The hint of §7.4, above the action band so it never covers the hand.
+    HintBubble {
+        id: hintBubble
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.leftMargin: Style.horizontalPageMargin
+        anchors.rightMargin: Style.horizontalPageMargin
+        anchors.bottom: actionBand.top
+        anchors.bottomMargin: Style.paddingSmall
+        z: 500
+        learn: table.learn
+        engine: table.engine
+        panelColor: table.panelColor
+        maxHeight: table.height * 0.26
+        // Only Neuling offers the hint unasked, and only there with the
+        // alternatives (§7.1); the switch of §7.8 can turn that off.
+        autoShow: table.learnLevel >= 2 && table.engine.myTurn
+                  && (table.learn === null || table.learn.autoHint !== false)
+        showAlternatives: table.learnLevel >= 2
+        goodColor: table.partnerColor
+        badColor: table.opponentColor
+    }
+
     Loader {
         id: actionBand
         anchors.left: parent.left
@@ -678,7 +804,7 @@ Item {
         id: handFan
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        anchors.bottom: learnBar.top
         anchors.bottomMargin: Style.paddingSmall
         visible: !table.meSittingOut
         engine: table.engine
@@ -691,7 +817,76 @@ Item {
         explain: table.showReason
     }
 
+    // The learning bar of §6.2 closes the table off at the bottom; off it is
+    // zero high, so the hand fan reaches the edge as before.
+    Item {
+        id: learnBar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        visible: table.learnLevel > 0
+        height: visible ? learnRow.height + Style.paddingSmall : 0
+
+        Row {
+            id: learnRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            spacing: Style.paddingSmall
+
+            TableButton {
+                text: qsTr("Hint")
+                onClicked: hintBubble.ask()
+            }
+
+            TableButton {
+                text: qsTr("Why?")
+                onClicked: table.showWhy()
+            }
+
+            TableButton {
+                text: qsTr("Standing")
+                onClicked: standingPanel.open()
+            }
+
+            TableButton {
+                visible: table.engine.handOver
+                text: qsTr("Review")
+                onClicked: debriefPanel.open()
+            }
+        }
+    }
+
     // --- overlays ----------------------------------------------------------------------
+
+    // "Why is that not allowed?" and the warning of §7.3.
+    WhyDialog {
+        id: whyDialog
+        anchors.fill: parent
+        learn: table.learn
+        engine: table.engine
+        deck: table.engine.deck
+        cardRatio: table.cardRatio
+        panelColor: table.panelColor
+        openAnchor: table.openRule
+    }
+
+    // The running helpers of §7.5.
+    StandingPanel {
+        id: standingPanel
+        anchors.fill: parent
+        learn: table.learn
+        engine: table.engine
+        panelColor: table.panelColor
+    }
+
+    // The review after the hand, over the score sheet (§7.5).
+    DebriefPanel {
+        id: debriefPanel
+        anchors.fill: parent
+        learn: table.learn
+        engine: table.engine
+        panelColor: table.panelColor
+    }
 
     ScoreSheet {
         id: scoreSheet
@@ -780,7 +975,7 @@ Item {
         visible: false
         z: 900
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: header.bottom
+        anchors.top: learnPanel.bottom
         anchors.topMargin: Style.paddingLarge
         width: parent.width - 2 * Style.horizontalPageMargin
         height: noticeColumn.height + 2 * Style.paddingMedium
@@ -826,7 +1021,10 @@ Item {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                if (noticeBox.detail !== "" && !noticeBox.expanded) {
+                if (table.learnLevel > 0 && table.lastReason !== null) {
+                    noticeBox.visible = false
+                    whyDialog.show(table.lastReason)
+                } else if (noticeBox.detail !== "" && !noticeBox.expanded) {
                     noticeBox.expanded = true
                     noticeTimer.restart()
                 } else {

@@ -1,0 +1,256 @@
+{
+  "id": "kr-l4",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L4",
+  "title": "König rufen, Talon und Verlegen",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Den Partner rufen",
+    "Den Partner am Spiel erkennen",
+    "Die richtige Talonhälfte",
+    "Verlegen und die Verbote"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "auto": [
+        {
+          "seat": 0,
+          "type": "vorhand"
+        },
+        {
+          "seat": 1,
+          "type": "pass"
+        },
+        {
+          "seat": 2,
+          "type": "pass"
+        },
+        {
+          "seat": 3,
+          "type": "pass"
+        },
+        {
+          "seat": 0,
+          "type": "bid",
+          "a": "RUFER"
+        }
+      ],
+      "text": "Wir steigen mitten in der Hand ein: Du hast „Vorhand“ gesagt, alle anderen „weiter“, und du spielst einen Rufer. Jetzt kommen die drei Entscheidungen, die ein Ruferspiel ausmachen – Partner, Talonhälfte, Ablage.",
+      "anchor": "#4.1"
+    },
+    {
+      "id": "s2",
+      "phase": "call",
+      "seat": 0,
+      "expect": {
+        "type": "callking",
+        "a": "S"
+      },
+      "text": "Bei den Ruferspielen suchst du dir einen Partner, indem du einen König rufst, den du nicht selbst hast. Wer ihn hat, ist dein Partner – und sagt nichts. Du rufst Pik, weil du dort die Dame und eine kleine Karte hast: Man ruft am liebsten aus einer Farbe mit besetzter Dame, denn wenn der Partner den König spielt, macht deine Dame später vielleicht auch noch einen Stich.",
+      "anchor": "#4.1",
+      "highlight": {
+        "hand": [
+          "S:D",
+          "S:9"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "callking",
+            "a": "H"
+          },
+          "reason": "E_EIGENER_KOENIG",
+          "text": "Den eigenen König zu rufen, wirkt sicher – dann wärst du aber dein eigener Partner und spieltest in Wahrheit allein gegen drei, ohne dafür bezahlt zu werden. Deshalb ist es verboten. Wer alle vier Könige hat, darf überhaupt kein Ruferspiel ansagen."
+        },
+        {
+          "action": {
+            "type": "callking",
+            "a": "C"
+          },
+          "reason": "E_EIGENER_KOENIG",
+          "text": "Auch der Treff-König liegt bei dir. Übrig bleiben Pik und Karo."
+        },
+        {
+          "action": {
+            "type": "callking",
+            "a": "D"
+          },
+          "text": "Karo wäre erlaubt, aber schwach: Dort hast du nur die ♦3, die du gleich verlegen willst. Ruf lieber die Farbe, in der du noch etwas hast."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "text": "Der Partner darf sich nicht zu erkennen geben – kein Wort, kein Blick. Ihr erkennt einander nur am Spiel: Der Partner legt auffällig hoch vor oder schmiert dir Figuren in einen Stich, den du ohnehin gewinnst. Wer drei Könige hat, darf „den vierten König“ rufen, ohne die Farbe zu nennen – dann weiß nicht einmal er selbst, wer der Partner ist, bis der König fällt.",
+      "anchor": "#4.1",
+      "traps": [
+        {
+          "text": "Ein Blick zum vermuteten Partner, ein „na sicher“ im richtigen Moment: Das ist der Anfängerfehler, der ein Spiel kaputt macht. Erlaubt sind nur Signale durch das Spiel selbst – hohe Karten vorlegen, Farben zurückspielen."
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "phase": "talon",
+      "seat": 0,
+      "expect": {
+        "type": "taketalon",
+        "a": 0
+      },
+      "text": "Beim Rufer wird der Talon aufgedeckt, und du nimmst eine Hälfte zu drei Karten. Vergleiche nicht die Punkte, sondern das, was dir fehlt: Hälfte A bringt zwei Tarock mit einem Stecher, Hälfte B sechs Punkte in Figuren. Mit fünf Tarock bist du dünn besetzt – Tarock stechen, Punkte stechen nicht.",
+      "anchor": "#4.3",
+      "highlight": {
+        "talon": [
+          "XVIII",
+          "VI",
+          "D:4"
+        ]
+      },
+      "compare": [
+        {
+          "half": 0,
+          "note": "2 Tarock, davon 1 Stecher (XVIII)"
+        },
+        {
+          "half": 1,
+          "note": "0 Tarock, 6 Punkte – sie zählen zu den Gegnern"
+        }
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "taketalon",
+            "a": 1
+          },
+          "text": "Sechs sichere Punkte klingen verlockend. Aber die andere Hälfte ist auch vier Punkte wert, und der XVIII ist ein Stich, den du sonst nicht hast. Punkte gewinnt man mit Stichen, nicht durch Aufheben."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "phase": "discard",
+      "seat": 0,
+      "expect": {
+        "type": "discardSet",
+        "cards": [
+          "D:3",
+          "D:4",
+          "H:B"
+        ]
+      },
+      "text": "Für die drei Karten aus dem Talon musst du drei wieder weglegen. Die Ablage zählt am Ende zu deinen Stichen, also legst du Punkte hinein, die du sonst verlieren würdest – und machst gleichzeitig eine Farbe leer. Mit beiden Karo bist du in Karo blank und kannst die Farbe künftig stechen; der Herz-Bube bringt zwei Punkte sicher heim und lässt den Herz-König blank.",
+      "anchor": "#4.6",
+      "highlight": {
+        "hand": [
+          "D:3",
+          "D:4",
+          "H:B"
+        ]
+      },
+      "traps": [
+        {
+          "card": "C:K",
+          "reason": "E_ABLAGE_KOENIG",
+          "text": "Fünf Punkte sicher in die Ablage – das wäre zu einfach. Könige darf man nie verlegen, ebenso wenig Sküs, Mond und Pagat. Verleg kleine Farbkarten, am besten alle einer Farbe."
+        },
+        {
+          "card": "XVIII",
+          "reason": "E_ABLAGE_TAROCK_NOCH_FARBE",
+          "text": "Tarock darfst du nur verlegen, wenn du keine Farbkarte mehr zum Verlegen hast – und dann offen für alle sichtbar. Hier hast du noch reichlich kleine Farbkarten."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "text": "Zum Schluss die Regel, die am meisten Spiele entscheidet: Deine Ablage zählt zu deinen Stichen, die liegen gelassene Talonhälfte zählt zu den Stichen der Gegner – auch für Trull und Alle Könige. Schau sie dir also genau an, bevor sie zugedeckt wird, und rechne sie beim Mitzählen sofort den Gegnern zu.",
+      "anchor": "#1.8",
+      "traps": [
+        {
+          "text": "„Die Karten in der Mitte gehören niemandem“ – falsch. Beim Rufer gehört die zweite Hälfte den Gegnern. Wer das vergisst, verrechnet sich regelmäßig um fünf bis zehn Punkte und glaubt bis zuletzt, er hätte gewonnen."
+        }
+      ]
+    }
+  ]
+}

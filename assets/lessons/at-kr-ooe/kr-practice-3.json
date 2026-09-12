@@ -1,0 +1,745 @@
+{
+  "id": "kr-practice-3",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L7",
+  "title": "Besserrufer mit Pagat ultimo",
+  "source": "docs/koenigrufen.md §11.7 Übungsspiel 3",
+  "goals": [
+    "Bieten mit Vogel",
+    "Pflichtansage",
+    "Kontra",
+    "Reservierung der angesagten Karte",
+    "Tarock zählen",
+    "den Vogel heimspielen"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 1,
+  "deal": {
+    "hands": [
+      [
+        "XXI",
+        "XVIII",
+        "XVI",
+        "XIII",
+        "IX",
+        "VII",
+        "I",
+        "H:K",
+        "D:4",
+        "S:D",
+        "S:8",
+        "C:10"
+      ],
+      [
+        "XVII",
+        "XI",
+        "X",
+        "IIII",
+        "H:1",
+        "D:B",
+        "S:K",
+        "S:7",
+        "C:R",
+        "C:B",
+        "C:8",
+        "C:7"
+      ],
+      [
+        "Sk",
+        "XX",
+        "XV",
+        "XII",
+        "VIII",
+        "III",
+        "H:D",
+        "H:4",
+        "D:R",
+        "D:3",
+        "S:B",
+        "C:9"
+      ],
+      [
+        "XIV",
+        "VI",
+        "II",
+        "H:B",
+        "H:3",
+        "H:2",
+        "D:D",
+        "D:2",
+        "S:R",
+        "S:10",
+        "S:9",
+        "C:K"
+      ]
+    ],
+    "talon": [
+      [
+        "XIX",
+        "V",
+        "D:1"
+      ],
+      [
+        "D:K",
+        "C:D",
+        "H:R"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "auto": [
+        {
+          "seat": 2,
+          "type": "vorhand"
+        },
+        {
+          "seat": 3,
+          "type": "pass"
+        }
+      ],
+      "text": "Berta hat gegeben, Carl ist Vorhand und sagt „Vorhand“. Dora sagt „weiter“. Jetzt bist du dran – und anders als der Rufer darf der Besserrufer von jedem Platz aus angesagt werden.",
+      "anchor": "#3.4"
+    },
+    {
+      "id": "s2",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "bid",
+        "a": "BESSERRUFER"
+      },
+      "text": "Sieben Tarock mit Mond, XVIII und XVI – dazu der Pagat. Das ist das klassische Blatt für einen Pagatrufer: Richtwert sind sechs Tarock mit ein bis zwei Stechern. Der Besserrufer kostet dich die Pflicht, den Vogel anzusagen, bringt dafür aber einen hohen Zusatzwert. Ohne Vogel im Blatt dürftest du ihn gar nicht ansagen.",
+      "anchor": "#3.2",
+      "highlight": {
+        "hand": [
+          "XXI",
+          "XVIII",
+          "XVI",
+          "I"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "bid",
+            "a": "RUFER"
+          },
+          "reason": "E_VORHANDSPIEL_NUR_HINTENNACH",
+          "text": "Der Rufer wäre billiger und ohne Pflichtansage – aber er ist ein Vorhandspiel und nur der Vorhand erlaubt, und auch ihr erst, wenn alle anderen „weiter“ gesagt haben."
+        },
+        {
+          "action": {
+            "type": "pass"
+          },
+          "text": "Mit sieben Tarock, Mond und Pagat zu passen, wäre zu vorsichtig. Der Pagat ist zwei Punkte wert, wenn du ihn heimbringst – und mit dieser Tarockmenge kannst du die Gegner leerspielen."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "pass"
+        },
+        {
+          "seat": 2,
+          "type": "pass"
+        }
+      ],
+      "text": "Berta sagt „weiter“, Carl auch. Carl hätte mit seinen sechs Tarock überbieten können und verzichtet bewusst: Kontrieren ist einfacher, als selbst ein Spiel liefern zu müssen.",
+      "anchor": "#3.4"
+    },
+    {
+      "id": "s4",
+      "phase": "call",
+      "seat": 0,
+      "expect": {
+        "type": "callking",
+        "a": "S"
+      },
+      "text": "Du rufst den Pik-König, weil du dort die Dame und die Acht hast. Die Acht ist dabei fast wichtiger als die Dame: Mit einer kleinen Karte in der gerufenen Farbe kannst du deinen Partner später gezielt ans Ausspiel bringen. Genau das entscheidet dieses Spiel.",
+      "anchor": "#4.1",
+      "highlight": {
+        "hand": [
+          "S:D",
+          "S:8"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "callking",
+            "a": "H"
+          },
+          "reason": "E_EIGENER_KOENIG",
+          "text": "Der Herz-König liegt bei dir – den eigenen König darf man nicht rufen, sonst wäre man sein eigener Partner."
+        },
+        {
+          "action": {
+            "type": "callking",
+            "a": "C"
+          },
+          "text": "Treff wäre erlaubt, aber in Treff hast du nur die 10, und die verlegst du gleich. Spielt der Partner dann den Treff-König, kannst du weder schmieren noch nachspielen."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "phase": "talon",
+      "seat": 0,
+      "expect": {
+        "type": "taketalon",
+        "a": 0
+      },
+      "text": "Hälfte A bringt XIX, V und das Karo-As, Hälfte B zehn Punkte in Figuren. Beim Besserrufer zählt Tarock mehr als Punkte: Der XIX ist ein zusätzlicher Stecher, mit dem du die Gegner leerspielst – und leer müssen sie sein, sonst kommt dein Pagat nie heim. Die zehn Punkte aus Hälfte B gehen an die Gegner; das ist der Preis.",
+      "anchor": "#4.3",
+      "highlight": {
+        "talon": [
+          "XIX",
+          "V",
+          "D:1"
+        ]
+      },
+      "compare": [
+        {
+          "half": 0,
+          "note": "2 Tarock, davon 1 Stecher (XIX) – Material für den Pagat"
+        },
+        {
+          "half": 1,
+          "note": "10 Punkte in Figuren, kein Tarock – und sie zählen zu den Gegnern"
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "phase": "discard",
+      "seat": 0,
+      "expect": {
+        "type": "discardSet",
+        "cards": [
+          "D:4",
+          "D:1",
+          "C:10"
+        ]
+      },
+      "text": "Du verlegst beide Karo und die Treff-Zehn. Damit bist du in Karo und Treff blank – „engfärbig“ – und kannst beide Farben ab sofort stechen, statt bedienen zu müssen. Die gerufene Farbe Pik behältst du: Dort macht deine Partnerin mit dem König einen Stich, den du brauchst.",
+      "anchor": "#4.6",
+      "highlight": {
+        "hand": [
+          "D:4",
+          "D:1",
+          "C:10"
+        ]
+      },
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_ABLAGE_KOENIG",
+          "text": "Könige darf man nie verlegen – auch nicht den eigenen. Er bringt dir im Spiel fünf Punkte, wenn du ihn blank durchbringst."
+        },
+        {
+          "card": "I",
+          "reason": "E_ABLAGE_TRULL",
+          "text": "Der Pagat ist ein Trullstück und darf nie verlegt werden – und beim Besserrufer ist er obendrein die Karte, auf die du dich gerade verpflichtest."
+        },
+        {
+          "card": "S:8",
+          "text": "Die ♠8 sieht wertlos aus und ist die wichtigste kleine Karte deines Blatts: Mit ihr bringst du im 9. Stich deine Partnerin ans Ausspiel und rettest den Pagat."
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "announce",
+        "a": "PAGAT"
+      },
+      "text": "„Besserrufer mit Pagat, der Pik-König hilft mir.“ Die Ansage des Vogels ist beim Besserrufer Pflicht – und zwar genau des Vogels, den du schon vor dem Talon hattest. Angesagt zählt der Pagat 2 statt 1, kann aber auch verloren gehen.",
+      "anchor": "#5.3",
+      "highlight": {
+        "hand": [
+          "I"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "ready"
+          },
+          "reason": "E_BESSERRUFER_VOGEL_PFLICHT",
+          "text": "Still versuchen und die Hälfte kassieren? Beim Besserrufer geht das nicht: Der Vogel aus deinem ursprünglichen Blatt muss angesagt werden – dafür heißt das Spiel so."
+        },
+        {
+          "action": {
+            "type": "announce",
+            "a": "KOENIG_ULTIMO"
+          },
+          "reason": "E_KU_OHNE_KOENIG",
+          "text": "König ultimo darf nur ansagen, wer den gerufenen König selbst hat. Du hast ihn gerufen, nicht in der Hand – und für den Partner darf man nichts ansagen."
+        }
+      ]
+    },
+    {
+      "id": "s8",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "„Ich liege“ – damit ist deine Ansage abgeschlossen, und die anderen sind dran. Berta sagt „gut“: Sie hat den gerufenen König nur zu zweit und vier kleine Tarock, für einen König ultimo zu wenig (Richtwert: König mindestens zu dritt und 3–4 Tarock mit Stecher). Carl dagegen sagt „Kontra auf den Pagat“ – sechs Tarock mit Sküs und XX, vierfärbig: ein klassisches Vogel-Kontra. Dora sagt „gut“.",
+      "anchor": "#5.6",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        },
+        {
+          "seat": 2,
+          "type": "kontra",
+          "a": "PAGAT",
+          "b": 2
+        },
+        {
+          "seat": 3,
+          "type": "ready"
+        }
+      ]
+    },
+    {
+      "id": "s9",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "Du nimmst das Kontra an. Es verdoppelt nur den Posten „Pagat“ und nur beim Geld – in der Turnierwertung bleibt der Vogel zwei Punkte wert. Ein Kontra ist Teil des Spiels, keine persönliche Sache.",
+      "anchor": "#7.8",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        }
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "kontra",
+            "a": "PAGAT",
+            "b": 4
+          },
+          "text": "Rekontra vervierfacht – auch deinen Verlust, wenn der Pagat doch fällt. Dein Plan hängt an einer Bedingung: Carl darf am Ende kein Tarock mehr haben. Das ist gut zu spielen, aber nicht sicher genug für den vierfachen Einsatz."
+        }
+      ]
+    },
+    {
+      "id": "t1",
+      "phase": "play",
+      "trick": 1,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "D:R"
+        },
+        {
+          "seat": 3,
+          "card": "D:2"
+        },
+        {
+          "seat": 0,
+          "card": "V"
+        },
+        {
+          "seat": 1,
+          "card": "D:B"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 0,
+      "trickUnits": 13,
+      "text": "Carl spielt Karo an. Du hast keines mehr – beide Karo liegen in deiner Ablage. Also Tarockzwang: Du musst ein Tarock zugeben. Das kleine V genügt, denn Berta bedient Karo und kann dir den Stich nicht mehr nehmen. Kleine Tarock sind zum Stechen da, nicht zum Aufheben.",
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_TAROCKZWANG",
+          "text": "Kein Karo mehr, also den Herz-König abwerfen? Erst wenn du auch kein Tarock mehr hast, darfst du eine beliebige Karte abwerfen. Solange du Tarock hast, musst du Tarock zugeben.",
+          "anchor": "#6.2"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "phase": "play",
+      "trick": 2,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "VII"
+        },
+        {
+          "seat": 1,
+          "card": "XVII"
+        },
+        {
+          "seat": 2,
+          "card": "XX"
+        },
+        {
+          "seat": 3,
+          "card": "VI"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 4,
+      "text": "Als Besserrufer tarockierst du – und zwar zuerst mit einem kleinen. Berta legt mit XVII auffällig hoch vor: „Ich bin deine Partnerin.“ Carl muss den XX opfern, und damit ist ein Stecher der Gegner weg.",
+      "traps": [
+        {
+          "card": "XXI",
+          "text": "Mit dem Mond anzufangen wirkt stark, ist aber verschwendet: Carl gibt klein zu und behält den Sküs. Zieh die gegnerischen Tarock mit kleinen und mittleren heraus und heb dir den Mond für den Sküs auf."
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "phase": "play",
+      "trick": 3,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "C:9"
+        },
+        {
+          "seat": 3,
+          "card": "C:K"
+        },
+        {
+          "seat": 0,
+          "card": "IX"
+        },
+        {
+          "seat": 1,
+          "card": "C:R"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 0,
+      "trickUnits": 22,
+      "text": "Wieder Tarockzwang, wieder ein Stich für dich – samt dem Treff-König der Gegner. Jeder solche Stich ist doppelt wertvoll: Er bringt Punkte und nimmt den Gegnern ein Tarock."
+    },
+    {
+      "id": "t4",
+      "phase": "play",
+      "trick": 4,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XIII"
+        },
+        {
+          "seat": 1,
+          "card": "XI"
+        },
+        {
+          "seat": 2,
+          "card": "XV"
+        },
+        {
+          "seat": 3,
+          "card": "II"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 4,
+      "text": "Weiter Tarock. Jedes gezogene gegnerische Tarock bringt dich näher an den Pagat-Stich: Am Ende darf kein Gegner mehr ein Tarock haben, sonst sticht er deinen Pagat ab."
+    },
+    {
+      "id": "t5",
+      "phase": "play",
+      "trick": 5,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "H:4"
+        },
+        {
+          "seat": 3,
+          "card": "H:3"
+        },
+        {
+          "seat": 0,
+          "card": "H:K"
+        },
+        {
+          "seat": 1,
+          "card": "H:1"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 0,
+      "trickUnits": 16,
+      "text": "Dein blanker Herz-König geht durch. Blank heißt: Er ist deine einzige Herzkarte, und niemand hat etwas Höheres in Herz – der ideale Zeitpunkt für fünf sichere Punkte."
+    },
+    {
+      "id": "t6",
+      "phase": "play",
+      "trick": 6,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XVIII"
+        },
+        {
+          "seat": 1,
+          "card": "IIII"
+        },
+        {
+          "seat": 2,
+          "card": "III"
+        },
+        {
+          "seat": 3,
+          "card": "XIV"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 4,
+      "text": "Jetzt räumst du mit deinen Stechern auf: XVIII zieht das Restliche heraus. Zähl dabei mit, welche Tarock schon gefallen sind – das ist die ganze Kunst beim Vogel.",
+      "traps": [
+        {
+          "card": "I",
+          "reason": "W_VOGEL_RESERVIERT",
+          "text": "Der Pagat ist angesagt – er muss den letzten Stich machen. Spielst du ihn jetzt aus, sticht Dora ihn mit XIV, und zwei Punkte Prämie werden zu zwei Punkten Verlust. Verboten ist es nicht, aber die Prämie ist dann weg.",
+          "anchor": "#5.4"
+        }
+      ]
+    },
+    {
+      "id": "t7",
+      "phase": "play",
+      "trick": 7,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XIX"
+        },
+        {
+          "seat": 1,
+          "card": "X"
+        },
+        {
+          "seat": 2,
+          "card": "VIII"
+        },
+        {
+          "seat": 3,
+          "card": "H:2"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 4,
+      "text": "XIX, der nächste Stecher. Dora hat kein Tarock mehr und wirft Herz ab – ein deutliches Zeichen, dass sie leer ist."
+    },
+    {
+      "id": "t8",
+      "phase": "play",
+      "trick": 8,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XVI"
+        },
+        {
+          "seat": 1,
+          "card": "C:7"
+        },
+        {
+          "seat": 2,
+          "card": "XII"
+        },
+        {
+          "seat": 3,
+          "card": "S:9"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 4,
+      "text": "XVI, und damit ist die Rechnung fertig: Außer deinem Mond, deinem Pagat und Carls Sküs ist kein Tarock mehr im Spiel. Ab hier entscheidet die Reihenfolge, nicht mehr die Stärke."
+    },
+    {
+      "id": "t9",
+      "phase": "play",
+      "trick": 9,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "S:8"
+        },
+        {
+          "seat": 1,
+          "card": "S:K"
+        },
+        {
+          "seat": 2,
+          "card": "S:B"
+        },
+        {
+          "seat": 3,
+          "card": "S:10"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 1,
+      "trickUnits": 19,
+      "text": "Jetzt bloß nicht den Mond ausspielen! Carl müsste mit dem Sküs stechen und käme ans Ausspiel; er spielte Karo oder Herz – beides hast du nicht mehr, du müsstest mit dem Pagat stechen, und der wäre verloren. Stattdessen spielst du die Pik-Acht in die gerufene Farbe: Berta macht den Stich mit dem gerufenen König und kommt ans Ausspiel.",
+      "traps": [
+        {
+          "card": "XXI",
+          "text": "Der Mond zieht den Sküs – aber Carl kommt damit ans Ausspiel. Er spielt Karo oder Herz, du hast beides nicht mehr und müsstest mit dem Pagat stechen. Genau so verliert man einen angesagten Vogel: nicht im letzten Stich, sondern drei Stiche davor."
+        }
+      ]
+    },
+    {
+      "id": "t10",
+      "phase": "play",
+      "trick": 10,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "S:7"
+        },
+        {
+          "seat": 2,
+          "card": "Sk"
+        },
+        {
+          "seat": 3,
+          "card": "S:R"
+        },
+        {
+          "seat": 0,
+          "card": "S:D"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 2,
+      "trickUnits": 31,
+      "text": "Berta spielt Pik nach. Carl hat kein Pik mehr und muss mit dem Sküs stechen – Tarockzwang, sein letztes Tarock ist weg. Deine Pik-Dame ist der Preis dafür; das Spiel ist dir damit sicher."
+    },
+    {
+      "id": "t11",
+      "phase": "play",
+      "trick": 11,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "D:3"
+        },
+        {
+          "seat": 3,
+          "card": "D:D"
+        },
+        {
+          "seat": 0,
+          "card": "XXI"
+        },
+        {
+          "seat": 1,
+          "card": "C:8"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 0,
+      "trickUnits": 25,
+      "text": "Carl spielt Karo, du bist blank: Tarockzwang. Aber nicht mit dem Pagat – der ist angesagt und für den letzten Stich bestimmt. Du stichst mit dem Mond.",
+      "traps": [
+        {
+          "card": "I",
+          "reason": "E_VOGEL_STICHT_ZU_FRUEH",
+          "text": "Der Pagat wäre hier dein einziges spielbares Tarock? Nein – du hast noch den Mond. Und mit dem angesagten Vogel darfst du keinen früheren Stich gewinnen: Carls Sküs ist gefallen, der Pagat würde diesen Stich also sicher machen. Das ist der eine Fall, den die Regeln ausdrücklich verbieten.",
+          "anchor": "#6.5"
+        }
+      ]
+    },
+    {
+      "id": "t12",
+      "phase": "play",
+      "trick": 12,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "I"
+        },
+        {
+          "seat": 1,
+          "card": "C:B"
+        },
+        {
+          "seat": 2,
+          "card": "H:D"
+        },
+        {
+          "seat": 3,
+          "card": "H:B"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 31,
+      "text": "Kein Gegner hat mehr ein Tarock. Der Pagat macht den letzten Stich: Pagat ultimo gelungen – trotz Kontra."
+    }
+  ],
+  "result": {
+    "declarerParty": [
+      0,
+      1
+    ],
+    "cardUnits": [
+      141,
+      69
+    ],
+    "cardText": [
+      "47 Punkte 0 Blatt",
+      "23 Punkte 0 Blatt"
+    ],
+    "declarerTricks": 9,
+    "gameWon": true,
+    "bonuses": [
+      {
+        "key": "PAGAT",
+        "announced": true,
+        "party": "declarer",
+        "achieved": true,
+        "kontra": 2
+      }
+    ],
+    "schrift": [
+      3,
+      3,
+      -3,
+      -3
+    ],
+    "geld": [
+      5,
+      5,
+      -5,
+      -5
+    ]
+  },
+  "moral": "Ein Vogel wird nicht im letzten Stich gewonnen, sondern in den Stichen 8 bis 11 – durch Tarockzählen und die richtige Reihenfolge. Hätte Carl statt des Sküs ein kleines Tarock behalten, wäre der Pagat kaum heimgekommen."
+}

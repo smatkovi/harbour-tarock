@@ -1,0 +1,1130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://harbour-tarock/assets/lessons/schema.json",
+  "title": "Lektion des Lernmodus",
+  "description": "Datenformat der Lektionen und Übungspartien, docs/design.md §7.6. Eine Lektion beschreibt ein festes Blatt, eine Folge von Schritten und die erwarteten Entscheidungen. index.json wird NICHT gegen dieses Schema geprüft.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "profile",
+    "title",
+    "players",
+    "seatNames",
+    "steps"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "description": "Eindeutige Kennung, zugleich Dateiname ohne Endung."
+    },
+    "profile": {
+      "type": "string",
+      "enum": [
+        "AT-KR-OOE-2023-04",
+        "HU-ILLU-ITVB-2019"
+      ],
+      "description": "RuleProfile::key() des Profils, zu dem die Lektion gehört."
+    },
+    "module": {
+      "type": "string",
+      "pattern": "^L[0-7]$",
+      "description": "Kursmodul L0–L7."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "description": "Belegstelle in der Spezifikation, z. B. 'docs/koenigrufen.md §11.7'."
+    },
+    "goals": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "players": {
+      "type": "integer",
+      "enum": [
+        4,
+        5
+      ]
+    },
+    "seatNames": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 5,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Sitz 0 ist immer der Lernende ('Du')."
+    },
+    "dealer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "deal": {
+      "$ref": "#/$defs/deal"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "result": {
+      "$ref": "#/$defs/result"
+    },
+    "moral": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "description": "Sobald ein Schritt Karten bewegt, braucht die Lektion ein festes Blatt.",
+      "if": {
+        "properties": {
+          "steps": {
+            "contains": {
+              "anyOf": [
+                {
+                  "required": [
+                    "moves"
+                  ]
+                },
+                {
+                  "required": [
+                    "expect"
+                  ]
+                },
+                {
+                  "required": [
+                    "auto"
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "steps"
+        ]
+      },
+      "then": {
+        "required": [
+          "deal",
+          "dealer"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "card": {
+      "description": "Kartenschlüssel wie in src/core/Card.h (cardKey/parseCardKey).",
+      "type": "string",
+      "enum": [
+        "I",
+        "II",
+        "III",
+        "IIII",
+        "V",
+        "VI",
+        "VII",
+        "VIII",
+        "IX",
+        "X",
+        "XI",
+        "XII",
+        "XIII",
+        "XIV",
+        "XV",
+        "XVI",
+        "XVII",
+        "XVIII",
+        "XIX",
+        "XX",
+        "XXI",
+        "Sk",
+        "H:K",
+        "H:D",
+        "H:R",
+        "H:B",
+        "H:1",
+        "H:2",
+        "H:3",
+        "H:4",
+        "D:K",
+        "D:D",
+        "D:R",
+        "D:B",
+        "D:1",
+        "D:2",
+        "D:3",
+        "D:4",
+        "S:K",
+        "S:D",
+        "S:R",
+        "S:B",
+        "S:10",
+        "S:9",
+        "S:8",
+        "S:7",
+        "C:K",
+        "C:D",
+        "C:R",
+        "C:B",
+        "C:10",
+        "C:9",
+        "C:8",
+        "C:7"
+      ]
+    },
+    "suit": {
+      "type": "string",
+      "enum": [
+        "H",
+        "D",
+        "S",
+        "C"
+      ]
+    },
+    "contract": {
+      "description": "ContractDef::key des Profils.",
+      "type": "string",
+      "enum": [
+        "TRISCHAKEN",
+        "RUFER",
+        "PICCOLO",
+        "BETTEL",
+        "SOLORUFER",
+        "BESSERRUFER",
+        "FARBENDREIER",
+        "SECHSERDREIER",
+        "DREIER",
+        "FARBENSOLO",
+        "PICCOLO_OUVERT",
+        "BETTEL_OUVERT",
+        "SOLODREIER"
+      ]
+    },
+    "bonus": {
+      "description": "BonusDef::key des Profils.",
+      "type": "string",
+      "enum": [
+        "TRULL",
+        "ALLE_KOENIGE",
+        "KOENIG_ULTIMO",
+        "PAGAT",
+        "UHU",
+        "KAKADU",
+        "QUAPIL",
+        "VALAT"
+      ]
+    },
+    "posten": {
+      "description": "Abzurechnender Posten: das Spiel oder eine Prämie.",
+      "type": "string",
+      "enum": [
+        "GAME",
+        "TRULL",
+        "ALLE_KOENIGE",
+        "KOENIG_ULTIMO",
+        "PAGAT",
+        "UHU",
+        "KAKADU",
+        "QUAPIL",
+        "VALAT"
+      ]
+    },
+    "reason": {
+      "description": "Spec-Schlüssel des Grundcodes aus koenigrufen.md §11.4 bzw. hungarian.md §11.6.",
+      "type": "string",
+      "pattern": "^[EWI]_[A-Z0-9_]+$"
+    },
+    "anchor": {
+      "description": "Regelanker für 'Mehr dazu', z. B. '#6.7'.",
+      "type": "string",
+      "pattern": "^#[0-9]+(\\.[0-9]+)?$"
+    },
+    "seat": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    },
+    "deal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hands",
+        "talon"
+      ],
+      "description": "Festes Blatt; zusammen genau das Deck ohne Dubletten (TarockCore::dealFixed).",
+      "properties": {
+        "hands": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "items": {
+            "type": "array",
+            "minItems": 12,
+            "maxItems": 12,
+            "items": {
+              "$ref": "#/$defs/card"
+            },
+            "uniqueItems": true
+          }
+        },
+        "talon": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+              "$ref": "#/$defs/card"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "vorhand",
+            "hold",
+            "pass",
+            "bid",
+            "callking",
+            "taketalon",
+            "concede",
+            "discard",
+            "discardSet",
+            "announce",
+            "kontra",
+            "ready",
+            "play"
+          ],
+          "description": "Aktionstyp, Kleinschreibung von ActionType (src/core/Action.h): vorhand=OpenForehand, bid=Bid, callking=CallKing, taketalon=TakeTalon, discard=Discard (eine Karte), discardSet=Discard+ConfirmDiscard, announce=AnnounceBonus, kontra=Kontra, ready=Ready, play=PlayCard."
+        },
+        "a": {
+          "description": "Erstes Argument: Spielschlüssel, Farbe, Talonhälfte, Prämie oder Posten.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "b": {
+          "description": "Zweites Argument: Kontrastufe bzw. Farbe beim König ultimo.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "card": {
+          "$ref": "#/$defs/card",
+          "description": "Karte für play und discard."
+        },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/card"
+          },
+          "description": "Die vollständige Ablage bei discardSet."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bid"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/contract"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "callking"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/suit"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "taketalon"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "type": "integer",
+                "enum": [
+                  -1,
+                  0,
+                  1
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "announce"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/bonus"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "kontra"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/posten"
+              },
+              "b": {
+                "type": "integer",
+                "enum": [
+                  2,
+                  4,
+                  8
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "discardSet"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "cards"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "play",
+                  "discard"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "card"
+            ]
+          }
+        }
+      ]
+    },
+    "seatAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "seat"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "vorhand",
+            "hold",
+            "pass",
+            "bid",
+            "callking",
+            "taketalon",
+            "concede",
+            "discard",
+            "discardSet",
+            "announce",
+            "kontra",
+            "ready",
+            "play"
+          ],
+          "description": "Aktionstyp, Kleinschreibung von ActionType (src/core/Action.h): vorhand=OpenForehand, bid=Bid, callking=CallKing, taketalon=TakeTalon, discard=Discard (eine Karte), discardSet=Discard+ConfirmDiscard, announce=AnnounceBonus, kontra=Kontra, ready=Ready, play=PlayCard."
+        },
+        "a": {
+          "description": "Erstes Argument: Spielschlüssel, Farbe, Talonhälfte, Prämie oder Posten.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "b": {
+          "description": "Zweites Argument: Kontrastufe bzw. Farbe beim König ultimo.",
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            }
+          ]
+        },
+        "card": {
+          "$ref": "#/$defs/card",
+          "description": "Karte für play und discard."
+        },
+        "cards": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "$ref": "#/$defs/card"
+          },
+          "description": "Die vollständige Ablage bei discardSet."
+        },
+        "seat": {
+          "$ref": "#/$defs/seat"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bid"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/contract"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "callking"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/suit"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "taketalon"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "type": "integer",
+                "enum": [
+                  -1,
+                  0,
+                  1
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "announce"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/bonus"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "kontra"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "a",
+              "b"
+            ],
+            "properties": {
+              "a": {
+                "$ref": "#/$defs/posten"
+              },
+              "b": {
+                "type": "integer",
+                "enum": [
+                  2,
+                  4,
+                  8
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "discardSet"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "cards"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "play",
+                  "discard"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "card"
+            ]
+          }
+        }
+      ]
+    },
+    "autoEntry": {
+      "description": "Zug eines Mitspielers, der ohne Zutun abläuft: Kurzform (nur der Typ, Sitze der Reihe nach) oder Langform mit Sitz und Argumenten.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "vorhand",
+            "hold",
+            "pass",
+            "bid",
+            "callking",
+            "taketalon",
+            "concede",
+            "discard",
+            "discardSet",
+            "announce",
+            "kontra",
+            "ready",
+            "play"
+          ]
+        },
+        {
+          "$ref": "#/$defs/seatAction"
+        }
+      ]
+    },
+    "trap": {
+      "description": "Erwarteter Anfängerfehler. Mit 'reason' lehnt der Kern die Aktion ohnehin ab und die Übung ergänzt den Kontext; ohne 'reason' wäre sie erlaubt, hier aber falsch. Eine Falle ohne 'action' und ohne 'card' ist ein reiner Denkfehler, den das Panel als 'Häufiger Irrtum' zeigt.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/action"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        },
+        "reason": {
+          "$ref": "#/$defs/reason"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "anchor": {
+          "$ref": "#/$defs/anchor"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "reason"
+          ]
+        },
+        {
+          "required": [
+            "text"
+          ]
+        }
+      ],
+      "not": {
+        "required": [
+          "action",
+          "card"
+        ]
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "deal",
+            "bidding",
+            "call",
+            "talon",
+            "discard",
+            "announce",
+            "play",
+            "scoring"
+          ]
+        },
+        "seat": {
+          "$ref": "#/$defs/seat"
+        },
+        "expect": {
+          "$ref": "#/$defs/action",
+          "description": "Genau diese Aktion des Lernenden führt weiter."
+        },
+        "auto": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/autoEntry"
+          }
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "anchor": {
+          "$ref": "#/$defs/anchor"
+        },
+        "highlight": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "hand": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/card"
+              }
+            },
+            "talon": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/card"
+              }
+            },
+            "trick": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/card"
+              }
+            }
+          }
+        },
+        "compare": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "half",
+              "note"
+            ],
+            "properties": {
+              "half": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1
+                ]
+              },
+              "note": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "traps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/trap"
+          }
+        },
+        "trick": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "lead": {
+          "$ref": "#/$defs/seat"
+        },
+        "moves": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "seat",
+              "card"
+            ],
+            "properties": {
+              "seat": {
+                "$ref": "#/$defs/seat"
+              },
+              "card": {
+                "$ref": "#/$defs/card"
+              }
+            }
+          }
+        },
+        "expectWinner": {
+          "$ref": "#/$defs/seat"
+        },
+        "trickUnits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "text"
+          ]
+        },
+        {
+          "required": [
+            "auto"
+          ]
+        },
+        {
+          "required": [
+            "moves"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "expect"
+            ]
+          },
+          "then": {
+            "required": [
+              "seat",
+              "phase"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "moves"
+            ]
+          },
+          "then": {
+            "required": [
+              "phase",
+              "trick",
+              "lead",
+              "expectWinner",
+              "trickUnits"
+            ],
+            "properties": {
+              "phase": {
+                "const": "play"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "result": {
+      "description": "Sollzustand nach der Hand, Grundlage des Regressionstests (design.md §11.3).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "declarerParty",
+        "cardUnits",
+        "schrift",
+        "geld"
+      ],
+      "properties": {
+        "declarerParty": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "$ref": "#/$defs/seat"
+          },
+          "uniqueItems": true
+        },
+        "cardUnits": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 210
+          },
+          "description": "Kartenpunkte in Dritteln: [Spielerpartei, Gegner]."
+        },
+        "cardText": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "neutralUnits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 210,
+          "description": "Drittel, die keiner Partei zählen (Talon im Negativspiel)."
+        },
+        "declarerTricks": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 12
+        },
+        "gameWon": {
+          "type": "boolean"
+        },
+        "bonuses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "key",
+              "announced",
+              "party",
+              "achieved"
+            ],
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/bonus"
+              },
+              "announced": {
+                "type": "boolean"
+              },
+              "party": {
+                "type": "string",
+                "enum": [
+                  "declarer",
+                  "defenders"
+                ]
+              },
+              "achieved": {
+                "type": "boolean"
+              },
+              "kontra": {
+                "type": "integer",
+                "enum": [
+                  1,
+                  2,
+                  4,
+                  8
+                ]
+              }
+            }
+          }
+        },
+        "schrift": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "items": {
+            "type": "integer"
+          }
+        },
+        "geld": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 5,
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,618 @@
+{
+  "id": "kr-practice-2",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L7",
+  "title": "Piccolo – genau ein Stich",
+  "source": "docs/koenigrufen.md §11.7 Übungsspiel 2",
+  "goals": [
+    "Bieten aus der Hinterhand",
+    "Negativspiel",
+    "Stichzwang",
+    "Pagat-Regel",
+    "Schlusskarten",
+    "einzelnes Kontra"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 0,
+  "deal": {
+    "hands": [
+      [
+        "Sk",
+        "XIX",
+        "IIII",
+        "I",
+        "H:4",
+        "H:2",
+        "D:4",
+        "D:3",
+        "S:8",
+        "S:7",
+        "C:9",
+        "C:7"
+      ],
+      [
+        "XVIII",
+        "XIV",
+        "X",
+        "VI",
+        "H:K",
+        "H:D",
+        "H:R",
+        "D:2",
+        "S:D",
+        "S:10",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "XX",
+        "XVII",
+        "XIII",
+        "IX",
+        "VII",
+        "V",
+        "H:1",
+        "H:3",
+        "D:D",
+        "D:B",
+        "S:R",
+        "C:B"
+      ],
+      [
+        "XXI",
+        "XVI",
+        "XV",
+        "XII",
+        "VIII",
+        "II",
+        "H:B",
+        "D:R",
+        "D:1",
+        "S:B",
+        "S:9",
+        "C:10"
+      ]
+    ],
+    "talon": [
+      [
+        "III",
+        "XI",
+        "D:K"
+      ],
+      [
+        "S:K",
+        "C:D",
+        "C:R"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "vorhand"
+        },
+        {
+          "seat": 2,
+          "type": "pass"
+        },
+        {
+          "seat": 3,
+          "type": "pass"
+        }
+      ],
+      "text": "Diesmal hast du gegeben, Berta ist Vorhand. Sie sagt „Vorhand“, Carl und Dora sagen „weiter“. Als Geber sprichst du zuletzt – und weil noch kein Spiel angesagt ist, steht dir alles offen außer den Vorhandspielen.",
+      "anchor": "#3.4"
+    },
+    {
+      "id": "s2",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "bid",
+        "a": "PICCOLO"
+      },
+      "text": "Dein Blatt ist für ein positives Spiel wertlos: vier Tarock, sonst lauter kleine Farbkarten, kein einziger König. Aber du hast in jeder Farbe die Schlusskarte – ♥4, ♦4, ♠7, ♣7 – und mit dem Sküs einen absolut sicheren Stich. Genau ein Stich, nicht mehr und nicht weniger: das ist der Piccolo. Schlechte Blätter sind nicht wertlos, sie sind nur anders zu verwenden.",
+      "anchor": "#3.2",
+      "highlight": {
+        "hand": [
+          "Sk",
+          "H:4",
+          "D:4",
+          "S:7",
+          "C:7"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "bid",
+            "a": "RUFER"
+          },
+          "reason": "E_VORHANDSPIEL_NUR_HINTENNACH",
+          "text": "Rufer und Trischaken sind Vorhandspiele – die darf nur die Vorhand ansagen, und auch sie erst, wenn alle anderen „weiter“ gesagt haben. Du sitzt als Geber ganz hinten."
+        },
+        {
+          "action": {
+            "type": "pass"
+          },
+          "text": "„Weiter“ wäre der bequeme Weg, verschenkt aber ein sicheres Spiel. Und wer nie ansagt, bekommt irgendwann das Trischaken serviert: Wer nichts wagt, gewinnt auch nichts."
+        },
+        {
+          "action": {
+            "type": "bid",
+            "a": "BETTEL"
+          },
+          "text": "Beim Bettel darfst du keinen einzigen Stich machen – mit dem Sküs ist das unmöglich, er sticht alles. Der Sküs ist genau der Grund, warum es der Piccolo sein muss."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "pass"
+        }
+      ],
+      "text": "Berta sagt „weiter“, damit gehört das Spiel dir. Im Negativspiel spielt nicht die Vorhand aus, sondern der Spieler – also du. Das ist wichtig: Du bestimmst, welche Karte als Erste fällt.",
+      "anchor": "#6.1"
+    },
+    {
+      "id": "s4",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "„Ich liege.“ Im Piccolo gibt es keine Prämien; es geht nur um die Zahl der Stiche. Also eröffnest du das Spiel ohne Ansage.",
+      "anchor": "#5.3",
+      "traps": [
+        {
+          "action": {
+            "type": "announce",
+            "a": "PAGAT"
+          },
+          "reason": "E_NEGATIV_KEINE_ANSAGE",
+          "text": "Du hast den Pagat und denkst an Pagat ultimo? Im Negativspiel gibt es keine Prämien – der Pagat ist hier keine Chance, sondern eine Last, die du rechtzeitig loswerden musst."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        },
+        {
+          "seat": 2,
+          "type": "ready"
+        },
+        {
+          "seat": 3,
+          "type": "kontra",
+          "a": "GAME",
+          "b": 2
+        }
+      ],
+      "text": "Berta und Carl sagen „gut“, Dora kontriert: Sie hat sechs Tarock und glaubt, dir einen zweiten Stich anhängen zu können. Ein Kontra ist keine Beleidigung, sondern Teil des Spiels – und im Negativspiel kontriert jeder für sich: Nur zwischen Dora und dir verdoppelt sich das Geld.",
+      "anchor": "#7.8"
+    },
+    {
+      "id": "s6",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "Du sagst „gut“ und nimmst das Kontra an. Rekontra wäre möglich, aber es vervierfacht in beide Richtungen – und deine Sicherheit beruht auf sauberem Abwerfen, nicht auf Gewissheit. Beachte: Das Kontra ändert nur das Geld, die Turnierwertung bleibt davon unberührt.",
+      "anchor": "#7.8",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        },
+        {
+          "seat": 2,
+          "type": "ready"
+        }
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "kontra",
+            "a": "GAME",
+            "b": 2
+          },
+          "reason": "E_KONTRA_EIGENE_ANSAGE",
+          "text": "Das eigene Spiel kann man nicht kontrieren. Gegen das Kontra der Gegner heißt die Antwort „Rekontra“ – sie vervierfacht den Posten."
+        }
+      ]
+    },
+    {
+      "id": "t1",
+      "phase": "play",
+      "trick": 1,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XIX"
+        },
+        {
+          "seat": 1,
+          "card": "VI"
+        },
+        {
+          "seat": 2,
+          "card": "XX"
+        },
+        {
+          "seat": 3,
+          "card": "XXI"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 3,
+      "trickUnits": 16,
+      "text": "Deine gefährlichste Karte zuerst: der XIX. Wegen des Stichzwangs muss Carl mit dem XX überstechen und Dora mit dem Mond – die Karte ist weg, ohne dass du einen Stich bekommst. Im Negativspiel arbeitet der Stichzwang für dich, wenn du ihn richtig einsetzt.",
+      "traps": [
+        {
+          "card": "I",
+          "reason": "E_PAGAT_NEGATIV",
+          "text": "Den Pagat gleich loswerden, bevor er dir einen Stich einbringt? Genau das verbietet die Regel: Im Negativspiel darfst du den Pagat erst spielen, wenn er dein letztes Tarock ist. Spiel zuerst die großen – XIX, dann IIII.",
+          "anchor": "#6.4"
+        }
+      ]
+    },
+    {
+      "id": "t2",
+      "phase": "play",
+      "trick": 2,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "XV"
+        },
+        {
+          "seat": 0,
+          "card": "Sk"
+        },
+        {
+          "seat": 1,
+          "card": "X"
+        },
+        {
+          "seat": 2,
+          "card": "V"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 0,
+      "trickUnits": 16,
+      "text": "Dora spielt XV. Du musst überstechen, wenn du kannst, und möglich ist nur der Sküs. Damit ist dein Pflichtstich gemacht – ab jetzt gilt: kein Stich mehr, sonst ist der Piccolo verloren.",
+      "traps": [
+        {
+          "card": "IIII",
+          "reason": "E_STICHZWANG_TAROCK",
+          "text": "Du willst den IIII billig loswerden, statt den Sküs zu verbrauchen? Im Piccolo gilt Stichzwang auch beim Tarock: Kannst du das höchste Tarock im Stich überstechen, musst du. Nur der Sküs kann das – und dieser Stich ist ohnehin der eine, den du brauchst.",
+          "anchor": "#6.4"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "phase": "play",
+      "trick": 3,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "IIII"
+        },
+        {
+          "seat": 1,
+          "card": "XIV"
+        },
+        {
+          "seat": 2,
+          "card": "XVII"
+        },
+        {
+          "seat": 3,
+          "card": "II"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 4,
+      "text": "Du bist am Ausspiel, zum zweiten und letzten Mal. Der IIII muss jetzt weg, solange die anderen noch Tarock haben und ihn überstechen müssen. Danach ist der Pagat dein letztes Tarock – und erst dann darfst du ihn spielen."
+    },
+    {
+      "id": "t4",
+      "phase": "play",
+      "trick": 4,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "C:B"
+        },
+        {
+          "seat": 3,
+          "card": "C:10"
+        },
+        {
+          "seat": 0,
+          "card": "C:9"
+        },
+        {
+          "seat": 1,
+          "card": "C:K"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 1,
+      "trickUnits": 19,
+      "text": "Ab hier gilt nur noch eine Regel: in jeder Farbe zuerst die höhere Karte abgeben, die Schlusskarte zuletzt. Überstechen kannst du nicht, der Treff-Bube ist höher als beide deiner Treff. Also ♣9 vor ♣7."
+    },
+    {
+      "id": "t5",
+      "phase": "play",
+      "trick": 5,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "C:8"
+        },
+        {
+          "seat": 2,
+          "card": "VII"
+        },
+        {
+          "seat": 3,
+          "card": "VIII"
+        },
+        {
+          "seat": 0,
+          "card": "C:7"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 3,
+      "trickUnits": 4,
+      "text": "Berta spielt Treff nach, du musst bedienen – die ♣7 ist deine letzte. Gefahrlos: Carl und Dora haben davor schon mit Tarock gestochen, der Stich kann gar nicht mehr zu dir kommen."
+    },
+    {
+      "id": "t6",
+      "phase": "play",
+      "trick": 6,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "S:9"
+        },
+        {
+          "seat": 0,
+          "card": "S:8"
+        },
+        {
+          "seat": 1,
+          "card": "S:10"
+        },
+        {
+          "seat": 2,
+          "card": "S:R"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 2,
+      "trickUnits": 10,
+      "text": "Dora spielt Pik. Die ♠9 ist höher als deine beiden Pik, überstechen musst du also nicht. Du gibst die höhere ab – ♠8 – und behältst die ♠7 als Schlusskarte."
+    },
+    {
+      "id": "t7",
+      "phase": "play",
+      "trick": 7,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "D:B"
+        },
+        {
+          "seat": 3,
+          "card": "D:R"
+        },
+        {
+          "seat": 0,
+          "card": "D:3"
+        },
+        {
+          "seat": 1,
+          "card": "D:2"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 3,
+      "trickUnits": 13,
+      "text": "In Rot ist die 3 höher als die 4: As, 2, 3, 4 geht von stark nach schwach. Deshalb gibst du jetzt die ♦3 ab und behältst die ♦4. Wer hier die 4 wirft, sitzt im nächsten Karo-Stich in der Falle.",
+      "traps": [
+        {
+          "card": "D:4",
+          "text": "Die ♦4 ist die kleinste Karo-Karte und damit deine Schlusskarte. Wirfst du sie jetzt, bleibt dir die ♦3 – und die zwingt dich später zu überstechen, wenn nur kleinere Karo liegen. Immer die höhere zuerst."
+        }
+      ]
+    },
+    {
+      "id": "t8",
+      "phase": "play",
+      "trick": 8,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "D:1"
+        },
+        {
+          "seat": 0,
+          "card": "D:4"
+        },
+        {
+          "seat": 1,
+          "card": "XVIII"
+        },
+        {
+          "seat": 2,
+          "card": "D:D"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 1,
+      "trickUnits": 13,
+      "text": "Dora spielt das Karo-As, die höchste kleine Karte in Rot. Deine ♦4 kann sie unmöglich überstechen – genau der Moment, in dem man die Schlusskarte loswird."
+    },
+    {
+      "id": "t9",
+      "phase": "play",
+      "trick": 9,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "S:D"
+        },
+        {
+          "seat": 2,
+          "card": "IX"
+        },
+        {
+          "seat": 3,
+          "card": "S:B"
+        },
+        {
+          "seat": 0,
+          "card": "S:7"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 2,
+      "trickUnits": 16,
+      "text": "Deine ♠7, die letzte Schlusskarte in Pik. Du spielst als Letzter und siehst, dass Carl schon mit IX gestochen hat: Der Stich kann dir nicht mehr zufallen."
+    },
+    {
+      "id": "t10",
+      "phase": "play",
+      "trick": 10,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "H:1"
+        },
+        {
+          "seat": 3,
+          "card": "H:B"
+        },
+        {
+          "seat": 0,
+          "card": "H:2"
+        },
+        {
+          "seat": 1,
+          "card": "H:R"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 1,
+      "trickUnits": 13,
+      "text": "Dieselbe Regel bei Herz: zuerst die höhere ♥2. Carls Herz-As liegt oben und ist unüberstechbar, also kostet dich das nichts."
+    },
+    {
+      "id": "t11",
+      "phase": "play",
+      "trick": 11,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "H:D"
+        },
+        {
+          "seat": 2,
+          "card": "H:3"
+        },
+        {
+          "seat": 3,
+          "card": "XII"
+        },
+        {
+          "seat": 0,
+          "card": "H:4"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 3,
+      "trickUnits": 13,
+      "text": "Jetzt die ♥4, deine letzte Herzkarte. Warum das hier gefahrlos ist: Dora hat mit XII eingestochen, und eine Farbkarte kann ein Tarock nie überstechen. Gefährlich wäre es, wenn du vor einem Gegner an der Reihe wärst – dann zwingt dich der Stichzwang, die höchste liegende Herzkarte zu überstechen, sofern du eine höhere hast. Genau dafür hebt man sich die Schlusskarte auf."
+    },
+    {
+      "id": "t12",
+      "phase": "play",
+      "trick": 12,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "XVI"
+        },
+        {
+          "seat": 0,
+          "card": "I"
+        },
+        {
+          "seat": 1,
+          "card": "H:K"
+        },
+        {
+          "seat": 2,
+          "card": "XIII"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 3,
+      "trickUnits": 28,
+      "text": "Der Pagat ist dein letztes Tarock und darf jetzt zugegeben werden. Er sticht nichts, Dora macht den Stich. Ergebnis: genau ein Stich – Piccolo gewonnen."
+    }
+  ],
+  "result": {
+    "declarerParty": [
+      0
+    ],
+    "cardUnits": [
+      16,
+      149
+    ],
+    "cardText": [
+      "5 Punkte 1 Blatt",
+      "49 Punkte 2 Blatt"
+    ],
+    "neutralUnits": 45,
+    "declarerTricks": 1,
+    "gameWon": true,
+    "bonuses": [],
+    "schrift": [
+      6,
+      -2,
+      -2,
+      -2
+    ],
+    "geld": [
+      8,
+      -2,
+      -2,
+      -4
+    ]
+  },
+  "moral": "Im Negativspiel entscheidet die Reihenfolge der Abwürfe alles: erst die höhere Karte einer Farbe, die Schlusskarte zuletzt. Und: Kartenpunkte sind hier völlig gleichgültig – nur Stiche zählen. Doras Kontra hat an der Schrift nichts geändert, nur am Geld."
+}

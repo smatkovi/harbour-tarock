@@ -34,6 +34,12 @@ SubPage {
     property var engine: tarockEngine
     readonly property var profileKeys: engine.profileKeys()
     readonly property var profileNames: page.namesFor(page.profileKeys)
+    // LearnEngine reaches QML as a property of the engine; if a platform
+    // installs it as its own context property, this one line changes.
+    property var learn: engine.learn === undefined ? null : engine.learn
+
+    // The five switches of docs/design.md §7.8 are properties of LearnEngine
+    // and it saves them itself, in the same QSettings group as the level.
 
     Component.onCompleted: Prefs.adopt(page.engine)
 
@@ -80,6 +86,97 @@ SubPage {
         text: qsTr("At five the dealer sits out the hand")
         color: Theme.secondaryColor
         font.pixelSize: Theme.fontSizeExtraSmall
+    }
+
+    SectionLabel { text: qsTr("Learning mode") }
+
+    TextBlock {
+        text: qsTr("Level")
+        color: Theme.secondaryColor
+        font.pixelSize: Theme.fontSizeExtraSmall
+    }
+    ComboBox {
+        x: Theme.horizontalPageMargin
+        width: parent.width - 2 * Theme.horizontalPageMargin
+        enabled: page.learn !== null
+        model: [qsTr("Off"), qsTr("Learning"), qsTr("Novice")]
+        currentIndex: page.learn === null ? 0 : page.learn.level
+        onActivated: (index) => {
+            if (page.learn !== null)
+                page.learn.level = index
+        }
+    }
+    TextBlock {
+        text: qsTr("Takes effect at once, in a LAN match too")
+        color: Theme.secondaryColor
+        font.pixelSize: Theme.fontSizeExtraSmall
+    }
+
+    Switch {
+        x: Theme.horizontalPageMargin
+        text: qsTr("Show hints automatically")
+        enabled: page.learn !== null
+        checked: page.learn !== null && page.learn.autoHint
+        onToggled: {
+            if (page.learn !== null)
+                page.learn.autoHint = checked
+        }
+    }
+
+    Switch {
+        x: Theme.horizontalPageMargin
+        text: qsTr("Warn before a bonus is lost")
+        enabled: page.learn !== null
+        checked: page.learn !== null && page.learn.warnBonusLoss
+        onToggled: {
+            if (page.learn !== null)
+                page.learn.warnBonusLoss = checked
+        }
+    }
+
+    Switch {
+        x: Theme.horizontalPageMargin
+        text: qsTr("Dim illegal cards instead of hiding them")
+        enabled: page.learn !== null
+        checked: page.learn !== null && page.learn.dimIllegal
+        onToggled: {
+            if (page.learn !== null)
+                page.learn.dimIllegal = checked
+        }
+    }
+
+    Switch {
+        x: Theme.horizontalPageMargin
+        text: qsTr("Counting help after every trick")
+        enabled: page.learn !== null
+        checked: page.learn !== null && page.learn.countTutor
+        onToggled: {
+            if (page.learn !== null)
+                page.learn.countTutor = checked
+        }
+    }
+
+    Switch {
+        x: Theme.horizontalPageMargin
+        text: qsTr("Always play positive games out to the twelfth trick")
+        enabled: page.learn !== null
+        checked: page.learn !== null && page.learn.playToEnd
+        onToggled: {
+            if (page.learn !== null)
+                page.learn.playToEnd = checked
+        }
+    }
+
+    Button {
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: qsTr("Lessons")
+        onClicked: page.StackView.view.push(Qt.resolvedUrl("LearnPage.qml"))
+    }
+
+    Button {
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: qsTr("Rules and glossary")
+        onClicked: page.StackView.view.push(Qt.resolvedUrl("RulesPage.qml"))
     }
 
     SectionLabel { text: qsTr("Opponents") }

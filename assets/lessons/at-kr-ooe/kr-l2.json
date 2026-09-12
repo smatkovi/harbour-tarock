@@ -1,0 +1,130 @@
+{
+  "id": "kr-l2",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L2",
+  "title": "Der Ablauf einer Hand",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Geben und Talon",
+    "Wer ist Vorhand",
+    "Die Phasen von der Lizitation bis zur Abrechnung",
+    "Vierer- und Fünfertisch"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Gespielt wird gegen den Uhrzeigersinn, also nach rechts. Der Geber mischt, der linke Nachbar hebt ab. Dann bekommt jeder sechs Karten, sechs Karten kommen als Talon in die Mitte – zwei Päckchen zu drei –, und jeder bekommt nochmals sechs. Am Ende hat jeder zwölf Karten, und in der Mitte liegen sechs.",
+      "anchor": "#2.4"
+    },
+    {
+      "id": "s2",
+      "text": "Der Spieler rechts vom Geber ist die Vorhand. Sie spricht in der Lizitation zuerst und spielt in allen positiven Spielen die erste Karte aus. In dieser Hand hat Dora gegeben – also bist du Vorhand. Die Vorhand hat zwei Vorrechte, die später wichtig werden: Sie darf ein angesagtes Spiel halten, und wenn alle anderen „weiter“ sagen, darf sie jedes Spiel wählen.",
+      "anchor": "#2.1"
+    },
+    {
+      "id": "s3",
+      "text": "Eine Hand läuft immer in derselben Reihenfolge ab: 1. Lizitation – wer spielt was. 2. König rufen – nur bei den Ruferspielen. 3. Talon aufnehmen und verlegen. 4. Ansagen und Kontra. 5. Zwölf Stiche spielen. 6. Zählen und abrechnen. Das Erklärpanel zeigt dir jederzeit, an welcher Stelle dieser Kette du gerade bist.",
+      "anchor": "#3.5"
+    },
+    {
+      "id": "s4",
+      "text": "Jedes Blatt wird gespielt: Es gibt kein Wegwerfen und kein Neugeben, auch nicht bei einem schlechten Blatt. Ein schlechtes Blatt ist kein Unglück, sondern eine andere Aufgabe – dafür gibt es die Negativspiele Piccolo, Bettel und das Trischaken.",
+      "anchor": "#2.5"
+    },
+    {
+      "id": "s5",
+      "text": "Zu fünft am Tisch gibt der Geber nur den anderen vier und setzt aus. Er ist reiner Zuschauer, darf nichts sagen und den Talon nicht anschauen. Nach jedem Spiel rückt alles einen Platz weiter, also setzt jeder einmal pro Runde aus.",
+      "anchor": "#2.7",
+      "traps": [
+        {
+          "text": "Der Aussetzer am Fünfertisch schaut gern über die Schulter und gibt einen Tipp – das ist der klassische Anfängerfehler. Der Kiebitz hat zu schweigen und darf den Talon nicht sehen, sonst ist das Spiel wertlos."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "text": "Nach jeder Hand wechselt der Geber nach rechts. Eine Runde, in der jeder einmal gegeben hat, heißt Radl: vier Spiele zu viert, fünf zu fünft. So ist jeder gleich oft Vorhand – und das Vorrecht der Vorhand gleicht sich über das Radl aus.",
+      "anchor": "#2.6"
+    }
+  ]
+}

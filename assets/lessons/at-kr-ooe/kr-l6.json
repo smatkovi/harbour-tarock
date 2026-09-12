@@ -1,0 +1,332 @@
+{
+  "id": "kr-l6",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L6",
+  "title": "Die Regeln im Stich",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Farbzwang",
+    "Tarockzwang",
+    "Wer den Stich gewinnt",
+    "Stichzwang in Negativspielen"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "auto": [
+        {
+          "seat": 0,
+          "type": "vorhand"
+        },
+        {
+          "seat": 1,
+          "type": "pass"
+        },
+        {
+          "seat": 2,
+          "type": "pass"
+        },
+        {
+          "seat": 3,
+          "type": "pass"
+        },
+        {
+          "seat": 0,
+          "type": "bid",
+          "a": "RUFER"
+        },
+        {
+          "seat": 0,
+          "type": "callking",
+          "a": "S"
+        },
+        {
+          "seat": 0,
+          "type": "taketalon",
+          "a": 0
+        },
+        {
+          "seat": 0,
+          "type": "discardSet",
+          "cards": [
+            "D:3",
+            "D:4",
+            "H:B"
+          ]
+        },
+        {
+          "seat": 0,
+          "type": "ready"
+        },
+        {
+          "seat": 1,
+          "type": "ready"
+        },
+        {
+          "seat": 2,
+          "type": "ready"
+        },
+        {
+          "seat": 3,
+          "type": "ready"
+        }
+      ],
+      "text": "Zurück zum Rufer aus den letzten Modulen: Pik-König gerufen, Hälfte A genommen, Karo und der Herz-Bube verlegt, alle liegen. Jetzt wird gespielt, und dafür gibt es nur drei Regeln. Erstens Farbzwang: Du musst die ausgespielte Farbe bedienen, wenn du sie hast. Zweitens Tarockzwang: Hast du die Farbe nicht, musst du Tarock zugeben. Drittens: Hast du weder noch, legst du eine beliebige Karte ab. Den Stich gewinnt das höchste Tarock, sonst die höchste Karte der ausgespielten Farbe – und wer gewinnt, spielt zum nächsten Stich aus.",
+      "anchor": "#6.2"
+    },
+    {
+      "id": "t1",
+      "phase": "play",
+      "trick": 1,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "C:K"
+        },
+        {
+          "seat": 1,
+          "card": "C:R"
+        },
+        {
+          "seat": 2,
+          "card": "C:10"
+        },
+        {
+          "seat": 3,
+          "card": "C:7"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 22,
+      "text": "Als Vorhand spielst du aus. Du wählst den Treff-König: In Treff hast du nur zwei Karten, und je länger du wartest, desto eher sticht ihn jemand ab. Alle drei bedienen Treff – das ist der Farbzwang aus ihrer Sicht. Kein Tarock im Stich, also gewinnt die höchste Treffkarte: dein König."
+    },
+    {
+      "id": "t2",
+      "phase": "play",
+      "trick": 2,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XI"
+        },
+        {
+          "seat": 1,
+          "card": "III"
+        },
+        {
+          "seat": 2,
+          "card": "XIX"
+        },
+        {
+          "seat": 3,
+          "card": "XXI"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 3,
+      "trickUnits": 16,
+      "text": "Jetzt spielst du ein Tarock an. Tarock ist wie eine eigene Farbe: Wer Tarock hat, muss Tarock zugeben. Überstechen muss dabei niemand – Berta gibt mit III klein zu, Carl legt XIX hoch vor, Dora sticht mit dem Mond. Das höchste Tarock gewinnt.",
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_FARBZWANG_TAROCK",
+          "text": "Wenn Tarock ausgespielt ist, zählt Tarock als die bediente Farbe – eine Farbkarte darfst du nur legen, wenn du gar kein Tarock mehr hast. Hier bist du selbst am Ausspiel, aber die Regel gilt gleich beim nächsten Stich für dich.",
+          "anchor": "#6.2"
+        }
+      ]
+    },
+    {
+      "id": "t3",
+      "phase": "play",
+      "trick": 3,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "D:1"
+        },
+        {
+          "seat": 0,
+          "card": "V"
+        },
+        {
+          "seat": 1,
+          "card": "D:B"
+        },
+        {
+          "seat": 2,
+          "card": "D:K"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 0,
+      "trickUnits": 19,
+      "text": "Dora spielt Karo an – und du hast keines mehr, beide liegen in deiner Ablage. Dann greift der Tarockzwang: Du musst ein Tarock zugeben, auch wenn du den Stich damit nicht gewinnst. Das kleinste, das V, genügt. Dass Carl dir dann den Karo-König schmiert, ist sein Partnersignal.",
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_TAROCKZWANG",
+          "text": "Kein Karo mehr – also eine Karte abwerfen, die du loswerden willst? So denken fast alle Anfänger. Abwerfen darfst du erst, wenn du auch kein Tarock mehr hast. Am Tisch wäre das sonst eine Renonce, ein Regelverstoß mit Strafwertung.",
+          "anchor": "#6.7"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "phase": "play",
+      "trick": 4,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "S:9"
+        },
+        {
+          "seat": 1,
+          "card": "S:B"
+        },
+        {
+          "seat": 2,
+          "card": "S:K"
+        },
+        {
+          "seat": 3,
+          "card": "S:7"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 19,
+      "text": "Du spielst die kleine ♠9 in die gerufene Farbe, damit dein Partner den König heimbringt. Alle bedienen Pik, kein Tarock fällt – also gewinnt die höchste Pikkarte, Carls König. Beachte: Bedienen heißt bedienen, nicht überstechen. Im positiven Spiel darfst du in der Farbe immer die kleinste Karte legen."
+    },
+    {
+      "id": "t5",
+      "phase": "play",
+      "trick": 5,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "XII"
+        },
+        {
+          "seat": 3,
+          "card": "VII"
+        },
+        {
+          "seat": 0,
+          "card": "XVIII"
+        },
+        {
+          "seat": 1,
+          "card": "Sk"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 1,
+      "trickUnits": 16,
+      "text": "Carl spielt Tarock zurück. Du hast Tarock, also musst du Tarock zugeben – aber wie hoch, ist deine Entscheidung. Du stichst mit XVIII hoch und lockst damit den Sküs heraus. Danach ist dein XX das höchste lebende Tarock.",
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_FARBZWANG_TAROCK",
+          "text": "Der Herz-König wäre fünf Punkte, die du gern in Sicherheit brächtest – aber auf Tarock muss Tarock. Farbkarten darfst du erst legen, wenn dein letztes Tarock weg ist.",
+          "anchor": "#6.2"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "text": "Drei Sonderfälle, die du kennen solltest, auch wenn sie hier nicht vorkommen. In den Negativspielen – Piccolo, Bettel und den Ouvertspielen – gilt zusätzlich der Stichzwang: Du musst die höchste liegende Karte überstechen, wenn du es kannst, und wenn du die Farbe nicht hast, musst du mit Tarock stechen. Dort gilt außerdem: Der Pagat darf erst gespielt werden, wenn er dein letztes Tarock ist. Und in den Farbenspielen ist alles anders herum: Tarock sticht keine Farbe, und Tarock ausspielen darfst du erst, wenn du keine Farbkarte mehr hast.",
+      "anchor": "#6.4",
+      "traps": [
+        {
+          "text": "„Stichzwang gilt immer“ – nein, nur in den Negativspielen. Im Rufer, Dreier oder Besserrufer musst du nie überstechen; du musst nur bedienen. Das verwechseln viele und verschenken hohe Tarock."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "text": "Damit kannst du jede Karte richtig legen. Wenn die App eine Karte ablehnt, nennt sie dir immer den Grund und markiert die Karten, die erlaubt wären. Üben kannst du das in „Mein erster Rufer“; den Stichzwang und die Pagat-Regel zeigt dir „Piccolo – genau ein Stich“.",
+      "anchor": "#6.7"
+    }
+  ]
+}

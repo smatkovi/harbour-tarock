@@ -21,13 +21,24 @@
 import QtQuick
 import QtQuick.Controls
 
-// The Android frame around the shared table; the counterpart of
-// sailfish/TablePage.qml. The table itself is qml-common/TarockTable.qml.
+// A lesson in progress (docs/design.md §7.6); the counterpart of
+// sailfish/LessonPage.qml. The same table as TablePage, only with the lesson
+// band switched on.
 Item {
     id: page
-    objectName: "tablePage"
+    objectName: "lessonPage"
 
     property var engine: tarockEngine
+    // LearnEngine reaches QML as a property of the engine; if a platform
+    // installs it as its own context property, this one line changes.
+    property var learn: engine.learn === undefined ? null : engine.learn
+    property bool freePlay: false
+
+    function leave() {
+        if (page.learn !== null)
+            page.learn.stopLesson()
+        page.StackView.view.pop()
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -37,7 +48,8 @@ Item {
     TarockTable {
         anchors.fill: parent
         engine: page.engine
-        // "More on this" out of the learning panel, straight from the table.
+        learn: page.learn
+        lessonMode: true
         onRuleRequested: (anchor) => page.StackView.view.push(Qt.resolvedUrl("RulesPage.qml"),
                                                               { "anchor": anchor })
         onGlossaryRequested: (term) => page.StackView.view.push(Qt.resolvedUrl("GlossaryPage.qml"),
@@ -57,26 +69,31 @@ Item {
     Menu {
         id: menu
         MenuItem {
-            text: qsTr("Scores")
-            onTriggered: page.StackView.view.push(Qt.resolvedUrl("ScorePage.qml"))
+            text: qsTr("Play on freely")
+            enabled: page.learn !== null && page.learn.lessonActive
+            onTriggered: {
+                page.freePlay = true
+                page.learn.stopLesson()
+            }
         }
         MenuItem {
-            text: qsTr("Settings")
-            onTriggered: page.StackView.view.push(Qt.resolvedUrl("SettingsPage.qml"))
+            text: qsTr("Leave lesson")
+            onTriggered: page.leave()
         }
         MenuItem {
-            text: qsTr("About")
-            onTriggered: page.StackView.view.push(Qt.resolvedUrl("AboutPage.qml"))
+            text: qsTr("Rules")
+            onTriggered: page.StackView.view.push(Qt.resolvedUrl("RulesPage.qml"))
         }
     }
 
-    // The finished hand is counted up on the score page, from where the next
-    // one is dealt (docs/design.md §6.6).
+    // The lesson was stopped from inside the band; unless the learner asked to
+    // play on, the page goes back to the course list.
     Connections {
-        target: page.engine
-        function onHandFinished() {
-            if (page.StackView.view && page.StackView.view.currentItem === page)
-                page.StackView.view.push(Qt.resolvedUrl("ScorePage.qml"))
+        target: page.learn
+        function onLessonChanged() {
+            if (page.learn !== null && !page.learn.lessonActive && !page.freePlay
+                    && page.StackView.view && page.StackView.view.currentItem === page)
+                page.StackView.view.pop()
         }
     }
 }

@@ -1,0 +1,195 @@
+{
+  "id": "kr-l3",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L3",
+  "title": "Die Lizitation",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Was „Vorhand“ bedeutet",
+    "Die Reihenfolge der Spiele",
+    "Halten und die Vorhandspiele",
+    "Ein Spiel zum Blatt wählen"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "In der Lizitation wird versteigert, wer welches Spiel spielen darf. Reihum sagt jeder entweder ein Spiel an oder „weiter“. Ein neues Gebot muss immer höher sein als das vorige, und wer einmal „weiter“ gesagt hat, ist endgültig draußen. Gereizt wird nicht mit Punkten, sondern mit dem Namen des Spiels.",
+      "anchor": "#3.4"
+    },
+    {
+      "id": "s2",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "vorhand"
+      },
+      "text": "Du bist Vorhand und sprichst zuerst. „Vorhand“ sagt noch kein Spiel an, sondern heißt nur: Ich will mir alles offenhalten. Das ist fast immer richtig, wenn dein Blatt weder ganz stark noch ganz schwach ist – du kannst danach immer noch alles ansagen außer dem Sechserdreier.",
+      "anchor": "#3.3",
+      "highlight": {
+        "hand": [
+          "XX",
+          "XVII",
+          "XI",
+          "VIII",
+          "V"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "pass"
+          },
+          "reason": "E_VORHAND_MUSS_SPRECHEN",
+          "text": "Passen wirkt harmlos, ist der Vorhand aber nicht erlaubt: Irgendjemand muss das Spiel eröffnen. Sag „Vorhand“, wenn du dir alles offenhalten willst."
+        },
+        {
+          "action": {
+            "type": "bid",
+            "a": "SECHSERDREIER"
+          },
+          "text": "Den Sechserdreier kannst du nur jetzt ansagen, als allererstes Wort – danach nie mehr. Er bringt dir alle sechs Talonkarten, kostet aber doppelt, wenn du ihn verlierst. Dafür bräuchtest du 6–7 Tarock mit Trullstück und Stechern."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "auto": [
+        "pass",
+        "pass",
+        "pass"
+      ],
+      "text": "Berta, Carl und Dora sagen „weiter“ – niemand will ein Spiel. Damit tritt das Vorrecht der Vorhand in Kraft: Du darfst jetzt jedes Spiel wählen, auch die beiden billigen, die es sonst nie gibt.",
+      "anchor": "#3.3"
+    },
+    {
+      "id": "s4",
+      "text": "Die Spiele stehen in einer festen Reihenfolge, von billig nach teuer: Trischaken, Rufer, Piccolo, Bettel, Solorufer, Besserrufer, Farbendreier, Sechserdreier, Dreier, Farbensolo, Piccolo ouvert, Bettel ouvert, Solodreier. Wer bietet, muss weiter oben in dieser Liste landen als der Vorredner. Drei Spiele sind Vorhandspiele und nur der Vorhand erlaubt: Trischaken, Rufer und Sechserdreier – und Trischaken und Rufer nur dann, wenn alle anderen „weiter“ gesagt haben. Außerdem darf nur die Vorhand „halten“, also das zuletzt angesagte Spiel selbst spielen, ohne es zu überbieten.",
+      "anchor": "#3.1"
+    },
+    {
+      "id": "s5",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "bid",
+        "a": "RUFER"
+      },
+      "text": "Jetzt wählst du. Fünf mittlere Tarock, zwei Könige, kein Trullstück: zu schwach für ein Alleinspiel, zu stark fürs Trischaken. Der Rufer ist genau dafür da – billig, aber mit Partner, und er gibt dir eine Talonhälfte dazu.",
+      "anchor": "#3.2",
+      "traps": [
+        {
+          "action": {
+            "type": "bid",
+            "a": "SECHSERDREIER"
+          },
+          "reason": "E_SECHSER_NUR_VORNEWEG",
+          "text": "Jetzt ist der Sechserdreier nicht mehr möglich: Er geht nur als erstes Wort der Vorhand, nicht mehr, nachdem du „Vorhand“ gesagt hast."
+        },
+        {
+          "action": {
+            "type": "bid",
+            "a": "TRISCHAKEN"
+          },
+          "text": "Trischaken heißt: möglichst wenige Punkte machen, ideal gar keinen Stich. Mit zwei Königen und fünf Tarock bekommst du zwangsläufig Stiche und wirst Bürgermeister – der zahlt doppelt."
+        },
+        {
+          "action": {
+            "type": "bid",
+            "a": "SOLORUFER"
+          },
+          "text": "Der Solorufer zahlt doppelt so viel, verzichtet aber auf den Talon, und der ganze Talon zählt dann zu den Gegnern. Mit fünf Tarock ohne Trullstück ist das zu riskant."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "text": "Merksatz zum Bieten: Zähl deine Tarock und deine Stecher, dann deine Könige. Fünf mittlere Tarock mit einem Stecher und einem König sind ein Rufer. Sechs bis sieben Tarock mit Trullstück sind ein Dreier oder Sechserdreier. Ein Blatt ohne Stiche ist ein Piccolo oder Bettel. Und wer gar nie etwas ansagt, bekommt irgendwann das Trischaken serviert.",
+      "anchor": "#3.2",
+      "traps": [
+        {
+          "text": "Zu vorsichtig zu lizitieren ist der teuerste Anfängerfehler: Wer nichts wagt, gewinnt auch nichts. Ein verlorener Rufer kostet 1 Punkt – ein nie angesagtes Spiel kostet dir jede Chance."
+        }
+      ]
+    }
+  ]
+}

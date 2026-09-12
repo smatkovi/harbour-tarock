@@ -1,0 +1,180 @@
+{
+  "id": "kr-l0",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L0",
+  "title": "Die Karten",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Das Deck aus 54 Karten",
+    "Die Rangfolge in den Farben",
+    "Tarock, Trull und Vögel"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Tarock spielt man mit 54 Karten: 32 Farbkarten in Herz, Karo, Pik und Treff und 22 Tarock. Du siehst unten dein Blatt aus zwölf Karten – fünf Tarock und sieben Farbkarten. Wer die Karten kennt, kennt schon die halbe Regel: Fast alles im Spiel folgt daraus, welche Karte welche sticht.",
+      "anchor": "#1.1",
+      "highlight": {
+        "hand": [
+          "XX",
+          "XVII",
+          "XI",
+          "VIII",
+          "V",
+          "H:K",
+          "H:B",
+          "D:3",
+          "S:D",
+          "S:9",
+          "C:K",
+          "C:8"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "text": "In jeder Farbe gibt es vier Figuren: König, Dame, Reiter, Bube – in dieser Reihenfolge von stark nach schwach. Der Reiter sitzt zwischen Dame und Bube. Du hast hier den Treff-König, den Herz-König, die Pik-Dame und den Herz-Buben.",
+      "anchor": "#1.2",
+      "highlight": {
+        "hand": [
+          "C:K",
+          "H:K",
+          "S:D",
+          "H:B"
+        ]
+      },
+      "traps": [
+        {
+          "text": "Der Reiter wird fast immer für den König gehalten, weil beide eine große Figur zeigen. Merk dir das Bild: Der Reiter sitzt auf einem Pferd, der König trägt Krone und Zepter. Der Reiter zählt 3 Punkte, der König 5 – und die Dame steht dazwischen."
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "text": "Unter den Figuren liegen vier kleine Karten, und hier unterscheiden sich die Farben: In Herz und Karo heißen sie As, 2, 3, 4, und das As ist die stärkste. In Pik und Treff heißen sie 10, 9, 8, 7, und die 10 ist die stärkste. Die kleinste Karte einer Farbe – die ♥4, die ♦4, die ♠7, die ♣7 – heißt Schlusskarte; in Negativspielen ist sie Gold wert.",
+      "anchor": "#1.2",
+      "highlight": {
+        "hand": [
+          "D:3",
+          "S:9",
+          "C:8"
+        ]
+      },
+      "traps": [
+        {
+          "card": "S:9",
+          "text": "♠9 oder ♠10 – welche ist stärker? In Schwarz zählt die höhere Zahl: 10 schlägt 9 schlägt 8 schlägt 7. In Rot ist es genau umgekehrt herum gedacht: Dort steht das As oben und die 4 unten."
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "text": "Die übrigen 22 Karten sind die Tarock, durchnummeriert von I bis XXI, dazu der Sküs ohne Zahl. Tarock sind die Trümpfe: Jedes Tarock sticht jede Farbkarte, und unter den Tarock gewinnt die höhere Zahl. Der Sküs steht über dem XXI. Deine fünf Tarock reichen von XX bis V – XX ist ein „Stecher“, V ein kleines Tarock zum Zugeben.",
+      "anchor": "#1.3",
+      "highlight": {
+        "hand": [
+          "XX",
+          "XVII",
+          "XI",
+          "VIII",
+          "V"
+        ]
+      },
+      "traps": [
+        {
+          "text": "„Mein König ist doch die höchste Karte – der muss den Stich machen.“ Gegen Tarock nicht: Jedes Tarock sticht jede Farbkarte, auch das kleinste. Ein König gewinnt nur, wenn im Stich kein Tarock liegt."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "text": "Drei Tarock haben eigene Namen und sind besonders wertvoll: Sküs, Mond (XXI) und Pagat (I). Zusammen heißen sie Trull, jedes zählt 5 Punkte, und wer alle drei in seinen Stichen hat, bekommt dafür eine Prämie. Die vier kleinsten Tarock heißen Vögel: Pagat (I), Uhu (II), Kakadu (III), Quapil (IIII). Für sie gibt es eigene Prämien, wenn man sie in einem bestimmten Stich am Ende durchbringt. In deinem Blatt ist keines davon – umso ruhiger kannst du spielen.",
+      "anchor": "#1.3"
+    },
+    {
+      "id": "s6",
+      "text": "Zusammengefasst: 54 Karten, vier Farben mit je acht Karten, 22 Tarock. Tarock sticht Farbe, höheres Tarock sticht niedrigeres, in der Farbe gewinnt die höhere Karte. Alles Weitere – Zählen, Bieten, Rufen – baut darauf auf.",
+      "anchor": "#1.3"
+    }
+  ]
+}

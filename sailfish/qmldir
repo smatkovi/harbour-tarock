@@ -9,6 +9,9 @@ singleton Prefs 1.0 Prefs.qml
 AboutPage 1.0 AboutPage.qml
 Card 1.0 Card.qml
 FlyingCard 1.0 FlyingCard.qml
+GlossaryPage 1.0 GlossaryPage.qml
+LearnPage 1.0 LearnPage.qml
+LessonPage 1.0 LessonPage.qml
 MainPage 1.0 MainPage.qml
 RulesPage 1.0 RulesPage.qml
 ScorePage 1.0 ScorePage.qml
@@ -20,10 +23,16 @@ TablePage 1.0 TablePage.qml
 # Shared with the Android build; these files come from qml-common/.
 AnnouncePanel 1.0 AnnouncePanel.qml
 BidBar 1.0 BidBar.qml
+DebriefPanel 1.0 DebriefPanel.qml
 DiscardTray 1.0 DiscardTray.qml
 HandFan 1.0 HandFan.qml
+HintBubble 1.0 HintBubble.qml
+LearnPanel 1.0 LearnPanel.qml
+LessonOverlay 1.0 LessonOverlay.qml
 ScoreSheet 1.0 ScoreSheet.qml
 SeatPanel 1.0 SeatPanel.qml
+StandingPanel 1.0 StandingPanel.qml
 TalonPanel 1.0 TalonPanel.qml
 TarockTable 1.0 TarockTable.qml
 TrickArea 1.0 TrickArea.qml
+WhyDialog 1.0 WhyDialog.qml

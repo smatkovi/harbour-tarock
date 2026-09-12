@@ -1,0 +1,701 @@
+{
+  "id": "kr-practice-1",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L7",
+  "title": "Mein erster Rufer",
+  "source": "docs/koenigrufen.md §11.7 Übungsspiel 1",
+  "goals": [
+    "Lizitation der Vorhand",
+    "König rufen",
+    "Talon und Verlegen",
+    "Farb- und Tarockzwang",
+    "Partner erkennen",
+    "Zählen",
+    "stille Prämien"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "vorhand"
+      },
+      "text": "Dora hat gegeben, also bist du Vorhand und sprichst zuerst. Dein Blatt: fünf Tarock, kein Trullstück, zwei Könige. Für einen Sechserdreier zu schwach, fürs Trischaken zu stark. Mit „Vorhand“ sagst du noch kein Spiel an, sondern hältst dir alles offen – und behältst das Recht, später zu halten.",
+      "anchor": "#3.3",
+      "highlight": {
+        "hand": [
+          "XX",
+          "XVII",
+          "XI",
+          "VIII",
+          "V"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "bid",
+            "a": "SECHSERDREIER"
+          },
+          "text": "Der Sechserdreier reizt, weil er alle sechs Talonkarten bringt – und er geht nur jetzt, als allererstes Wort. Aber du brauchst dafür 6–7 Tarock mit Trullstück und Stechern. Mit fünf mittleren Tarock verlierst du ihn, und verloren zählt er doppelt."
+        },
+        {
+          "action": {
+            "type": "pass"
+          },
+          "reason": "E_VORHAND_MUSS_SPRECHEN",
+          "text": "„Weiter“ ist als Vorhand nicht vorgesehen. Du musst sprechen – entweder „Vorhand“, womit du dir alles offenhältst, oder gleich ein Spiel.",
+          "anchor": "#3.3"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "auto": [
+        "pass",
+        "pass",
+        "pass"
+      ],
+      "text": "Berta, Carl und Dora sagen „weiter“. Damit ist die Lizitation bei dir zu Ende, und du darfst jetzt jedes Spiel wählen außer dem Sechserdreier – auch die beiden billigen Vorhandspiele Rufer und Trischaken, die es nur in genau dieser Lage gibt.",
+      "anchor": "#3.3"
+    },
+    {
+      "id": "s3",
+      "phase": "bidding",
+      "seat": 0,
+      "expect": {
+        "type": "bid",
+        "a": "RUFER"
+      },
+      "text": "Der Rufer ist das passende Spiel: billig, aber mit Partner. Dein Blatt ist genau dafür gemacht – einige Tarock mit Stecher, dazu zwei Könige: zu schwach für ein Alleinspiel, zu stark fürs Trischaken.",
+      "anchor": "#3.2",
+      "traps": [
+        {
+          "action": {
+            "type": "bid",
+            "a": "TRISCHAKEN"
+          },
+          "text": "Trischaken heißt: möglichst wenige Punkte machen. Mit zwei Königen und fünf Tarock bekommst du fast zwangsläufig Stiche – du wärst der Bürgermeister und zahlst doppelt."
+        },
+        {
+          "action": {
+            "type": "bid",
+            "a": "DREIER"
+          },
+          "text": "Der Dreier zahlt viermal so viel, aber du spielst allein gegen drei und brauchst 35 und 2 Blatt ohne Partner. Dafür fehlen dir die hohen Tarock."
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "phase": "call",
+      "seat": 0,
+      "expect": {
+        "type": "callking",
+        "a": "S"
+      },
+      "text": "Jetzt suchst du dir den Partner: Du rufst einen König, den du nicht selbst hast. Du nimmst den Pik-König, weil du in Pik die Dame und die 9 hast. Man ruft am liebsten aus einer Farbe mit besetzter Dame: Spielt der Partner den König, macht deine Dame später vielleicht auch noch einen Stich. Wer den König hat, sagt nichts – ihr erkennt einander am Spiel.",
+      "anchor": "#4.1",
+      "highlight": {
+        "hand": [
+          "S:D",
+          "S:9"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "callking",
+            "a": "H"
+          },
+          "reason": "E_EIGENER_KOENIG",
+          "text": "Den Herz-König hast du selbst auf der Hand. Dann wärst du dein eigener Partner und spieltest in Wahrheit allein – deshalb ist es verboten. Ruf eine Farbe, in der dir der König fehlt."
+        },
+        {
+          "action": {
+            "type": "callking",
+            "a": "C"
+          },
+          "reason": "E_EIGENER_KOENIG",
+          "text": "Auch der Treff-König liegt in deiner Hand. Übrig bleiben Pik und Karo – und in Pik hast du die Dame, also die bessere Wahl."
+        },
+        {
+          "action": {
+            "type": "callking",
+            "a": "D"
+          },
+          "text": "Karo wäre erlaubt, aber schlechter: Du hast dort nur die ♦3. Nach dem Verlegen bist du in Karo blank, und der gerufene König brächte dir nichts mehr."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "phase": "talon",
+      "seat": 0,
+      "expect": {
+        "type": "taketalon",
+        "a": 0
+      },
+      "text": "Beide Talonhälften werden aufgedeckt, du nimmst eine davon. Hälfte A bringt zwei Tarock, darunter einen Stecher; Hälfte B bringt sechs Punkte, aber kein Tarock. Mit nur fünf Tarock bist du dünn besetzt – Tarock stechen, Punkte stechen nicht. Und merk dir: Die Hälfte, die du liegen lässt, zählt am Ende zu den Gegnern.",
+      "anchor": "#4.3",
+      "highlight": {
+        "talon": [
+          "XVIII",
+          "VI",
+          "D:4"
+        ]
+      },
+      "compare": [
+        {
+          "half": 0,
+          "note": "2 Tarock, davon 1 Stecher (XVIII)"
+        },
+        {
+          "half": 1,
+          "note": "0 Tarock, 6 Punkte – und die gehen an die Gegner"
+        }
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "taketalon",
+            "a": 1
+          },
+          "text": "Sechs Punkte klingen gut, sind aber nur zwei Punkte mehr als die andere Hälfte. Der XVIII dagegen ist ein Stich, der dir sonst fehlt – und er hält die Gegner von deinen Königen fern."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "phase": "discard",
+      "seat": 0,
+      "expect": {
+        "type": "discardSet",
+        "cards": [
+          "D:3",
+          "D:4",
+          "H:B"
+        ]
+      },
+      "text": "Drei Karten müssen wieder weg; sie zählen am Ende zu deinen Stichen. Mit den beiden Karo bist du in dieser Farbe blank und kannst Karo künftig stechen, statt bedienen zu müssen. Der Herz-Bube bringt zwei Punkte sicher in deine Ablage und lässt den Herz-König blank stehen.",
+      "anchor": "#4.6",
+      "highlight": {
+        "hand": [
+          "D:3",
+          "D:4",
+          "H:B"
+        ]
+      },
+      "traps": [
+        {
+          "card": "C:K",
+          "reason": "E_ABLAGE_KOENIG",
+          "text": "Fünf Punkte sicher wegzulegen wirkt schlau – Könige darf man aber nie verlegen. Verleg stattdessen kleine Farbkarten, am besten aus einer Farbe, die du dadurch ganz loswirst."
+        },
+        {
+          "card": "XVIII",
+          "reason": "E_ABLAGE_TAROCK_NOCH_FARBE",
+          "text": "Gerade hast du den XVIII aus dem Talon geholt – ihn wieder wegzulegen wäre doppelt schade. Tarock darf man ohnehin nur verlegen, wenn keine Farbkarte mehr übrig ist, und dann offen für alle sichtbar."
+        },
+        {
+          "card": "S:9",
+          "text": "Die ♠9 gehört zur gerufenen Farbe. Wirfst du sie weg, kannst du Pik nicht mehr anspielen, wenn dein Partner den König heimbringen soll."
+        }
+      ]
+    },
+    {
+      "id": "s7",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "„Ich liege“ – du sagst keine Prämie an. Du hast kein Trullstück und keinen Vogel; alles, was du ansagen könntest, müsstest du auch liefern. Stille Prämien kannst du trotzdem erzielen: Sie zählen die Hälfte, kosten aber nichts, wenn sie misslingen.",
+      "anchor": "#5.3",
+      "auto": [
+        "ready",
+        "ready",
+        "ready"
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "announce",
+            "a": "TRULL"
+          },
+          "text": "Trull und Alle Könige darf man auch „auf Verdacht“ ansagen, ohne die Karten zu haben – erlaubt wäre es also. Klug ist es nicht: Du hast kein einziges Trullstück, und eine angesagte Prämie, die misslingt, zahlst du in voller Höhe an die Gegner. Still erzielen darfst du sie trotzdem, und das kostet nichts."
+        }
+      ]
+    },
+    {
+      "id": "t1",
+      "phase": "play",
+      "trick": 1,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "C:K"
+        },
+        {
+          "seat": 1,
+          "card": "C:R"
+        },
+        {
+          "seat": 2,
+          "card": "C:10"
+        },
+        {
+          "seat": 3,
+          "card": "C:7"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 22,
+      "text": "Du spielst den Treff-König an. In Treff hast du nur zwei Karten; je länger du mit dem König wartest, desto eher sticht ihn jemand mit Tarock ab. Alle bedienen, der Stich bringt dir 7 Punkte 1 Blatt – und dein teuerster Zähler ist in Sicherheit."
+    },
+    {
+      "id": "t2",
+      "phase": "play",
+      "trick": 2,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XI"
+        },
+        {
+          "seat": 1,
+          "card": "III"
+        },
+        {
+          "seat": 2,
+          "card": "XIX"
+        },
+        {
+          "seat": 3,
+          "card": "XXI"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 3,
+      "trickUnits": 16,
+      "text": "Jetzt tarockierst du. Ein mittleres Tarock ist die Standarderöffnung: mit ganz kleinen verschenkst du den Stich, die hohen brauchst du später. Berta gibt klein zu, Carl legt mit XIX auffällig hoch vor – das ist sein erstes Partnersignal. Dora sticht mit dem Mond."
+    },
+    {
+      "id": "t3",
+      "phase": "play",
+      "trick": 3,
+      "moves": [
+        {
+          "seat": 3,
+          "card": "D:1"
+        },
+        {
+          "seat": 0,
+          "card": "V"
+        },
+        {
+          "seat": 1,
+          "card": "D:B"
+        },
+        {
+          "seat": 2,
+          "card": "D:K"
+        }
+      ],
+      "lead": 3,
+      "expectWinner": 0,
+      "trickUnits": 19,
+      "text": "Dora spielt Karo. Du hast keines mehr, es liegt in deiner Ablage – dann gilt Tarockzwang: Du musst ein Tarock zugeben, auch wenn du den Stich nicht gewinnst. Das kleine V genügt dafür. Carl schmiert dir den Karo-König: Jetzt weißt du sicher, dass Carl dein Partner ist.",
+      "traps": [
+        {
+          "card": "H:K",
+          "reason": "E_TAROCKZWANG",
+          "text": "Du hast kein Karo mehr und willst deshalb den Herz-König loswerden? Abwerfen darfst du erst, wenn du auch kein Tarock mehr hast. Solange du eines hast, gilt Tarockzwang – und der Herz-König ist ohnehin fünf Punkte, die du behalten willst.",
+          "anchor": "#6.7"
+        }
+      ]
+    },
+    {
+      "id": "t4",
+      "phase": "play",
+      "trick": 4,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "S:9"
+        },
+        {
+          "seat": 1,
+          "card": "S:B"
+        },
+        {
+          "seat": 2,
+          "card": "S:K"
+        },
+        {
+          "seat": 3,
+          "card": "S:7"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 19,
+      "text": "Du spielst die kleine ♠9 in die gerufene Farbe. Carl macht den Stich mit dem gerufenen Pik-König – damit ist die Partnerschaft für alle offen, und deine Pik-Dame steht ab jetzt hinter dem König statt vor ihm.",
+      "traps": [
+        {
+          "card": "S:D",
+          "text": "Die Pik-Dame anzuspielen wäre verschenkt: Der gerufene König steht noch aus und würde sie schlucken. Spiel die kleine ♠9 – den König holt der Partner so oder so heim, und deine Dame macht später vielleicht noch einen Stich."
+        }
+      ]
+    },
+    {
+      "id": "t5",
+      "phase": "play",
+      "trick": 5,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "XII"
+        },
+        {
+          "seat": 3,
+          "card": "VII"
+        },
+        {
+          "seat": 0,
+          "card": "XVIII"
+        },
+        {
+          "seat": 1,
+          "card": "Sk"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 1,
+      "trickUnits": 16,
+      "text": "Carl bringt Tarock zurück: Der Partner spielt zurück, was der Spieler angespielt hat. Du stichst hoch mit XVIII und lockst damit den Sküs heraus. Ab jetzt ist dein XX das höchste lebende Tarock – der „Hausmeister“."
+    },
+    {
+      "id": "t6",
+      "phase": "play",
+      "trick": 6,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "D:D"
+        },
+        {
+          "seat": 2,
+          "card": "D:2"
+        },
+        {
+          "seat": 3,
+          "card": "X"
+        },
+        {
+          "seat": 0,
+          "card": "XVII"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 0,
+      "trickUnits": 13,
+      "text": "Berta spielt die Karo-Dame, Dora sticht mit X ein. Du musst nur ein Tarock zugeben; dass du mit XVII überstichst, ist deine Entscheidung – und sie holt dir die vier Punkte der Dame."
+    },
+    {
+      "id": "t7",
+      "phase": "play",
+      "trick": 7,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "XX"
+        },
+        {
+          "seat": 1,
+          "card": "IX"
+        },
+        {
+          "seat": 2,
+          "card": "II"
+        },
+        {
+          "seat": 3,
+          "card": "XIV"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 0,
+      "trickUnits": 4,
+      "text": "Mit dem Hausmeister ziehst du die letzten hohen Tarock heraus. Das ist der Sinn hoher Tarock: Sie räumen die Gegner leer, damit deine Könige später nicht mehr abgestochen werden."
+    },
+    {
+      "id": "t8",
+      "phase": "play",
+      "trick": 8,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "C:8"
+        },
+        {
+          "seat": 1,
+          "card": "C:D"
+        },
+        {
+          "seat": 2,
+          "card": "XV"
+        },
+        {
+          "seat": 3,
+          "card": "C:B"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 2,
+      "trickUnits": 16,
+      "text": "Du spielst deine letzte Treffkarte. Berta muss die Treff-Dame zugeben, Carl sticht sie mit XV ein. Dass nicht du den Stich machst, ist gleichgültig: Carl ist dein Partner, seine Punkte sind eure Punkte."
+    },
+    {
+      "id": "t9",
+      "phase": "play",
+      "trick": 9,
+      "moves": [
+        {
+          "seat": 2,
+          "card": "H:3"
+        },
+        {
+          "seat": 3,
+          "card": "H:4"
+        },
+        {
+          "seat": 0,
+          "card": "H:K"
+        },
+        {
+          "seat": 1,
+          "card": "H:2"
+        }
+      ],
+      "lead": 2,
+      "expectWinner": 0,
+      "trickUnits": 16,
+      "text": "Carl spielt klein Herz – wieder ein Partnerdienst. Genau dafür hast du den Herz-Buben verlegt: Dein Herz-König ist jetzt blank und macht den Stich.",
+      "traps": [
+        {
+          "card": "VI",
+          "reason": "E_FARBZWANG",
+          "text": "Ein kleines Tarock statt Herz? Es gilt Farbzwang: Solange du Herz auf der Hand hast, musst du Herz bedienen. Hier ist das kein Verlust, denn dein blanker Herz-König gewinnt den Stich.",
+          "anchor": "#6.2"
+        }
+      ]
+    },
+    {
+      "id": "t10",
+      "phase": "play",
+      "trick": 10,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "VIII"
+        },
+        {
+          "seat": 1,
+          "card": "XIII"
+        },
+        {
+          "seat": 2,
+          "card": "IIII"
+        },
+        {
+          "seat": 3,
+          "card": "I"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 1,
+      "trickUnits": 16,
+      "text": "Du ziehst mit VIII weiter Tarock. Dora muss den Pagat zugeben, es ist ihr letztes Tarock. Er fällt nicht im letzten Stich, also gibt es dafür keine Prämie – aber seine 5 Punkte kassiert Berta mit XIII."
+    },
+    {
+      "id": "t11",
+      "phase": "play",
+      "trick": 11,
+      "moves": [
+        {
+          "seat": 1,
+          "card": "H:R"
+        },
+        {
+          "seat": 2,
+          "card": "H:1"
+        },
+        {
+          "seat": 3,
+          "card": "S:8"
+        },
+        {
+          "seat": 0,
+          "card": "VI"
+        }
+      ],
+      "lead": 1,
+      "expectWinner": 0,
+      "trickUnits": 10,
+      "text": "Berta spielt den Herz-Reiter. Dora hat weder Herz noch Tarock und wirft Pik ab; du stichst mit dem kleinen VI und nimmst Reiter und Herz-As mit. Kleine Tarock sind am Ende viel wert, wenn die Gegner keine mehr haben."
+    },
+    {
+      "id": "t12",
+      "phase": "play",
+      "trick": 12,
+      "moves": [
+        {
+          "seat": 0,
+          "card": "S:D"
+        },
+        {
+          "seat": 1,
+          "card": "XVI"
+        },
+        {
+          "seat": 2,
+          "card": "S:10"
+        },
+        {
+          "seat": 3,
+          "card": "S:R"
+        }
+      ],
+      "lead": 0,
+      "expectWinner": 1,
+      "trickUnits": 19,
+      "text": "Letzter Stich: Du spielst die Pik-Dame, aber Berta hat kein Pik mehr und sticht mit XVI ein. Ärgerlich, mehr nicht – eine Prämie hängt an diesem Stich nicht."
+    }
+  ],
+  "result": {
+    "declarerParty": [
+      0,
+      2
+    ],
+    "cardUnits": [
+      125,
+      85
+    ],
+    "cardText": [
+      "41 Punkte 2 Blatt",
+      "28 Punkte 1 Blatt"
+    ],
+    "declarerTricks": 8,
+    "gameWon": true,
+    "bonuses": [
+      {
+        "key": "TRULL",
+        "announced": false,
+        "party": "defenders",
+        "achieved": true
+      },
+      {
+        "key": "ALLE_KOENIGE",
+        "announced": false,
+        "party": "declarer",
+        "achieved": true
+      }
+    ],
+    "schrift": [
+      1,
+      -1,
+      1,
+      -1
+    ],
+    "geld": [
+      1,
+      -1,
+      1,
+      -1
+    ]
+  },
+  "moral": "Das Spiel zu gewinnen ist nur die halbe Miete. Die Trull rutschte zu den Gegnern, weil du die drei Trullstücke nie eingefangen hast – ohne die vier Könige wäre unterm Strich null geblieben."
+}

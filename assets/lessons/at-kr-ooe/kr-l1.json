@@ -1,0 +1,143 @@
+{
+  "id": "kr-l1",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L1",
+  "title": "Zählen und die Schwelle",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Kartenwerte",
+    "Zählen in Dreierpaketen",
+    "70 Punkte im Spiel",
+    "35 und 2 Blatt"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Nicht jede Karte zählt gleich. Könige, Sküs, Mond und Pagat zählen 5, Damen 4, Reiter 3, Buben 2, alle übrigen 1. Alles, was mehr als 1 zählt, heißt Zähler; die Einser nennt man Blätter. In deinem Blatt stecken zwei Könige, eine Dame und ein Bube – 16 Punkte an Zählern.",
+      "anchor": "#1.4",
+      "highlight": {
+        "hand": [
+          "C:K",
+          "H:K",
+          "S:D",
+          "H:B"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "text": "Gezählt wird am Tisch immer in Dreierpaketen, und von jedem vollen Paket zieht man 2 ab. Beispiel aus deiner Hand: Treff-König (5), Pik-Dame (4) und Herz-Bube (2) sind zusammen 11, minus 2 macht 9. Drei Blätter zusammen ergeben also genau 1 Punkt. So rechnet man schnell und immer gleich.",
+      "anchor": "#1.5"
+    },
+    {
+      "id": "s3",
+      "text": "Warum das Abziehen? Weil im ganzen Spiel genau 70 Punkte stecken sollen. Addiert man alle Kartenwerte, kommt man auf 106; 54 Karten sind 18 Dreierpakete, also 36 abzuziehen – bleiben 70. Diese 70 Punkte teilen sich die beiden Parteien am Ende auf, dazu kommen die übrig gebliebenen Karten als „Blatt“.",
+      "anchor": "#1.5"
+    },
+    {
+      "id": "s4",
+      "text": "Bleiben am Schluss ein oder zwei Karten übrig, sagt man sie als „1 Blatt“ oder „2 Blatt“ an. Ein Blatt ist also ein Drittel Punkt. Deshalb heißt ein Ergebnis „41 Punkte 2 Blatt“ und nicht einfach 41 oder 42.",
+      "anchor": "#1.5"
+    },
+    {
+      "id": "s5",
+      "text": "Die Schwelle: Ein positives Spiel gewinnt die Spielerpartei mit mindestens 35 Punkten und 2 Blatt. Das ist knapp mehr als die Hälfte von 70 – gerade so viel, dass es kein Unentschieden geben kann.",
+      "anchor": "#1.6",
+      "traps": [
+        {
+          "text": "„35 Punkte, also die Hälfte – gewonnen!“ Das ist der häufigste Schock für Neulinge: 35 Punkte und 1 Blatt sind zu wenig, 35:35 ist verloren. Es braucht 35 und 2 Blatt. Wenn es knapp wird, ist jede einzelne kleine Karte entscheidend."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "text": "Zu deinen Punkten zählen nicht nur deine Stiche: Auch die Karten, die du nach dem Talon verlegst, zählen zu dir. Und die Talonhälfte, die du liegen lässt, zählt zu den Gegnern. Mitzählen heißt also: eigene Stiche plus Ablage – und beim Gegner die liegen gebliebene Hälfte nicht vergessen.",
+      "anchor": "#1.8",
+      "traps": [
+        {
+          "text": "Viele zählen nur die Stiche auf dem Tisch und wundern sich am Ende über sechs Punkte Unterschied. Die liegen gelassene Talonhälfte gehört den Gegnern – sie entscheidet oft das ganze Spiel. Wer mitzählt, sollte sie gleich beim Aufdecken dazuzählen."
+        }
+      ]
+    }
+  ]
+}

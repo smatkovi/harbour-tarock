@@ -1,0 +1,86 @@
+{
+  "profile": "AT-KR-OOE-2023-04",
+  "title": "Königrufen lernen",
+  "description": "Der Kurs zum oberösterreichischen Königrufen: acht Module und drei Übungspartien.",
+  "schema": "../schema.json",
+  "source": "docs/koenigrufen.md §11",
+  "lessons": [
+    {
+      "id": "kr-l0",
+      "file": "kr-l0.json",
+      "module": "L0",
+      "title": "Die Karten",
+      "description": "Die 54 Karten, die Rangfolge in den Farben, Tarock, Trull und Vögel."
+    },
+    {
+      "id": "kr-l1",
+      "file": "kr-l1.json",
+      "module": "L1",
+      "title": "Zählen und die Schwelle",
+      "description": "Kartenwerte, Dreierpakete, 70 Punkte – und warum 35 und 2 Blatt nötig sind."
+    },
+    {
+      "id": "kr-l2",
+      "file": "kr-l2.json",
+      "module": "L2",
+      "title": "Der Ablauf einer Hand",
+      "description": "Geben, Talon, Vorhand und die Kette der Phasen bis zur Abrechnung."
+    },
+    {
+      "id": "kr-l3",
+      "file": "kr-l3.json",
+      "module": "L3",
+      "title": "Die Lizitation",
+      "description": "„Vorhand“, die Reihenfolge der Spiele, Halten – und welches Spiel zu welchem Blatt passt."
+    },
+    {
+      "id": "kr-l4",
+      "file": "kr-l4.json",
+      "module": "L4",
+      "title": "König rufen, Talon und Verlegen",
+      "description": "Den Partner rufen, die richtige Talonhälfte wählen und regelgerecht verlegen."
+    },
+    {
+      "id": "kr-l5",
+      "file": "kr-l5.json",
+      "module": "L5",
+      "title": "Ansagen und Kontra",
+      "description": "Prämien, still oder angesagt, die Pflichtansage des Besserrufers, Kontra und Rekontra."
+    },
+    {
+      "id": "kr-l6",
+      "file": "kr-l6.json",
+      "module": "L6",
+      "title": "Die Regeln im Stich",
+      "description": "Farbzwang, Tarockzwang, Stichgewinn – und was in Negativ- und Farbenspielen anders ist."
+    },
+    {
+      "id": "kr-l7",
+      "file": "kr-l7.json",
+      "module": "L7",
+      "title": "Die Abrechnung",
+      "description": "Wem welche Karten zählen, die Schwelle, Posten für Posten, Schrift und Geld."
+    },
+    {
+      "id": "kr-practice-1",
+      "file": "kr-practice-1.json",
+      "module": "L7",
+      "title": "Mein erster Rufer",
+      "description": "Übungspartie: ein Rufer von der Lizitation bis zur Abrechnung, mit stillen Prämien."
+    },
+    {
+      "id": "kr-practice-2",
+      "file": "kr-practice-2.json",
+      "module": "L7",
+      "title": "Piccolo – genau ein Stich",
+      "description": "Übungspartie: ein Negativspiel mit Stichzwang, Pagat-Regel und einzelnem Kontra."
+    },
+    {
+      "id": "kr-practice-3",
+      "file": "kr-practice-3.json",
+      "module": "L7",
+      "title": "Besserrufer mit Pagat ultimo",
+      "description": "Übungspartie: Pflichtansage, Kontra auf den Vogel und der reservierte Pagat."
+    }
+  ]
+}

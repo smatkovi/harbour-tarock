@@ -22,12 +22,17 @@ file(GLOB TAROCK_CORE_SOURCES
 )
 list(SORT TAROCK_CORE_SOURCES)
 
+# Everything in src/ except its main.cpp: the facade, the learning mode and
+# its texts. Android has its own main.cpp next to this file.
+file(GLOB TAROCK_ENGINE_SOURCES ${TAROCK_ROOT}/src/*.cpp)
+list(REMOVE_ITEM TAROCK_ENGINE_SOURCES ${TAROCK_ROOT}/src/main.cpp)
+list(SORT TAROCK_ENGINE_SOURCES)
+
 qt_add_executable(tarock
     main.cpp
     ScreenHelper.h
     ${TAROCK_CORE_SOURCES}
-    ${TAROCK_ROOT}/src/TarockEngine.cpp
-    ${TAROCK_ROOT}/src/TarockEngine.h
+    ${TAROCK_ENGINE_SOURCES}
 )
 target_include_directories(tarock PRIVATE ${TAROCK_ROOT}/src)
 target_link_libraries(tarock PRIVATE
@@ -77,11 +82,19 @@ qt_add_qml_module(tarock
 )
 
 # Android has no /usr/share, so everything the app reads at runtime becomes a
-# resource. Card decks, lessons and rule texts follow in M6/M8.
+# resource. LearnEngine looks for the lessons under ":/lessons/<profile>".
+file(GLOB TAROCK_LESSON_FILES ${TAROCK_ROOT}/assets/lessons/*/*.json)
+foreach(file ${TAROCK_LESSON_FILES})
+    get_filename_component(name ${file} NAME)
+    get_filename_component(dir ${file} DIRECTORY)
+    get_filename_component(stem ${dir} NAME)
+    set_source_files_properties(${file} PROPERTIES QT_RESOURCE_ALIAS "lessons/${stem}/${name}")
+endforeach()
+
 qt_add_resources(tarock tarock_data
     PREFIX "/"
     BASE "${TAROCK_ROOT}"
-    FILES "${TAROCK_ROOT}/sailfish/icons/icon-256.png"
+    FILES "${TAROCK_ROOT}/sailfish/icons/icon-256.png" ${TAROCK_LESSON_FILES}
 )
 
 # The Android Qt package has no Linguist tools, so use lrelease of the host Qt.

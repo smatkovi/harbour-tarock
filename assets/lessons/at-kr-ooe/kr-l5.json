@@ -1,0 +1,263 @@
+{
+  "id": "kr-l5",
+  "profile": "AT-KR-OOE-2023-04",
+  "module": "L5",
+  "title": "Ansagen und Kontra",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Was eine Prämie ist",
+    "Still oder angesagt",
+    "Die Pflichtansage des Besserrufers",
+    "Kontra, Rekontra, Subkontra"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 1,
+  "deal": {
+    "hands": [
+      [
+        "XXI",
+        "XVIII",
+        "XVI",
+        "XIII",
+        "IX",
+        "VII",
+        "I",
+        "H:K",
+        "D:4",
+        "S:D",
+        "S:8",
+        "C:10"
+      ],
+      [
+        "XVII",
+        "XI",
+        "X",
+        "IIII",
+        "H:1",
+        "D:B",
+        "S:K",
+        "S:7",
+        "C:R",
+        "C:B",
+        "C:8",
+        "C:7"
+      ],
+      [
+        "Sk",
+        "XX",
+        "XV",
+        "XII",
+        "VIII",
+        "III",
+        "H:D",
+        "H:4",
+        "D:R",
+        "D:3",
+        "S:B",
+        "C:9"
+      ],
+      [
+        "XIV",
+        "VI",
+        "II",
+        "H:B",
+        "H:3",
+        "H:2",
+        "D:D",
+        "D:2",
+        "S:R",
+        "S:10",
+        "S:9",
+        "C:K"
+      ]
+    ],
+    "talon": [
+      [
+        "XIX",
+        "V",
+        "D:1"
+      ],
+      [
+        "D:K",
+        "C:D",
+        "H:R"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "auto": [
+        {
+          "seat": 2,
+          "type": "vorhand"
+        },
+        {
+          "seat": 3,
+          "type": "pass"
+        },
+        {
+          "seat": 0,
+          "type": "bid",
+          "a": "BESSERRUFER"
+        },
+        {
+          "seat": 1,
+          "type": "pass"
+        },
+        {
+          "seat": 2,
+          "type": "pass"
+        },
+        {
+          "seat": 0,
+          "type": "callking",
+          "a": "S"
+        },
+        {
+          "seat": 0,
+          "type": "taketalon",
+          "a": 0
+        },
+        {
+          "seat": 0,
+          "type": "discardSet",
+          "cards": [
+            "D:4",
+            "D:1",
+            "C:10"
+          ]
+        }
+      ],
+      "text": "Für dieses Modul spielst du einen Besserrufer: sieben Tarock mit Mond und Pagat, der Pik-König ist gerufen, die Talonhälfte mit dem XIX liegt bei dir, Karo und Treff sind verlegt. Jetzt kommt die Ansagephase – der Teil, in dem sich entscheidet, wie viel die Hand wert ist.",
+      "anchor": "#5.1"
+    },
+    {
+      "id": "s2",
+      "text": "Prämien sind Zusatzziele neben dem Spiel, und jede wird getrennt abgerechnet: Trull (die drei teuersten Tarock), Alle Könige, König ultimo, die vier Vögel Pagat, Uhu, Kakadu, Quapil und der Valat. Eine Prämie kann man ansagen oder still versuchen. Still zählt sie die Hälfte, kostet aber nichts, wenn sie misslingt; angesagt zählt sie doppelt so viel – und wenn sie misslingt, zahlst du denselben Betrag an die Gegner. Deshalb sagt man nur an, was man auch spielen kann.",
+      "anchor": "#5.1"
+    },
+    {
+      "id": "s3",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "announce",
+        "a": "PAGAT"
+      },
+      "text": "Beim Besserrufer hast du keine Wahl: Der Vogel, den du schon vor dem Talon im Blatt hattest, muss angesagt werden – dafür heißt das Spiel so. Du sagst „Pagat“ an, also: Ich mache den letzten Stich mit dem Pagat. Das Spiel selbst zählt dabei nur 1; der Vogel ist das Hauptziel.",
+      "anchor": "#5.3",
+      "highlight": {
+        "hand": [
+          "I"
+        ]
+      },
+      "traps": [
+        {
+          "action": {
+            "type": "ready"
+          },
+          "reason": "E_BESSERRUFER_VOGEL_PFLICHT",
+          "text": "Den Vogel still zu versuchen und die Hälfte zu kassieren, klingt sicherer – beim Besserrufer ist es nicht erlaubt. Wer ohne Vogel im Blatt gar nicht ansagen könnte, dürfte auch den Besserrufer nicht bieten."
+        },
+        {
+          "action": {
+            "type": "announce",
+            "a": "KOENIG_ULTIMO"
+          },
+          "reason": "E_KU_OHNE_KOENIG",
+          "text": "König ultimo heißt: Der gerufene König kommt im letzten Stich heim. Ansagen darf ihn nur, wer den König selbst in der Hand hält – also höchstens dein Partner. Für den Partner darf man nichts ansagen."
+        },
+        {
+          "action": {
+            "type": "announce",
+            "a": "TRULL"
+          },
+          "text": "Die Trull darfst du ansagen, auch ohne alle drei Stücke: Trull und Alle Könige gehen „auf Verdacht“. Hier hast du Mond und Pagat, der Sküs sitzt aber bei Carl – du bekämst ihn nur, wenn er ihn vor deinem Mond hergeben muss. Angesagt und misslungen zahlst du sie voll; still erzielt zählt sie die Hälfte und kostet nichts, wenn sie danebengeht."
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "„Ich liege“ beendet deine Ansage und gibt den anderen das Wort. Erst ab diesem Satz darf überhaupt kontriert werden. Berta sagt „gut“. Carl kontriert deinen Pagat: Er hat sechs Tarock mit Sküs und XX und glaubt, dich vor dem letzten Stich zum Stechen zu zwingen. Dora sagt „gut“.",
+      "anchor": "#5.6",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        },
+        {
+          "seat": 2,
+          "type": "kontra",
+          "a": "PAGAT",
+          "b": 2
+        },
+        {
+          "seat": 3,
+          "type": "ready"
+        }
+      ],
+      "traps": [
+        {
+          "action": {
+            "type": "kontra",
+            "a": "PAGAT",
+            "b": 2
+          },
+          "reason": "E_KONTRA_EIGENE_ANSAGE",
+          "text": "Die eigene Ansage kann man nicht kontrieren – Kontra ist der Widerspruch der Gegenpartei. Auf ihr Kontra antwortest du mit „Rekontra“."
+        }
+      ]
+    },
+    {
+      "id": "s5",
+      "phase": "announce",
+      "seat": 0,
+      "expect": {
+        "type": "ready"
+      },
+      "text": "Kontra verdoppelt den Posten, Rekontra vervierfacht ihn, Subkontra verachtfacht ihn – höher geht es nicht. Wichtig: Ein Kontra betrifft nur den Posten, auf den es gesagt wurde, hier also den Pagat, nicht das Spiel. Und es zählt nur beim Geld: In der Turnierwertung, der Schrift, bleibt der Pagat zwei Punkte wert.",
+      "anchor": "#7.8",
+      "auto": [
+        {
+          "seat": 1,
+          "type": "ready"
+        }
+      ],
+      "traps": [
+        {
+          "text": "Ein Kontra ist keine Beleidigung und kein Misstrauensvotum gegen deinen Partner. Es ist der normale Weg, ein Spiel spannend zu machen: „Ein Kontra belebt das Spiel.“ Wer es persönlich nimmt, spielt schlechter."
+        },
+        {
+          "action": {
+            "type": "kontra",
+            "a": "PAGAT",
+            "b": 4
+          },
+          "text": "Rekontra vervierfacht in beide Richtungen. Sag es nur, wenn dein Plan nicht von einer einzigen gegnerischen Karte abhängt – hier davon, dass Carl seinen Sküs rechtzeitig hergeben muss."
+        }
+      ]
+    },
+    {
+      "id": "s6",
+      "text": "Zwei Regeln zum Schluss. Erstens: Eine angesagte Karte ist reserviert. Den angesagten Pagat darfst du bis zu seinem Stich nicht zum Stichgewinn einsetzen; gibst du ihn vorher her, ist die Prämie weg – erlaubt wäre es, aber teuer. Zweitens: Jeder Spieler sagt nur einmal an, und die Ansagen laufen reihum, beginnend beim Spieler.",
+      "anchor": "#5.4",
+      "traps": [
+        {
+          "text": "Vogelgier ist der häufigste Grund für verlorene Spiele: Wer den Pagat um jeden Preis heimbringen will, hebt Tarock auf, die er zum Stechen bräuchte. Das Taktieren mit Vogerln kann dir das Spiel kosten – und das Spiel zählt auch."
+        }
+      ]
+    }
+  ]
+}

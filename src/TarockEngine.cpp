@@ -20,6 +20,8 @@
 */
 #include "TarockEngine.h"
 
+#include "LearnEngine.h"
+
 #include <QByteArray>
 #include <QDateTime>
 #include <QSettings>
@@ -193,6 +195,10 @@ TarockEngine::TarockEngine(QObject* parent)
     });
 
     loadSettings();
+
+    // The learning mode is a layer over the engine, not a second engine; QML
+    // reaches it as tarockEngine.learn (docs/design.md §7.2).
+    m_learn = new LearnEngine(this, this);
 }
 
 TarockEngine::~TarockEngine()
@@ -324,6 +330,8 @@ void TarockEngine::startMatch(const QString& profileKeyName, int players)
     emit resetVisuals();
     emit matchStarted();
     emit settingsChanged();
+    if (m_learn)
+        m_learn->handStarted();
     finishIdle();
 }
 
@@ -374,6 +382,8 @@ void TarockEngine::nextHand()
     m_flyingWinner = -1;
     persist();
     emit resetVisuals();
+    if (m_learn)
+        m_learn->handStarted();
     finishIdle();
 }
 
@@ -398,19 +408,34 @@ bool TarockEngine::attempt(const QString& type, int a, int b, bool confirmed)
         emit actionRejected(reasonMap(unknown));
         return false;
     }
+    // Inside a practice hand the lesson script decides what happens; it drives
+    // the core itself and tells the table through lessonStateChanged().
+    if (m_learn && m_learn->lessonActive()) {
+        bool accepted = false;
+        if (m_learn->lessonAct(action, &accepted))
+            return accepted;
+    }
     const Reason reason = m_core.check(0, action);
     if (severityOf(reason) == Severity::Error) {
+        if (m_learn)
+            m_learn->noteRefusal(reason, type, a, b);
         emit actionRejected(reasonMap(reason));
         return false;
     }
     // A warning is allowed but costs something — a renonce, a bird given away.
     // The table says so and asks again; the repeat comes back confirmed.
     if (!confirmed && severityOf(reason) == Severity::Warning) {
+        if (m_learn)
+            m_learn->noteRefusal(reason, type, a, b);
         emit actionWarned(reasonMap(reason), type, a, b);
         return false;
     }
     if (!reason.ok() && severityOf(reason) == Severity::Info)
         emit actionRejected(reasonMap(reason));
+    // Written down before the action is applied: the debriefing compares what
+    // was played with what the same ranking would have recommended (§7.5).
+    if (m_learn)
+        m_learn->noteLocalAction(action);
     return perform(0, action);
 }
 
@@ -436,6 +461,8 @@ bool TarockEngine::perform(int seat, const Action& action)
             m_matchSchrift[s] += ledger.schrift[static_cast<std::size_t>(s)];
             m_matchGeld[s] += ledger.geld[static_cast<std::size_t>(s)];
         }
+        if (m_learn)
+            m_learn->handFinished();
         emit handFinished();
     }
     persist();
@@ -526,6 +553,8 @@ void TarockEngine::finishIdle()
 {
     setVisualPhase(Idle);
     emit stateChanged();
+    if (m_learn)
+        m_learn->refresh();
     scheduleComputer();
 }
 
@@ -574,6 +603,9 @@ void TarockEngine::scheduleComputer()
     m_aiTimer.stop();
     if (!m_active || m_paused || m_visualPhase != Idle || m_core.handOver())
         return;
+    // A lesson plays the other seats from its script, not from the AI timer.
+    if (m_learn && m_learn->lessonActive())
+        return;
     const int seat = m_core.actor();
     if (seat <= 0 || !seatIsComputer(seat))
         return;
@@ -610,6 +642,25 @@ void TarockEngine::runComputer()
             return;
     }
     setPaused(true);
+}
+
+tarock::TarockCore& TarockEngine::coreForLearning()
+{
+    // A lesson needs to deal a fixed hand and to replay scripted moves, which
+    // no other caller may do; everything else reads the core through core().
+    m_active = true;
+    return m_core;
+}
+
+void TarockEngine::lessonStateChanged()
+{
+    m_aiTimer.stop();
+    m_trickPauseTimer.stop();
+    m_watchdog.stop();
+    setVisualPhase(Idle);
+    m_flyingTrick.clear();
+    m_flyingWinner = -1;
+    emit stateChanged();
 }
 
 bool TarockEngine::seatIsComputer(int seat) const

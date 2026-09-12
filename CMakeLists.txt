@@ -26,9 +26,11 @@ list(SORT TAROCK_CORE_SOURCES)
 
 # The QML facade of the core (docs/design.md §5); main.cpp installs it as the
 # context property `tarockEngine`.
-set(TAROCK_ENGINE_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/TarockEngine.cpp
-)
+# Everything in src/ except main.cpp: the facade, the learning mode and its
+# texts. Globbed for the same reason as the core, so a new file is picked up.
+file(GLOB TAROCK_ENGINE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM TAROCK_ENGINE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
+list(SORT TAROCK_ENGINE_SOURCES)
 
 add_executable(harbour-tarock
     src/main.cpp
@@ -67,7 +69,7 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_cards test_hands test_legality test_scoring test_selfplay test_skeleton)
+    foreach(t test_cards test_hands test_learn test_legality test_scoring test_selfplay test_skeleton)
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/${t}.cpp)
             add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
             target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

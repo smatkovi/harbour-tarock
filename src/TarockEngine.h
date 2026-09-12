@@ -32,6 +32,8 @@
 #include <QVariantMap>
 #include <QVector>
 
+class LearnEngine;
+
 // The QML facade of the rule core (docs/design.md §5). Seat 0 is always the
 // local player; the others are computer players, and from M7 on people on
 // other devices. The core itself never sleeps: animation phases decouple it
@@ -87,6 +89,11 @@ class TarockEngine : public QObject
     Q_PROPERTY(bool matchOver READ matchOver NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap ledger READ ledger NOTIFY stateChanged)
     Q_PROPERTY(QVariantMap liveCount READ liveCount NOTIFY stateChanged)
+
+    // --- learning mode ------------------------------------------------------
+    // QML reaches the whole learning mode through this one object:
+    // tarockEngine.learn.why(…), tarockEngine.learn.level, … (design.md §7.2).
+    Q_PROPERTY(LearnEngine* learn READ learn CONSTANT)
 
     // --- presentation -------------------------------------------------------
     Q_PROPERTY(int visualPhase READ visualPhase NOTIFY visualPhaseChanged)
@@ -176,8 +183,20 @@ public:
     int animationSpeed() const { return m_animationSpeed; }
     void setAnimationSpeed(int value);
 
+    LearnEngine* learn() const { return m_learn; }
+
     // Test hook.
     const tarock::TarockCore& core() const { return m_core; }
+
+    // --- hooks for the learning mode ----------------------------------------
+    // The hint engine ranks with the very same player the opponents use.
+    const tarock::AiPlayer& ai() const { return m_ai; }
+    // A lesson installs a fixed deal and replays scripted moves; it is the
+    // only writer besides the engine itself, and it drives the core directly,
+    // without the animation pipeline (design.md §7.6).
+    tarock::TarockCore& coreForLearning();
+    // A lesson changed the core behind the engine's back: tell the table.
+    void lessonStateChanged();
 
 signals:
     void stateChanged();
@@ -218,6 +237,7 @@ private:
 
     tarock::TarockCore m_core;
     tarock::AiPlayer m_ai;
+    LearnEngine* m_learn = nullptr;
     tarock::ProfileId m_profileId = tarock::ProfileId::AtKrOoe2023;
     tarock::Difficulty m_difficulty = tarock::Difficulty::Club;
 
