@@ -92,6 +92,13 @@ Item {
         return []
     }
 
+    // The misconceptions of the step (assets/lessons/README.md, third kind of
+    // trap): they belong to the text and are shown with it, not sprung.
+    function notes() {
+        var value = overlay.value("notes", null)
+        return value && value.length !== undefined ? value : []
+    }
+
     function cardText(entry) {
         if (typeof entry !== "number")
             return String(entry)
@@ -245,6 +252,33 @@ Item {
                                 color: Style.highlightColor
                                 text: typeof modelData === "number" ? "" : String(modelData)
                             }
+                        }
+                    }
+                }
+
+                // Misconceptions that belong to this step; they are read, not
+                // walked into.
+                Repeater {
+                    model: overlay.visible ? overlay.notes() : []
+
+                    Column {
+                        width: column.width
+                        spacing: 0
+
+                        Text {
+                            width: parent.width
+                            font.pixelSize: Style.fontSizeTiny
+                            color: overlay.warnColor
+                            text: qsTr("A common misconception")
+                        }
+
+                        Text {
+                            width: parent.width
+                            visible: text !== ""
+                            wrapMode: Text.WordWrap
+                            font.pixelSize: Style.fontSizeTiny
+                            color: Style.primaryColor
+                            text: modelData && modelData.text ? modelData.text : ""
                         }
                     }
                 }

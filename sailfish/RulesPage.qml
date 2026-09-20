@@ -173,8 +173,11 @@ Page {
                     visible: page.matches(modelData)
                     height: visible ? contentHeight : 0
                     contentHeight: chapterColumn.height + 2 * Theme.paddingSmall
-                    highlighted: page.sameAnchor(modelData.anchor, page.openAnchor)
-                    onClicked: page.openAnchor = highlighted ? "" : modelData.anchor
+                    // Not Silica's `highlighted` — see GlossaryPage.qml: a
+                    // binding on it makes the item click itself, and the
+                    // chapter would fold up again at once.
+                    readonly property bool open: page.sameAnchor(modelData.anchor, page.openAnchor)
+                    onClicked: page.openAnchor = chapterItem.open ? "" : modelData.anchor
 
                     // The anchor a reason pointed at is scrolled into view.
                     Component.onCompleted: {
@@ -193,12 +196,12 @@ Page {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             text: page.chapterTitle(modelData)
-                            color: chapterItem.highlighted ? Theme.highlightColor
-                                                           : Theme.primaryColor
+                            color: chapterItem.open ? Theme.highlightColor
+                                                     : Theme.primaryColor
                         }
                         Label {
                             width: parent.width
-                            visible: chapterItem.highlighted && text !== ""
+                            visible: chapterItem.open && text !== ""
                             wrapMode: Text.WordWrap
                             color: Theme.secondaryColor
                             font.pixelSize: Theme.fontSizeExtraSmall
@@ -216,7 +219,6 @@ Page {
                 ListItem {
                     width: parent.width
                     contentHeight: entry.height + 2 * Theme.paddingSmall
-                    highlighted: modelData === Prefs.profileKey
                     onClicked: Prefs.profileKey = modelData
 
                     Column {

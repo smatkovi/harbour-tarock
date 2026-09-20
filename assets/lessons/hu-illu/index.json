@@ -1,0 +1,16 @@
+{
+  "profile": "HU-ILLU-ITVB-2019",
+  "title": "Illusztrált tarokk lernen",
+  "description": "Der Kurs zum ungarischen Illusztrált tarokk: bisher der Überblick, die Module und Übungspartien folgen mit dem Regelprofil.",
+  "schema": "../schema.json",
+  "source": "docs/hungarian.md §11",
+  "lessons": [
+    {
+      "id": "hu-intro",
+      "file": "hu-intro.json",
+      "kind": "overview",
+      "title": "Spielziel, Ablauf und Regeln",
+      "description": "Das ganze Spiel in einem Durchgang: was du erreichen willst, wie eine Hand abläuft und welche Regeln im Stich gelten."
+    }
+  ]
+}

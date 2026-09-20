@@ -2,7 +2,7 @@
 # the CMakeLists.txt one directory up; both compile the same sources from
 # src/ and the same shared QML from qml-common/.
 cmake_minimum_required(VERSION 3.21)
-project(tarock VERSION 0.1.0 LANGUAGES CXX)
+project(tarock VERSION 0.2.3 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -77,6 +77,10 @@ qt_add_qml_module(tarock
         qml/ScorePage.qml
         qml/SettingsPage.qml
         qml/RulesPage.qml
+        qml/GlossaryPage.qml
+        qml/LearnPage.qml
+        qml/LessonPage.qml
+        qml/TutorialPage.qml
         qml/AboutPage.qml
         ${TAROCK_SHARED_QML}
 )
@@ -125,8 +129,8 @@ set_target_properties(tarock PROPERTIES
     QT_ANDROID_APP_ICON "@drawable/icon"
     QT_ANDROID_MIN_SDK_VERSION 28
     QT_ANDROID_TARGET_SDK_VERSION 36
-    QT_ANDROID_VERSION_CODE 1
-    QT_ANDROID_VERSION_NAME "0.1.0"
+    QT_ANDROID_VERSION_CODE 203
+    QT_ANDROID_VERSION_NAME "0.2.3"
 )
 
 if(ANDROID)

@@ -1,5 +1,5 @@
 Name: harbour-tarock
-Version: 0.1.0
+Version: 0.2.3
 Release: 1
 Summary: Königrufen and Hungarian Tarokk with a learning mode
 License: GPL-3.0-or-later
@@ -22,8 +22,11 @@ Hungarian Tarokk, Tapp- and Dreiertarock and Strohmandeln. Play against
 computer opponents or against other phones in the same network, and let the
 built-in learning mode explain every bid, every discard and every trick.
 
-This early version is the project skeleton: it starts and shows the table.
-The games themselves are added release by release.
+This version plays Königrufen at a table of four against computer opponents
+and carries the learning mode in full: the reason behind every refusal, hints,
+the rule reference, the glossary and a tutorial that walks through the table
+and then through the course. LAN play, the five-seat table and the Hungarian
+profile follow release by release.
 
 %prep
 %setup -q
@@ -88,5 +91,32 @@ install -m 644 LICENSE %{buildroot}/usr/share/licenses/%{name}/
 /usr/share/licenses/%{name}
 
 %changelog
+* Sat Sep 12 2026 smatkovi - 0.2.3-1
+- The learning mode reaches the interface at all again: the `learn` property had
+  no metatype, so QML saw `undefined` — the tutorial listed no lessons, and the
+  explanation bar, the hints, the "why not?" dialog and the lesson band were all
+  silently switched off
+- tests/test_qmlbridge.cpp checks the engine contract from a real QQmlEngine
+
+* Sat Sep 12 2026 smatkovi - 0.2.2-1
+- Settings are stored where the Sailjail sandbox allows it again: the learning
+  level, the tutorial progress and a saved match survive the next start
+- "Learn to play" on the start page, opening with the overview of goal, run of
+  a hand and rules
+- The interface is German throughout; the lesson band, the panels and the
+  dialogs were still English
+
+* Sat Sep 12 2026 smatkovi - 0.2.1-1
+- An overview lesson for both rule profiles: the goal of the game and the whole
+  hand, from the deal to the settlement
+- The shipped lessons load again: traps without a card, the long form of "auto"
+  and the named Kontra posten are understood as documented
+- tests/test_lessons.cpp plays every lesson through
+
+* Sat Sep 12 2026 smatkovi - 0.2.0-1
+- Tutorial: a guided tour of the table and the course as one chain with progress
+- Learning mode: reasons, hints, lessons, rule reference and glossary
+- Königrufen playable at a table of four against computer opponents
+
 * Sat Sep 12 2026 smatkovi - 0.1.0-1
 - Project skeleton: builds and starts on Sailfish OS and Android, shows an empty table

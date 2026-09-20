@@ -21,9 +21,9 @@
 import QtQuick
 import QtQuick.Controls
 
-// The course list of docs/design.md §7.6; the counterpart of
-// sailfish/LearnPage.qml. The index comes from the engine, which reads
-// lessons/<profile>/*.json; the page only lays it out.
+// The learning mode of docs/design.md §7; the counterpart of
+// sailfish/LearnPage.qml: the level, the reference and the typical mistakes.
+// The lessons are the course of TutorialPage.
 SubPage {
     id: page
     objectName: "learnPage"
@@ -37,45 +37,10 @@ SubPage {
     property var mistakes: []
     property bool mistakesOpen: false
 
-    readonly property var lessons: page.lessonIndex()
-
-    // LearnEngine::lessonIds() lists the lesson files of the active profile;
-    // lessonInfo(id) would add title, module and goals, so until it exists an
-    // entry carries what the file name says.
-    function lessonIndex() {
-        if (page.learn === null || typeof page.learn.lessonIds !== "function")
-            return []
-        var result = []
-        var ids = page.learn.lessonIds()
-        for (var i = 0; i < ids.length; ++i) {
-            if (typeof page.learn.lessonInfo === "function") {
-                var info = page.learn.lessonInfo(ids[i])
-                if (info && info.id) {
-                    result.push(info)
-                    continue
-                }
-            }
-            result.push({ "id": ids[i], "title": ids[i] })
-        }
-        return result
-    }
-
-    function subtitle(entry) {
-        var parts = []
-        if (entry.module)
-            parts.push(entry.module)
-        if (entry.goals && entry.goals.length > 0)
-            parts.push(entry.goals.join(" · "))
-        return parts.join("  ·  ")
-    }
-
-    function start(entry) {
-        if (page.learn === null || !entry.id)
-            return
-        page.learn.startLesson(entry.id)
-        page.StackView.view.push(Qt.resolvedUrl("LessonPage.qml"))
-    }
-
+    // The lessons themselves are the course of TutorialPage (docs/design.md
+    // §7.9), which lists them in the order of index.json together with the
+    // tour and the progress; this page is about the layer over the normal
+    // game: the level, the reference and the typical mistakes.
     function toggleMistakes() {
         if (!page.mistakesOpen && page.mistakes.length === 0 && page.learn !== null
                 && page.learn.commonMistakes) {
@@ -94,7 +59,7 @@ SubPage {
     }
 
     TextBlock {
-        text: qsTr("The learning mode is a layer over the normal game: every match, a LAN match too, can have it switched on. The lessons below deal a fixed hand and take you through it step by step.")
+        text: qsTr("The learning mode is a layer over the normal game: every match, a LAN match too, can have it switched on. The lessons themselves are in the tutorial, which keeps their order and remembers your progress.")
         color: Theme.secondaryColor
         font.pixelSize: Theme.fontSizeExtraSmall
     }
@@ -119,37 +84,18 @@ SubPage {
     SectionLabel { text: qsTr("Lessons") }
 
     TextBlock {
-        visible: page.lessons.length === 0
-        text: qsTr("No lessons are installed for this rule profile.")
+        text: page.learn === null || page.learn.lessonCount === 0
+              ? qsTr("No lessons are installed for this rule profile.")
+              : qsTr("“Learn to play” takes the overview, the eight modules and the three practice hands in order and remembers where you are: %1 of %2 done.")
+                .arg(page.learn.lessonsDone).arg(page.learn.lessonCount)
         color: Theme.secondaryColor
         font.pixelSize: Theme.fontSizeExtraSmall
     }
 
-    Repeater {
-        model: page.lessons
-
-        ItemDelegate {
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
-            onClicked: page.start(modelData)
-
-            contentItem: Column {
-                Label {
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: modelData.title ? modelData.title : modelData.id
-                }
-                Label {
-                    width: parent.width
-                    visible: text !== ""
-                    wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.secondaryColor
-                    text: page.subtitle(modelData)
-                }
-            }
-        }
+    Button {
+        anchors.horizontalCenter: parent.horizontalCenter
+        text: qsTr("Learn to play")
+        onClicked: page.StackView.view.push(Qt.resolvedUrl("TutorialPage.qml"))
     }
 
     SectionLabel { text: qsTr("Reference") }

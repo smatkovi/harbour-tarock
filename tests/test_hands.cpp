@@ -324,7 +324,15 @@ void replay(const std::string& path)
 
 int main(int argc, char** argv)
 {
-    const std::string dir = argc > 1 ? argv[1] : "tests/fixtures";
+    // The fixtures live in the source tree; CMake passes its location, so the
+    // test does not depend on the directory it is started from. An explicit
+    // argument still wins.
+#ifdef TAROCK_DATA_DIR
+    const std::string fallback = std::string(TAROCK_DATA_DIR) + "/tests/fixtures";
+#else
+    const std::string fallback = "tests/fixtures";
+#endif
+    const std::string dir = argc > 1 ? argv[1] : fallback;
     std::printf("Replaying the practice hands of docs/koenigrufen.md §11.7\n");
     for (const char* name : {"kr_hand1.json", "kr_hand2.json", "kr_hand3.json"})
         replay(dir + "/" + name);

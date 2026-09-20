@@ -1,0 +1,134 @@
+{
+  "id": "hu-intro",
+  "profile": "HU-ILLU-ITVB-2019",
+  "title": "Spielziel, Ablauf und Regeln",
+  "source": "docs/hungarian.md §11.2",
+  "goals": [
+    "Das Ziel des Spiels",
+    "Das Lizit um den Talon",
+    "Der Weg durch eine Hand",
+    "Figuren und Abrechnung"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Béla",
+    "Csilla",
+    "Dóra"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVIII",
+        "XIV",
+        "X",
+        "V",
+        "H:K",
+        "H:B",
+        "S:D",
+        "C:10"
+      ],
+      [
+        "H:D",
+        "S:K",
+        "VI",
+        "XVII",
+        "XII",
+        "D:K",
+        "C:K",
+        "Sk",
+        "XIII"
+      ],
+      [
+        "S:10",
+        "IX",
+        "XI",
+        "XV",
+        "XVI",
+        "VII",
+        "D:B",
+        "II",
+        "XIX"
+      ],
+      [
+        "S:R",
+        "D:1",
+        "C:D",
+        "III",
+        "XXI",
+        "C:R",
+        "D:D",
+        "H:R",
+        "D:R"
+      ]
+    ],
+    "talon": [
+      [
+        "H:1",
+        "I",
+        "C:B"
+      ],
+      [
+        "VIII",
+        "S:B",
+        "IIII"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Illusztrált tarokk ist ein Stichspiel zu viert mit 42 Karten: den 22 Tarock und in jeder Farbe nur noch König, Dame, Reiter, Bube und die höchste kleine Karte – die übrigen kleinen Karten sind aus dem Spiel genommen. Jeder bekommt neun Karten, gespielt werden neun Stiche. Es geht um Kartenpunkte: 94 sind im Spiel, und die Partei des Spielmachers braucht 48. Bei 47 zu 47 gewinnen die Gegner.",
+      "anchor": "#1.7",
+      "highlight": {
+        "hand": [
+          "H:K",
+          "S:D",
+          "H:B"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "text": "Das Lizit versteigert nicht ein Ziel, sondern wie wenige Karten du aus dem Talon brauchst: „három“ sind drei Karten und das billigste Spiel, „kettő“ zwei, „egy“ eine, „szóló“ keine. Je weniger du nimmst, desto mehr traust du deinem Blatt zu – und desto mehr ist die Hand wert. Mitbieten darf überhaupt nur, wer einen honőr hat: Skíz, XXI oder Pagát. Wer schon geboten hat und überboten wurde, zieht mit „tartom“ gleich.",
+      "anchor": "#3.1"
+    },
+    {
+      "id": "s3",
+      "text": "Zwei Gebote sagen mehr, als sie sagen. Ein Sprung über ein Gebot ist kein Angeberzug, sondern ein Versprechen (invit): ein Sprung heißt „ich habe den XIX“, zwei Sprünge „ich habe den XVIII“. Und wer nach eigenem Gebot passt, während ein anderer erhöht, sagt damit „engedés“: „ich habe den XX“. Diese Versprechen sind Regeln und keine Höflichkeit – dein Partner rechnet damit.",
+      "anchor": "#3.5"
+    },
+    {
+      "id": "s4",
+      "text": "Der Spielmacher nimmt so viele Talonkarten, wie sein Gebot sagt; die übrigen bekommen die Gegner. Dann legt jeder genau so viele Karten wieder weg (skart). Niemals weglegen darf man Skíz, XXI, Pagát, jeden König und den XX. Danach ruft der Spielmacher einen Tarock – fast immer den XX. Wer ihn hat, ist sein Partner und sagt kein Wort; oft merkt man erst mitten im Spiel, wer zusammengehört.",
+      "anchor": "#4.1",
+      "highlight": {
+        "hand": [
+          "XX"
+        ]
+      }
+    },
+    {
+      "id": "s5",
+      "text": "Das Herz des ungarischen Spiels sind die Ansagen, die figurák: tulétroá und négykirály, pagát ultimó, XXI-fogás, die Vogelfiguren und einige mehr. Fast alles kann man auch still erfüllen und bekommt dann den halben Preis; angesagt zählt es voll, kostet aber auch voll, wenn es misslingt. Weil der Partner geheim ist, gilt eine eigene Regel: Wer etwas ansagt, gilt als Partner des zuletzt Sprechenden – wer dagegen spielt, muss sich vorher mit einem Kontra zu erkennen geben.",
+      "anchor": "#5.1"
+    },
+    {
+      "id": "s6",
+      "text": "Neun Stiche. Die ausgespielte Farbe muss bedient werden; hat man sie nicht, muss Tarock gespielt werden; hat man beides nicht, ist alles erlaubt. Stechen muss man nie – man darf auch einen kleinen Tarock unterlegen. Hat deine Partei eine Figur angesagt, die eine bestimmte Karte in einem bestimmten Stich verlangt, etwa pagát ultimó, dann ist diese Karte gebunden: vorher darfst du sie nicht spielen, im Zielstich musst du sie spielen.",
+      "anchor": "#6.2"
+    },
+    {
+      "id": "s7",
+      "text": "Am Ende zählt jede Partei ihre Stiche samt dem zugehörigen skart – zusammen immer 94 Punkte. Ab 48 hat die Partei des Spielmachers das Spiel gewonnen; die Figuren kommen einzeln dazu, jede mit ihrem eigenen Preis und ihrem eigenen Kontra. Abgerechnet wird pro Spieler: Wer allein gegen drei spielt, kassiert oder zahlt dreifach.",
+      "anchor": "#7.1"
+    },
+    {
+      "id": "s8",
+      "text": "Das ist das ganze Spiel. Der ausführliche Kurs zum ungarischen Tarokk – Module und Übungspartien wie beim Königrufen – kommt, sobald das ungarische Regelprofil fertig ist. Bis dahin erklärt dir diese Lektion das Wichtigste, und unter „Regeln“ und „Glossar“ steht der Rest zum Nachschlagen."
+    }
+  ],
+  "moral": "48 von 94 Punkten sind das Spiel – gewonnen oder verloren wird es meistens an den Figuren, die jemand angesagt hat."
+}

@@ -98,12 +98,13 @@ harbour-tarock/
 │  ├─ BidBar.qml  CallPanel.qml  TalonPanel.qml  DiscardTray.qml
 │  ├─ AnnouncePanel.qml  KontraRow.qml
 │  ├─ LearnPanel.qml  WhyDialog.qml  HintBubble.qml  StepBanner.qml
+│  ├─ TourOverlay.qml  TourScript.qml    # Führung durch den Tisch (§7.9)
 │  ├─ ScoreSheet.qml  CountTutor.qml
 │  └─ RulesBrowser.qml  GlossaryList.qml  TariffTable.qml
 ├─ sailfish/
 │  ├─ harbour-tarock.qml  qmldir      # qmldir mit `singleton Style 1.0 Style.qml`
 │  ├─ Style.qml  Card.qml  FlyingCard.qml  TableButton.qml  SubPage.qml
-│  ├─ TablePage.qml  LessonPage.qml  RulesPage.qml  SettingsPage.qml
+│  ├─ TablePage.qml  LessonPage.qml  TutorialPage.qml  RulesPage.qml  SettingsPage.qml
 │  ├─ LanPage.qml  ScorePage.qml  AboutPage.qml  CreditsPage.qml  CoverPage.qml
 │  ├─ desktop/harbour-tarock.desktop  # inkl. [X-Sailjail] Permissions=Internet
 │  └─ icons/icon-{86,108,128,172,256}.png
@@ -1063,9 +1064,9 @@ und lässt den Lernenden das Ergebnis selbst tippen, bevor es aufgelöst wird.
 > Ausdrücklicher Nutzerwunsch: „ein Modus, in dem alles und die Regeln erklärt werden.“
 
 Der Lernmodus ist eine **Schicht über dem normalen Spiel** (`koenigrufen.md` §11.1), kein zweiter
-Spielmodus – jede Partie, auch eine LAN-Partie, kann ihn eingeschaltet haben. Er besteht aus sechs Bausteinen:
-Erklärpanel (§7.2), „Warum nicht?“ (§7.3), Hinweisgeber (§7.4), Übungspartien (§7.6), Nachschlagewerk (§7.7)
-und Einstellungen (§7.8).
+Spielmodus – jede Partie, auch eine LAN-Partie, kann ihn eingeschaltet haben. Er besteht aus sieben Bausteinen:
+Erklärpanel (§7.2), „Warum nicht?“ (§7.3), Hinweisgeber (§7.4), Übungspartien (§7.6), Nachschlagewerk (§7.7),
+Einstellungen (§7.8) und dem Tutorial, das durch Tisch und Kurs führt (§7.9).
 
 ### 7.1 Stufen
 
@@ -1233,7 +1234,10 @@ auf Knopfdruck.
 ### 7.6 Übungspartien und Lektionen – Datenformat
 
 Lektionen sind JSON-Dateien unter `lessons/<profil>/`, validiert gegen `lessons/schema.json`, geladen von
-`Lesson.cpp`. Sie beschreiben ein festes Blatt, eine Folge von Schritten und die erwarteten Entscheidungen.
+`Lesson.cpp`. Jedes Regelprofil hat seinen eigenen Ordner und seine eigene `index.json`; die erste Einheit
+darin ist die **Überblickslektion** (`kind: overview`) – ein reiner Lesedurchgang, der das Spielziel und
+den Weg durch eine Hand erklärt, bevor die Module ins Einzelne gehen. Sie braucht wie jede Lektion ein
+festes Blatt, damit der Lernende während des Lesens einen echten Tisch vor sich hat. Sie beschreiben ein festes Blatt, eine Folge von Schritten und die erwarteten Entscheidungen.
 Die Module L0–L7 (`hungarian.md` §11.1) und die je drei Übungsspiele (`koenigrufen.md` §11.7,
 `hungarian.md` §11.8) nutzen dasselbe Format.
 
@@ -1362,13 +1366,63 @@ Lernmodus
   [x] Unerlaubte Karten ausgrauen statt verbergen
   [x] Zählhilfe nach jedem Stich
   [ ] Positive Spiele immer bis zum 12. Stich ausspielen   (koenigrufen.md §6.8)
-  Lektionen …                                              → LessonPage
+  Tutorial …                                               → TutorialPage (§7.9)
   Regeln und Glossar …                                     → RulesPage
 ```
 
 Gespeichert in `QSettings` unter `learn/level`, `learn/autoHint`, `learn/warnBonusLoss`, `learn/dimIllegal`,
-`learn/countTutor`, `learn/playToEnd`. Die Stufe wirkt sofort, auch mitten in einer LAN-Partie – der
+`learn/countTutor`, `learn/playToEnd`. **Immer über das voreingestellte `QSettings()`**, nie über einen
+eigenen Namensraum: Die Sailjail-Sandbox gibt genau die Kennung frei, die in `[X-Sailjail]` steht, und die
+ist wie bei jeder anderen Sailfish-App `OrganizationName = ApplicationName = harbour-tarock`, also
+`~/.config/harbour-tarock/harbour-tarock.conf`. `main.cpp` setzt dieselbe Kennung. Ein eigener Scope schreibt aus der Sandbox heraus ins Leere, und
+nichts überlebt den nächsten Start; auffallen würde es nur beim Start über das Icon, nicht beim Start aus
+der Konsole. Die Stufe wirkt sofort, auch mitten in einer LAN-Partie – der
 Lernmodus ist rein lokal und verändert keine Regel.
+
+### 7.9 Tutorial: Führung durch den Tisch und durch den Kurs
+
+Der Lernmodus aus §7.1–§7.8 erklärt das **Spiel**. Wer die App zum ersten Mal öffnet, braucht davor
+zwei Dinge: eine Erklärung der **Bedienung** und eine **Reihenfolge**, in der die Lektionen zu nehmen sind.
+Beides ist das Tutorial – eine Schicht über §7.6, kein neuer Lernstoff.
+
+**Die Führung (`TourOverlay.qml` + `TourScript.qml`).** Eine Folge von Schritten über dem gewöhnlichen
+Tisch: Der Tisch wird abgedunkelt, um den Teil, von dem der Schritt spricht, wird ein Rahmen gelegt, und
+daneben steht eine Blase mit zwei Sätzen. `TourScript.steps` ist die Liste
+`[{ target, title, text }]`; `TarockTable::tourTarget(name)` löst `target` zu einem Element auf
+(`header`, `seats`, `trickArea`, `statusLabel`, `handFan`, `actionBand`, `learnPanel`, `learnBar`,
+`mySeat`). Ein leeres oder unbekanntes Ziel lässt den Rahmen weg und setzt die Blase in die Mitte – ein
+Schritt geht also auch dann nicht verloren, wenn der Tisch den Teil gerade nicht zeigt. Solange die
+Führung läuft, nimmt das Overlay jede Berührung entgegen: Am Tisch kann nichts versehentlich entschieden
+werden, und ein Tippen auf die dunkle Fläche ist dasselbe wie „Weiter“. Die Texte gehen – anders als die
+Lektionen – durch Qt Linguist, weil sie in QML stehen.
+
+Die Führung erklärt die App, nicht die Regeln: Kopfzeile, Sitze, Stich, Statuszeile, Handfächer,
+Aktionsleiste, Erklärleiste und die Lernleiste, zehn Schritte, danach der Verweis auf den Kurs.
+
+**Die Kette (`TutorialPage.qml`).** Die Führung, die Überblickslektion und die Module aus §7.6 stehen als eine Liste
+untereinander, in der Reihenfolge von `lessons/<profil>/index.json`, mit dem Fortschritt davor:
+`✓` erledigt, `▸` das Nächste, `·` noch offen. Die Kette gehört zum aktiven Regelprofil: Königrufen
+zeigt Überblick, L0–L7 und drei Übungspartien, das ungarische Profil bis M9 nur den Überblick. Ein „Weiter“-Knopf startet genau das mit `▸` markierte
+Stück. **Nichts ist gesperrt** – jede Zeile ist antippbar; die Kette sagt, wohin es weitergeht, sie
+schreibt es nicht vor. `LearnPage` (§7.1, §7.7) führt die Liste nicht mehr selbst, sondern verweist hierher.
+
+**Der Zustand** liegt neben den übrigen Schaltern in denselben `QSettings`:
+
+| Schlüssel | Inhalt |
+|---|---|
+| `learn/tourSeen` | Die Führung ist einmal gelaufen; bis dahin bietet `MainPage` sie an |
+| `learn/progress/<profil>` | Liste der erledigten Lektions-Kennungen, je Regelprofil |
+
+`LearnEngine` veröffentlicht das als `course` (die Einträge aus `index.json` mit `done` und `current`),
+`lessonCount`, `lessonsDone`, `nextLessonId`, `tourSeen` sowie `lessonInfo(id)`, `markLessonDone(id)` und
+`resetCourse()`. Eine Lektion gilt als erledigt, sobald sie ihren letzten Schritt hinter sich hat –
+gesetzt wird das dort, wo `Lesson::Finished` anfällt, nicht von der Seite.
+
+Starten der Führung: `TutorialPage` sorgt für einen Tisch (laufende Partie, gespeicherte Partie, sonst
+eine neue), hebt einen ausgeschalteten Lernmodus auf „Lernend“ – sonst zeigt die Führung auf Leisten, die
+gar nicht da sind – und schiebt `TablePage` mit `runTour: true` auf den Stapel. Die Partie selbst läuft
+dabei nicht weiter: Solange `tourActive` gilt, wechselt die Tischseite auch am Handende nicht zur
+Abrechnung.
 
 ---
 
@@ -1588,6 +1642,11 @@ Jedes durchgerechnete Beispiel der Specs wird eine benannte Assertion:
 
 ### 11.3 Übungspartien als Regressionstests – `test_lessons.cpp`
 
+`tests/test_lessons.cpp` spielt **jede** ausgelieferte Lektion beider Profile vom ersten bis zum letzten
+Schritt durch: Blatt gegen das Deck des Profils prüfen, jede geskriptete Entscheidung `Lesson::offer()`
+anbieten und darauf bestehen, dass sie angenommen wird, und am Ende den letzten Schritt erreichen. Was die
+Abrechnung der drei Übungspartien ergeben muss, prüft `test_hands.cpp` gegen die Fixtures.
+
 Für jede Datei in `lessons/`:
 
 1. `deal` bildet genau das Deck ohne Dubletten.
@@ -1662,7 +1721,7 @@ nicht, LAN zwischen Sailfish und Android gemischt, Vordergrunddienst überlebt B
 | **M3** | `TarockEngine` + `qml-common`-Tisch: Handfächer, Stich, Sitzpanels, `BidBar`, `TalonPanel`, `DiscardTray`, `AnnouncePanel`, `KontraRow`, Animationsphasen; Sailfish-UI | Königrufen zu viert gegen Computerspieler vollständig spielbar |
 | **M4** | Computerspieler: `Inference`, Heuristik für Lizit/Ruf/Talon/Ablage/Ansage, PIMC fürs Kartenspiel, drei Schwierigkeitsgrade | `test_selfplay` 10 000 Partien grün; Spielstärke gegen Heuristik-Baseline messbar besser |
 | **M5** | **Lernmodus Teil 1:** `LearnEngine`, Erklärpanel je Phase, „Warum nicht?“ mit allen KR-Texten aus §11.4, Warnungen, Hinweisgeber, `standing()`, Nachbesprechung, Einstellungen | Jede Ablehnung zeigt einen Text; `test_legality`-Textabdeckung grün |
-| **M6** | **Lernmodus Teil 2:** Lektionsformat, Loader, `LessonPage`, L0–L7 und drei Übungspartien für KR, Regel-Nachschlagewerk, Glossar, Tariftabelle, `CountTutor` | `test_lessons` grün; Übungsspiel 1 aus §11.7 Schritt für Schritt spielbar |
+| **M6** | **Lernmodus Teil 2:** Lektionsformat, Loader, `LessonPage`, L0–L7 und drei Übungspartien für KR, Regel-Nachschlagewerk, Glossar, Tariftabelle, `CountTutor`; Tutorial nach §7.9 (Führung durch den Tisch, Kurskette mit Fortschritt) | `test_lessons` und `test_learn` grün; Übungsspiel 1 aus §11.7 Schritt für Schritt spielbar; Führung läuft auf beiden Plattformen durch |
 | **M7** | Fünfertisch und LAN: `LanTable`, Sichtfilter, `rotateSeats` auf fünf Sitze, Lobby, Redirect, Ausfallübernahme, Android-Vordergrunddienst | `lan_tarock4`, `lan_tarock5`, `test_rotation`, `test_serialize` grün; Sailfish↔Android gemischt getestet |
 | **M8** | Asset-Pipeline: `fetch_iiif.py`, `mapping.csv`, Retusche, beide Decks, `deck.json`, `CREDITS/ASSETS.md`, Deckwahl | `verify_deck.py` grün; beide Decks in der App wählbar, Credits vollständig |
 | **M9** | **Zweites Regelprofil:** `HungarianRules`, Profiltabellen, ⚙-Flags, ungarische Ansage-UI, Lektionen L0–L7 und drei Übungspartien | `test_profile_hu`, `hu_*`-Tests und `test_lessons` (HU) grün |

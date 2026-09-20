@@ -26,7 +26,11 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSettings>
 
 #include <algorithm>
@@ -54,13 +58,16 @@ using tarock::TarockCore;
 
 namespace {
 
-const char* const kSettingsScope = "harbour-tarock";
 const char* const kLevelKey = "learn/level";
 const char* const kAutoHintKey = "learn/autoHint";
 const char* const kWarnBonusKey = "learn/warnBonusLoss";
 const char* const kDimIllegalKey = "learn/dimIllegal";
 const char* const kCountTutorKey = "learn/countTutor";
 const char* const kPlayToEndKey = "learn/playToEnd";
+// The guided tour has run once, and the lessons finished per rule profile
+// (docs/design.md Â§7.9). The profile stem is appended to the progress key.
+const char* const kTourSeenKey = "learn/tourSeen";
+const char* const kProgressKey = "learn/progress/";
 
 const int kHistoryLength = 10;
 const int kHintBudgetMs = 80;
@@ -174,8 +181,7 @@ bool LearnEngine::ready() const
 
 void LearnEngine::loadSettings()
 {
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     m_level = static_cast<LearnLevel>(
         qBound(0, settings.value(QLatin1String(kLevelKey), static_cast<int>(m_level)).toInt(), 2));
     m_autoHint = settings.value(QLatin1String(kAutoHintKey), m_autoHint).toBool();
@@ -183,18 +189,19 @@ void LearnEngine::loadSettings()
     m_dimIllegal = settings.value(QLatin1String(kDimIllegalKey), m_dimIllegal).toBool();
     m_countTutor = settings.value(QLatin1String(kCountTutorKey), m_countTutor).toBool();
     m_playToEnd = settings.value(QLatin1String(kPlayToEndKey), m_playToEnd).toBool();
+    m_tourSeen = settings.value(QLatin1String(kTourSeenKey), m_tourSeen).toBool();
 }
 
 void LearnEngine::saveSettings()
 {
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     settings.setValue(QLatin1String(kLevelKey), static_cast<int>(m_level));
     settings.setValue(QLatin1String(kAutoHintKey), m_autoHint);
     settings.setValue(QLatin1String(kWarnBonusKey), m_warnBonusLoss);
     settings.setValue(QLatin1String(kDimIllegalKey), m_dimIllegal);
     settings.setValue(QLatin1String(kCountTutorKey), m_countTutor);
     settings.setValue(QLatin1String(kPlayToEndKey), m_playToEnd);
+    settings.setValue(QLatin1String(kTourSeenKey), m_tourSeen);
     settings.sync();
 }
 
@@ -1033,6 +1040,11 @@ QStringList LearnEngine::lessonDirectories() const
     const QString stem = QLatin1String(profileId() == ProfileId::HuIlluItvb2019
                                            ? kProfileStemHu : kProfileStemAt);
     QStringList directories;
+#ifdef TAROCK_DATA_DIR
+    // The tests of docs/design.md §11 run from the build directory and are
+    // pointed at the lessons in the source tree by CMake.
+    directories << QLatin1String(TAROCK_DATA_DIR "/assets/lessons/") + stem;
+#endif
     const QString appDir = QCoreApplication::applicationDirPath();
     if (!appDir.isEmpty()) {
         directories << appDir + QLatin1String("/lessons/") + stem;
@@ -1058,8 +1070,11 @@ QStringList LearnEngine::lessonIds() const
                                                 QDir::Files, QDir::Name);
         for (const QString& file : files) {
             const QString id = QFileInfo(file).completeBaseName();
-            // Overlay files like kr-practice-1.hu.json are not lessons.
-            if (!id.contains(QLatin1Char('.')) && !ids.contains(id))
+            // Overlay files like kr-practice-1.hu.json are not lessons, and
+            // index.json is the course order rather than a lesson.
+            if (id.contains(QLatin1Char('.')) || id == QLatin1String("index"))
+                continue;
+            if (!ids.contains(id))
                 ids.append(id);
         }
     }
@@ -1153,6 +1168,7 @@ bool LearnEngine::lessonAct(const Action& action, bool* accepted)
         emit lessonChanged();
         refresh();
         if (outcome == Lesson::Finished) {
+            markLessonDone(m_lesson.id());
             m_lesson.stop();
             emit lessonStepPassed(m_lesson.moral());
             emit lessonChanged();
@@ -1174,6 +1190,7 @@ void LearnEngine::lessonNext()
     emit lessonChanged();
     refresh();
     if (m_lesson.finished()) {
+        markLessonDone(m_lesson.id());
         m_lesson.stop();
         emit lessonStepPassed(m_lesson.moral());
         emit lessonChanged();
@@ -1204,4 +1221,206 @@ void LearnEngine::stopLesson()
     m_lesson.stop();
     emit lessonChanged();
     refresh();
+}
+
+// --- the course and its progress (docs/design.md §7.9) ----------------------
+//
+// The order is the one index.json writes down, because it is the order the
+// course is meant to be walked in; a profile without an index falls back to
+// the file names, which sort L0..L7 before the practice hands. Progress is one
+// string list per profile in the same QSettings the level lives in, so a
+// finished lesson survives the next start.
+
+const QVariantList& LearnEngine::courseOrder() const
+{
+    if (m_courseLoaded && m_courseProfile == profileId())
+        return m_course;
+    m_course.clear();
+    m_courseLoaded = true;
+    m_courseProfile = profileId();
+
+    const QStringList directories = lessonDirectories();
+    QByteArray raw;
+    for (const QString& directory : directories) {
+        QFile file(directory + QLatin1String("/index.json"));
+        if (file.exists() && file.open(QIODevice::ReadOnly)) {
+            raw = file.readAll();
+            break;
+        }
+    }
+
+    QStringList listed;
+    if (!raw.isEmpty()) {
+        const QJsonObject root = QJsonDocument::fromJson(raw).object();
+        const QJsonArray lessons = root.value(QLatin1String("lessons")).toArray();
+        for (const QJsonValue& value : lessons) {
+            const QJsonObject entry = value.toObject();
+            const QString id = entry.value(QLatin1String("id")).toString();
+            if (id.isEmpty())
+                continue;
+            QVariantMap map;
+            map.insert(QStringLiteral("id"), id);
+            map.insert(QStringLiteral("title"), entry.value(QLatin1String("title")).toString());
+            map.insert(QStringLiteral("description"),
+                       entry.value(QLatin1String("description")).toString());
+            map.insert(QStringLiteral("module"), entry.value(QLatin1String("module")).toString());
+            // index.json may say what kind of unit this is; where it does not,
+            // the practice hands are the ones that carry it in their id.
+            QString kind = entry.value(QLatin1String("kind")).toString();
+            if (kind.isEmpty())
+                kind = id.contains(QLatin1String("practice")) ? QStringLiteral("practice")
+                                                              : QStringLiteral("module");
+            map.insert(QStringLiteral("kind"), kind);
+            m_course.append(map);
+            listed.append(id);
+        }
+    }
+
+    // Whatever lies next to the index without being listed there is still a
+    // lesson and is appended rather than hidden.
+    const QStringList ids = lessonIds();
+    for (const QString& id : ids) {
+        if (listed.contains(id))
+            continue;
+        QVariantMap map;
+        map.insert(QStringLiteral("id"), id);
+        map.insert(QStringLiteral("title"), id);
+        map.insert(QStringLiteral("description"), QString());
+        map.insert(QStringLiteral("module"), QString());
+        map.insert(QStringLiteral("kind"), id.contains(QLatin1String("practice"))
+                                               ? QStringLiteral("practice")
+                                               : QStringLiteral("module"));
+        m_course.append(map);
+    }
+    return m_course;
+}
+
+QString LearnEngine::progressKey() const
+{
+    return QLatin1String(kProgressKey)
+           + QLatin1String(profileId() == ProfileId::HuIlluItvb2019 ? kProfileStemHu
+                                                                    : kProfileStemAt);
+}
+
+QStringList LearnEngine::doneLessons() const
+{
+    QSettings settings;
+    return settings.value(progressKey()).toStringList();
+}
+
+QVariantList LearnEngine::course() const
+{
+    const QVariantList order = courseOrder();
+    const QStringList done = doneLessons();
+    QVariantList result;
+    bool nextMarked = false;
+    for (const QVariant& entry : order) {
+        QVariantMap map = entry.toMap();
+        const bool finished = done.contains(map.value(QStringLiteral("id")).toString());
+        map.insert(QStringLiteral("done"), finished);
+        // Exactly one entry is the one to go on with, so the page can point at
+        // it without repeating the search.
+        const bool current = !finished && !nextMarked;
+        if (current)
+            nextMarked = true;
+        map.insert(QStringLiteral("current"), current);
+        result.append(map);
+    }
+    return result;
+}
+
+int LearnEngine::lessonsDone() const
+{
+    const QVariantList order = courseOrder();
+    const QStringList done = doneLessons();
+    int count = 0;
+    for (const QVariant& entry : order) {
+        if (done.contains(entry.toMap().value(QStringLiteral("id")).toString()))
+            ++count;
+    }
+    return count;
+}
+
+QString LearnEngine::nextLessonId() const
+{
+    const QVariantList order = courseOrder();
+    const QStringList done = doneLessons();
+    for (const QVariant& entry : order) {
+        const QString id = entry.toMap().value(QStringLiteral("id")).toString();
+        if (!done.contains(id))
+            return id;
+    }
+    return QString();
+}
+
+QVariantMap LearnEngine::lessonInfo(const QString& lessonId) const
+{
+    const QVariantList order = courseOrder();
+    for (const QVariant& entry : order) {
+        QVariantMap map = entry.toMap();
+        if (map.value(QStringLiteral("id")).toString() != lessonId)
+            continue;
+        map.insert(QStringLiteral("done"), lessonDone(lessonId));
+        if (map.value(QStringLiteral("title")).toString() == lessonId
+                || map.value(QStringLiteral("title")).toString().isEmpty()) {
+            // Not listed in the index: the file itself knows its title.
+            Lesson lesson;
+            QString error;
+            const QStringList directories = lessonDirectories();
+            for (const QString& directory : directories) {
+                const QString path = directory + QLatin1Char('/') + lessonId
+                                     + QLatin1String(".json");
+                if (!QFileInfo(path).exists())
+                    continue;
+                if (lesson.loadFile(path, &error)) {
+                    map.insert(QStringLiteral("title"), lesson.title());
+                    map.insert(QStringLiteral("module"), lesson.module());
+                    map.insert(QStringLiteral("goals"), lesson.goals());
+                }
+                break;
+            }
+        }
+        return map;
+    }
+    return QVariantMap();
+}
+
+bool LearnEngine::lessonDone(const QString& lessonId) const
+{
+    return doneLessons().contains(lessonId);
+}
+
+void LearnEngine::markLessonDone(const QString& lessonId)
+{
+    if (lessonId.isEmpty())
+        return;
+    QStringList done = doneLessons();
+    if (done.contains(lessonId))
+        return;
+    done.append(lessonId);
+    QSettings settings;
+    settings.setValue(progressKey(), done);
+    settings.sync();
+    emit courseChanged();
+}
+
+void LearnEngine::resetCourse()
+{
+    QSettings settings;
+    settings.remove(progressKey());
+    settings.sync();
+    if (m_tourSeen) {
+        m_tourSeen = false;
+        saveSettings();
+    }
+    emit courseChanged();
+}
+
+void LearnEngine::setTourSeen(bool value)
+{
+    if (value == m_tourSeen)
+        return;
+    m_tourSeen = value;
+    saveSettings();
+    emit courseChanged();
 }

@@ -125,6 +125,60 @@
           "dealer"
         ]
       }
+    },
+    {
+      "description": "Blattgröße des Regelprofils AT-KR-OOE-2023-04: 12 Karten je Spieler.",
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "AT-KR-OOE-2023-04"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "deal": {
+            "properties": {
+              "hands": {
+                "items": {
+                  "minItems": 12,
+                  "maxItems": 12
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "Blattgröße des Regelprofils HU-ILLU-ITVB-2019: 9 Karten je Spieler.",
+      "if": {
+        "properties": {
+          "profile": {
+            "const": "HU-ILLU-ITVB-2019"
+          }
+        },
+        "required": [
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "deal": {
+            "properties": {
+              "hands": {
+                "items": {
+                  "minItems": 9,
+                  "maxItems": 9
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "$defs": {
@@ -267,7 +321,7 @@
         "hands",
         "talon"
       ],
-      "description": "Festes Blatt; zusammen genau das Deck ohne Dubletten (TarockCore::dealFixed).",
+      "description": "Festes Blatt; zusammen genau das Deck des Regelprofils ohne Dubletten (TarockCore::dealFixed, Lesson::validateDeal).",
       "properties": {
         "hands": {
           "type": "array",
@@ -275,12 +329,13 @@
           "maxItems": 5,
           "items": {
             "type": "array",
-            "minItems": 12,
+            "minItems": 9,
             "maxItems": 12,
             "items": {
               "$ref": "#/$defs/card"
             },
-            "uniqueItems": true
+            "uniqueItems": true,
+            "description": "Ein Blatt. Die genaue Zahl hängt am Regelprofil und wird unten festgelegt: 12 Karten beim Königrufen, 9 beim ungarischen Tarokk."
           }
         },
         "talon": {

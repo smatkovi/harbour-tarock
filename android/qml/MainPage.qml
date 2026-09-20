@@ -30,6 +30,15 @@ Page {
 
     // main.cpp installs the engine as a root context property.
     property var engine: tarockEngine
+    // LearnEngine reaches QML as a property of the engine; if a platform
+    // installs it as its own context property, this one line changes.
+    property var learn: engine.learn === undefined ? null : engine.learn
+
+    // Someone who has never taken the tour is offered it once, here, instead
+    // of being dropped into a hand of tarock (docs/design.md §7.9).
+    property bool offerHidden: false
+    readonly property bool offerTutorial: !page.offerHidden && page.learn !== null
+                                          && page.learn.tourSeen !== true
 
     background: Rectangle { color: Theme.tableColor }
 
@@ -75,6 +84,46 @@ Page {
 
             Item { width: 1; height: Theme.paddingLarge }
 
+            // The welcome of §7.9: shown until the tour has run once.
+            Column {
+                width: parent.width
+                visible: page.offerTutorial
+                spacing: Theme.paddingSmall
+
+                Label {
+                    x: Theme.horizontalPageMargin
+                    width: page.width - 2 * Theme.horizontalPageMargin
+                    wrapMode: Text.WordWrap
+                    color: Theme.highlightColor
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: qsTr("New to tarock?")
+                }
+
+                Label {
+                    x: Theme.horizontalPageMargin
+                    width: page.width - 2 * Theme.horizontalPageMargin
+                    wrapMode: Text.WordWrap
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeExtraSmall
+                    text: qsTr("It teaches the whole game in one go — the goal, how a hand runs and the rules — then shows you the table and takes the rules module by module.")
+                }
+
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: Theme.paddingMedium
+
+                    Button {
+                        text: qsTr("Learn to play")
+                        onClicked: page.StackView.view.push(Qt.resolvedUrl("TutorialPage.qml"))
+                    }
+
+                    Button {
+                        text: qsTr("Not now")
+                        onClicked: page.offerHidden = true
+                    }
+                }
+            }
+
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("New game")
@@ -95,7 +144,15 @@ Page {
                 }
             }
 
-            // The way into the learning mode of docs/design.md §7.
+            // The way into the tutorial of docs/design.md §7.9 and, behind it,
+            // the learning mode of §7.
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                visible: !page.offerTutorial
+                text: qsTr("Learn to play")
+                onClicked: page.StackView.view.push(Qt.resolvedUrl("TutorialPage.qml"))
+            }
+
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Learn")

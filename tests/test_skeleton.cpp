@@ -23,6 +23,9 @@
     docs/design.md §11 starts with test_cards in M1.
 */
 #include <QCoreApplication>
+#include <QSettings>
+#include <QString>
+#include <QTemporaryDir>
 
 #include <cstdio>
 
@@ -41,11 +44,26 @@ static void check(bool condition, const char *what)
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
+    // The same identity main.cpp installs; every QSettings in the app is the
+    // default-constructed one and needs it.
+    QCoreApplication::setOrganizationName(QStringLiteral("harbour-tarock"));
+    QCoreApplication::setApplicationName(QStringLiteral("harbour-tarock"));
+    // Never touch the settings of the person running the test: the engine
+    // saves as soon as a match starts.
+    QTemporaryDir settingsDir;
+    QSettings::setDefaultFormat(QSettings::IniFormat);
+    QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, settingsDir.path());
+    QSettings::setPath(QSettings::IniFormat, QSettings::SystemScope, settingsDir.path());
 
     TarockEngine engine;
     check(!engine.active(), "a fresh engine has no running match");
     check(!engine.profileName().isEmpty(), "the profile name is displayable");
-    check(!engine.status().isEmpty(), "the status line is displayable");
+    // Since M3 the status line belongs to a running hand: without a match
+    // there is nothing to say, and the table shows its own text instead.
+    check(engine.status().isEmpty(), "a fresh engine says nothing about a hand");
+    engine.startMatch(engine.profileKey(), 4);
+    check(engine.active(), "startMatch() starts a match");
+    check(!engine.status().isEmpty(), "the status line is displayable once a hand runs");
 
     if (failures == 0)
         std::printf("test_skeleton: ok\n");

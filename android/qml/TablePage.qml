@@ -28,6 +28,9 @@ Item {
     objectName: "tablePage"
 
     property var engine: tarockEngine
+    // Set by the tutorial page (docs/design.md §7.9): the table comes up and
+    // the tour starts on it instead of a hand being expected of the learner.
+    property bool runTour: false
 
     Rectangle {
         anchors.fill: parent
@@ -35,6 +38,7 @@ Item {
     }
 
     TarockTable {
+        id: tableView
         anchors.fill: parent
         engine: page.engine
         // "More on this" out of the learning panel, straight from the table.
@@ -75,8 +79,20 @@ Item {
     Connections {
         target: page.engine
         function onHandFinished() {
-            if (page.StackView.view && page.StackView.view.currentItem === page)
+            // During the tour the table stays as it is; the hand is not being
+            // played then.
+            if (page.StackView.view && page.StackView.view.currentItem === page
+                    && !tableView.tourActive)
                 page.StackView.view.push(Qt.resolvedUrl("ScorePage.qml"))
+        }
+    }
+
+    // The tour waits for the page to be on top: before that the table has no
+    // size yet and the frames would sit next to the parts they point at.
+    StackView.onActivated: {
+        if (page.runTour) {
+            page.runTour = false
+            tableView.startTour()
         }
     }
 }

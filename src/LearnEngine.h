@@ -60,6 +60,16 @@ class LearnEngine : public QObject
     Q_PROPERTY(bool lessonActive READ lessonActive NOTIFY lessonChanged)
     Q_PROPERTY(QVariantMap lessonStep READ lessonStep NOTIFY lessonChanged)
 
+    // The course of docs/design.md §7.9: the lessons of the active profile in
+    // the order of index.json, which of them are done, and whether the guided
+    // tour of the table has run. The tour itself is drawn by the QML, which is
+    // why only its flag lives here.
+    Q_PROPERTY(QVariantList course READ course NOTIFY courseChanged)
+    Q_PROPERTY(int lessonCount READ lessonCount NOTIFY courseChanged)
+    Q_PROPERTY(int lessonsDone READ lessonsDone NOTIFY courseChanged)
+    Q_PROPERTY(QString nextLessonId READ nextLessonId NOTIFY courseChanged)
+    Q_PROPERTY(bool tourSeen READ tourSeen WRITE setTourSeen NOTIFY courseChanged)
+
     // The remaining switches of docs/design.md §7.8; they live in the same
     // QSettings group as the level.
     Q_PROPERTY(bool autoHint READ autoHint WRITE setAutoHint NOTIFY settingsChanged)
@@ -96,6 +106,15 @@ public:
     Q_INVOKABLE void lessonRestartStep();
     Q_INVOKABLE void stopLesson();
 
+    // --- course and progress, §7.9 ---------------------------------------
+    // Title, module and description of one lesson, out of index.json where it
+    // lists the lesson and out of the lesson file itself where it does not.
+    Q_INVOKABLE QVariantMap lessonInfo(const QString& lessonId) const;
+    Q_INVOKABLE bool lessonDone(const QString& lessonId) const;
+    Q_INVOKABLE void markLessonDone(const QString& lessonId);
+    // Forgets the tour and every finished lesson of the active profile.
+    Q_INVOKABLE void resetCourse();
+
     // --- reference, §7.7 ---------------------------------------------------
     Q_INVOKABLE QVariantList glossary() const;
     Q_INVOKABLE QVariantMap term(const QString& name) const;
@@ -117,6 +136,13 @@ public:
     QVariantList history() const { return m_history; }
     bool lessonActive() const { return m_lesson.running(); }
     QVariantMap lessonStep() const { return m_lesson.stepMap(); }
+
+    QVariantList course() const;
+    int lessonCount() const { return course().size(); }
+    int lessonsDone() const;
+    QString nextLessonId() const;
+    bool tourSeen() const { return m_tourSeen; }
+    void setTourSeen(bool value);
 
     bool autoHint() const { return m_autoHint; }
     void setAutoHint(bool value);
@@ -149,6 +175,7 @@ public:
 
 signals:
     void settingsChanged();
+    void courseChanged();
     void panelChanged();
     void explanationChanged();
     void hintChanged();
@@ -182,6 +209,12 @@ private:
     void loadSettings();
     void saveSettings();
     QStringList lessonDirectories() const;
+    // The course order of the active profile, cached because every binding on
+    // the course property asks for it: index.json where there is one, the
+    // lesson files in file-name order where there is not.
+    const QVariantList& courseOrder() const;
+    QStringList doneLessons() const;
+    QString progressKey() const;
 
     TarockEngine* m_engine = nullptr;
     LearnLevel m_level = Learning;
@@ -199,6 +232,11 @@ private:
     QVector<int> m_mistakesSeen;     // §11.5 numbers hit in this hand
     Lesson m_lesson;
     QString m_error;
+    bool m_tourSeen = false;
+    // Filled on the first look and thrown away when the profile changes.
+    mutable QVariantList m_course;
+    mutable bool m_courseLoaded = false;
+    mutable tarock::ProfileId m_courseProfile = tarock::ProfileId::AtKrOoe2023;
 };
 
 #endif // LEARNENGINE_H

@@ -1,0 +1,150 @@
+{
+  "id": "kr-intro",
+  "profile": "AT-KR-OOE-2023-04",
+  "title": "Spielziel, Ablauf und Regeln",
+  "source": "docs/koenigrufen.md §11.2",
+  "goals": [
+    "Das Ziel des Spiels",
+    "Spielerpartei und Gegner",
+    "Der Weg durch eine Hand",
+    "Woraus die Abrechnung besteht"
+  ],
+  "players": 4,
+  "seatNames": [
+    "Du",
+    "Berta",
+    "Carl",
+    "Dora"
+  ],
+  "dealer": 3,
+  "deal": {
+    "hands": [
+      [
+        "XX",
+        "XVII",
+        "XI",
+        "VIII",
+        "V",
+        "H:K",
+        "H:B",
+        "D:3",
+        "S:D",
+        "S:9",
+        "C:K",
+        "C:8"
+      ],
+      [
+        "Sk",
+        "XVI",
+        "XIII",
+        "IX",
+        "III",
+        "H:R",
+        "H:2",
+        "D:D",
+        "D:B",
+        "S:B",
+        "C:D",
+        "C:R"
+      ],
+      [
+        "XIX",
+        "XV",
+        "XII",
+        "IIII",
+        "II",
+        "H:1",
+        "H:3",
+        "D:K",
+        "D:2",
+        "S:K",
+        "S:10",
+        "C:10"
+      ],
+      [
+        "XXI",
+        "XIV",
+        "X",
+        "VII",
+        "I",
+        "H:4",
+        "D:1",
+        "S:R",
+        "S:8",
+        "S:7",
+        "C:B",
+        "C:7"
+      ]
+    ],
+    "talon": [
+      [
+        "XVIII",
+        "VI",
+        "D:4"
+      ],
+      [
+        "H:D",
+        "D:R",
+        "C:9"
+      ]
+    ]
+  },
+  "steps": [
+    {
+      "id": "s1",
+      "text": "Königrufen ist ein Stichspiel zu viert: Reihum legt jeder eine Karte, die stärkste gewinnt den Stich – und mit ihm alle vier Karten. Es geht aber nicht um die Zahl der Stiche, sondern um die Punkte darin. Im Deck stecken 70 Punkte, und ein gewöhnliches Spiel gewinnt, wer mehr als die Hälfte davon einsammelt: 35 Punkte und 2 Blatt. Könige, Sküs, Mond und Pagat zählen am meisten, die kleinen Karten fast nichts – ein Stich mit drei kleinen Karten ist wenig wert.",
+      "anchor": "#1.6",
+      "highlight": {
+        "hand": [
+          "C:K",
+          "H:K",
+          "S:D"
+        ]
+      }
+    },
+    {
+      "id": "s2",
+      "text": "Gespielt wird Partei gegen Partei, und die Parteien sind in jeder Hand andere. Einer wird zum Spieler, und meistens sucht er sich einen Partner: Er ruft einen König, den er selbst nicht hat. Wer diesen König im Blatt hat, ist sein Partner – sagt es aber nicht. Man erkennt einander erst im Spiel daran, wie einer spielt. Die beiden anderen sind die Gegner; sie müssen sich ebenfalls erst finden.",
+      "anchor": "#4.1"
+    },
+    {
+      "id": "s3",
+      "text": "Was gespielt wird, steht nicht vorher fest, sondern wird versteigert. In der Lizitation sagt reihum jeder ein Spiel an oder „weiter“, und jedes Gebot muss höher sein als das vorige. Dreizehn Spiele stehen zur Wahl: vom billigen Rufer mit Partner über die Solospiele allein gegen drei bis zu den Negativspielen, in denen man genau einen (Piccolo) oder gar keinen Stich (Bettel) machen darf – und dem Trischaken, in dem jeder für sich spielt und verliert, wer die meisten Punkte einsammelt.",
+      "anchor": "#3.1"
+    },
+    {
+      "id": "s4",
+      "text": "Eine Hand läuft immer in derselben Reihenfolge ab: geben, lizitieren, König rufen, Talon nehmen und verlegen, ansagen und kontrieren, zwölf Stiche spielen, abrechnen. Zwölf Karten hat jeder, sechs weitere liegen als Talon in der Mitte. Wer eine Talonhälfte nimmt, verbessert sein Blatt und legt dafür drei Karten weg – die zählen am Ende zu seinen Punkten, die andere Hälfte zu denen der Gegner.",
+      "anchor": "#2.4"
+    },
+    {
+      "id": "s5",
+      "text": "Im Stich gelten zwei Zwänge, und sie sind der Kern des Spiels: Die ausgespielte Farbe muss man bedienen; hat man sie nicht, muss man ein Tarock zugeben. Erst wer weder Farbe noch Tarock hat, darf beliebig abwerfen. Den Stich gewinnt das höchste Tarock, sonst die höchste Karte der ausgespielten Farbe. Stechen muss man in den positiven Spielen nie – man darf auch klein unterlegen und den Stich dem Partner überlassen.",
+      "anchor": "#6.2",
+      "highlight": {
+        "hand": [
+          "XX",
+          "XVII",
+          "XI",
+          "VIII",
+          "V"
+        ]
+      }
+    },
+    {
+      "id": "s6",
+      "text": "Neben dem Spiel selbst gibt es Prämien: die Trull, alle vier Könige, der Pagat im letzten Stich und einige mehr. Wer eine Prämie ansagt, bekommt den vollen Preis – zahlt ihn aber auch, wenn sie misslingt; still erzielt zählt sie die Hälfte. Wer einer Ansage nicht glaubt, sagt Kontra. Jede Prämie wird getrennt verrechnet, und genau deshalb kann man das Spiel gewinnen und am Ende trotzdem Minus machen.",
+      "anchor": "#5.1"
+    },
+    {
+      "id": "s7",
+      "text": "Abgerechnet wird nach jeder Hand, nicht erst am Schluss. Jede Partei zählt ihre Stiche samt Ablage oder Talonhälfte, dann kommt Posten für Posten dazu: das Spiel und jede Prämie einzeln. Die App führt zwei Konten – die Schrift für die Wertung, das Geld für die Auszahlung; Kontra wirkt nur aufs Geld. Danach wird neu gegeben, und der Geber rückt einen Platz weiter.",
+      "anchor": "#7.1"
+    },
+    {
+      "id": "s8",
+      "text": "Das war das ganze Spiel in sieben Absätzen. Die nächsten Lektionen nehmen sich die Teile einzeln vor – die Karten, das Zählen, den Ablauf, die Lizitation, den Ruf, die Ansagen und den Stich –, und drei Übungspartien spielen alles einmal Zug um Zug durch. Nachschlagen kannst du jederzeit, auch mitten in einer Partie: „Regeln“ und „Glossar“ sind immer erreichbar."
+    }
+  ],
+  "moral": "Punkte sammeln und mehr als die Hälfte davon bekommen – alles andere ist die Frage, wer mit wem spielt und was man sich zusätzlich zutraut."
+}

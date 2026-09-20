@@ -19,6 +19,7 @@ SettingsPage 1.0 SettingsPage.qml
 SubPage 1.0 SubPage.qml
 TableButton 1.0 TableButton.qml
 TablePage 1.0 TablePage.qml
+TutorialPage 1.0 TutorialPage.qml
 
 # Shared with the Android build; these files come from qml-common/.
 AnnouncePanel 1.0 AnnouncePanel.qml
@@ -34,5 +35,7 @@ SeatPanel 1.0 SeatPanel.qml
 StandingPanel 1.0 StandingPanel.qml
 TalonPanel 1.0 TalonPanel.qml
 TarockTable 1.0 TarockTable.qml
+TourOverlay 1.0 TourOverlay.qml
+TourScript 1.0 TourScript.qml
 TrickArea 1.0 TrickArea.qml
 WhyDialog 1.0 WhyDialog.qml

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
     // Same settings location as the Sailfish build (AppConfigLocation).
-    QCoreApplication::setOrganizationName(QStringLiteral("org.smatkovi"));
+    QCoreApplication::setOrganizationName(QStringLiteral("harbour-tarock"));
     QCoreApplication::setApplicationName(QStringLiteral("harbour-tarock"));
     QQuickStyle::setStyle(QStringLiteral("Material"));
 

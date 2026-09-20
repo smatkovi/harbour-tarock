@@ -9,5 +9,5 @@ X-Sailfish-ApplicationType=Silica
 
 [X-Sailjail]
 Permissions=Internet
-OrganizationName=org.smatkovi
+OrganizationName=harbour-tarock
 ApplicationName=harbour-tarock

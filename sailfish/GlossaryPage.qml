@@ -111,11 +111,16 @@ Page {
                 model: page.entries
 
                 ListItem {
+                    id: termItem
                     width: parent.width
                     visible: page.matches(modelData)
                     height: visible ? contentHeight : 0
                     contentHeight: entry.height + 2 * Theme.paddingSmall
-                    highlighted: modelData.term === page.openTerm
+                    // Never assign Silica's `highlighted`: it is the press
+                    // state, and a binding on it makes the item emit clicked()
+                    // by itself — the entry would close in the same instant it
+                    // opens. The open entry is marked by its own colours.
+                    readonly property bool open: modelData.term === page.openTerm
                     onClicked: page.choose(modelData)
 
                     Column {
@@ -128,12 +133,11 @@ Page {
                             width: parent.width
                             wrapMode: Text.WordWrap
                             text: modelData.term ? modelData.term : String(modelData)
-                            color: modelData.term === page.openTerm ? Theme.highlightColor
-                                                                    : Theme.primaryColor
+                            color: termItem.open ? Theme.highlightColor : Theme.primaryColor
                         }
                         Label {
                             width: parent.width
-                            visible: modelData.term === page.openTerm && text !== ""
+                            visible: termItem.open && text !== ""
                             wrapMode: Text.WordWrap
                             color: Theme.secondaryColor
                             font.pixelSize: Theme.fontSizeExtraSmall
@@ -141,8 +145,8 @@ Page {
                         }
                         Label {
                             width: parent.width
-                            visible: modelData.term === page.openTerm
-                                     && modelData.anchor !== undefined && modelData.anchor !== ""
+                            visible: termItem.open && modelData.anchor !== undefined
+                                     && modelData.anchor !== ""
                             wrapMode: Text.WordWrap
                             color: Theme.highlightColor
                             font.pixelSize: Theme.fontSizeExtraSmall

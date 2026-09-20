@@ -32,9 +32,15 @@ them.
 
 ## Status
 
-Milestone **M0** of `docs/design.md` §12: the project builds and starts on both
-platforms and shows an empty table. There are no game rules, no AI, no network
-play and no learning mode in the code yet — those are M1 to M7.
+Milestones **M0 to M6** of `docs/design.md` §12: Königrufen is playable at a
+table of four against computer opponents, with the full learning mode — the
+reasons behind every refusal, hints, the rule reference and the glossary, the
+eight course modules and the three practice hands. On top of that sits the
+tutorial of §7.9: a guided tour of the table and the course as one chain that
+remembers how far you have come.
+
+Still open: the computer players of M4 are the heuristic ones, LAN play and the
+five-seat table (M7), the card decks (M8) and the Hungarian profile (M9).
 
 ## Layout
 
@@ -43,6 +49,7 @@ play and no learning mode in the code yet — those are M1 to M7.
 | `docs/` | the design document and the four rule specifications |
 | `src/` | the Sailfish entry point and the C++ engine; the Qt-free rule core moves into `src/core/` in M1 |
 | `qml-common/` | QML shared by both platforms — QtQuick 2.6 and ES5, no Silica and no Controls imports |
+| `assets/lessons/` | the course: `index.json` per rule profile plus one file per lesson |
 | `sailfish/` | Silica pages, the `Style` singleton, `qmldir`, desktop file and icons |
 | `android/` | Qt 6 build, `main.cpp`, the Android package and the mirror of the platform QML |
 | `assets/` | card decks, added in M8 |

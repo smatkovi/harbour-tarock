@@ -30,6 +30,9 @@ Page {
     allowedOrientations: Orientation.Portrait
 
     property var engine: tarockEngine
+    // Set by the tutorial page (docs/design.md §7.9): the table comes up and
+    // the tour starts on it instead of a hand being expected of the learner.
+    property bool runTour: false
 
     SilicaFlickable {
         anchors.fill: parent
@@ -51,6 +54,7 @@ Page {
         }
 
         TarockTable {
+            id: tableView
             anchors.fill: parent
             engine: page.engine
             // "More on this" out of the learning panel, straight from the table.
@@ -61,12 +65,22 @@ Page {
         }
     }
 
+    // The tour waits for the page to be on top: before that the table has no
+    // size yet and the frames would sit next to the parts they point at.
+    onStatusChanged: {
+        if (page.status === PageStatus.Active && page.runTour) {
+            page.runTour = false
+            tableView.startTour()
+        }
+    }
+
     // The finished hand is counted up on the score page, from where the next
-    // one is dealt (docs/design.md §6.6).
+    // one is dealt (docs/design.md §6.6). During the tour the table stays as
+    // it is; the hand is not being played then.
     Connections {
         target: page.engine
         onHandFinished: {
-            if (page.status === PageStatus.Active)
+            if (page.status === PageStatus.Active && !tableView.tourActive)
                 pageStack.push(Qt.resolvedUrl("ScorePage.qml"))
         }
     }

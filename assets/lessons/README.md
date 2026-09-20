@@ -7,11 +7,19 @@ dazu `schema.json` als verbindliches Datenformat.
 assets/lessons/
 ├── schema.json                  JSON Schema 2020-12 für eine Lektionsdatei
 ├── README.md                    dieses Dokument
-└── at-kr-ooe/           Königrufen, Oberösterreich 4/2023
-    ├── index.json               Kursreihenfolge mit Titeln und Kurzbeschreibungen
-    ├── kr-l0.json … kr-l7.json  die acht Kursmodule
-    └── kr-practice-1..3.json    die drei Übungspartien aus koenigrufen.md §11.7
+├── at-kr-ooe/                   Königrufen, Oberösterreich 4/2023
+│   ├── index.json               Kursreihenfolge: id, file, module, kind, Titel, Beschreibung
+│   ├── kr-intro.json            der Überblick: Spielziel und der Weg durch eine Hand
+│   ├── kr-l0.json … kr-l7.json  die acht Kursmodule
+│   └── kr-practice-1..3.json    die drei Übungspartien aus koenigrufen.md §11.7
+└── hu-illu/                     ungarisches Illusztrált tarokk, ITVB 2019
+    ├── index.json
+    └── hu-intro.json            der Überblick; die Module folgen mit dem Regelprofil (M9)
 ```
+
+`kind` in `index.json` sagt, was für eine Einheit das ist: `overview` (ein reiner
+Lesedurchgang über das ganze Spiel), `module` (ein Kursmodul) oder `practice`
+(eine Übungspartie). Das Tutorial zeigt es als Untertitel an.
 
 Maßgeblich ist `docs/design.md` §7.6; die Inhalte stammen aus `docs/koenigrufen.md`
 §11. `schema.json` ist die maschinenlesbare Fassung von §7.6 — was dort nicht
@@ -23,11 +31,11 @@ gegen das Schema geprüft, `index.json` nicht.
 | Feld | Bedeutung |
 |---|---|
 | `id` | eindeutig, gleich dem Dateinamen ohne `.json` |
-| `profile` | `RuleProfile::key()`, hier immer `AT-KR-OOE-2023-04` |
+| `profile` | `RuleProfile::key()`: `AT-KR-OOE-2023-04` oder `HU-ILLU-ITVB-2019` |
 | `module` | Kursmodul `L0`–`L7` |
 | `title`, `goals`, `source` | Titel, Lernziele, Belegstelle in der Spezifikation |
 | `players`, `seatNames`, `dealer` | der Tisch; **Sitz 0 ist immer der Lernende** |
-| `deal` | festes Blatt: `hands` (4 × 12 Karten) und `talon` (2 × 3) |
+| `deal` | festes Blatt: `hands` (4 × 12 Karten beim Königrufen, 4 × 9 beim ungarischen Tarokk) und `talon` (2 × 3) |
 | `steps` | die Schrittfolge, siehe unten |
 | `result` | Sollzustand nach der Hand — Grundlage des Regressionstests |
 | `moral` | ein Satz Lehre am Ende der Übungspartie |
@@ -62,6 +70,11 @@ Aktionen werden in Kleinschreibung notiert und bilden `ActionType` aus
 `callking` (`a` = Farbe), `taketalon` (`a` = 0 | 1 | −1), `discard` (`card`),
 `discardSet` (`cards`, die ganze Ablage auf einmal), `announce` (`a` = Prämie),
 `kontra` (`a` = Posten, `b` = 2 | 4 | 8), `ready`, `play` (`card`).
+
+Beim `kontra` ist der Posten nicht der Prämienschlüssel selbst, sondern die
+Ansage der laufenden Hand, die gemeint ist: `"a": "GAME"` für das Spiel,
+sonst der Prämienschlüssel (`"PAGAT"`). Der Loader sucht die passende
+`Declaration` erst dann heraus, wenn die Aktion an der Reihe ist.
 
 `auto` kennt zwei Formen: die Kurzform `["pass","pass","pass"]` (die Mitspieler
 der Reihe nach) und die Langform mit Sitz und Argumenten, die auch für den Sitz
@@ -126,7 +139,10 @@ Falle liefert die Begründung für **diese** Stelle.
    verlinkt.
 4. Fallen ergänzen: für jeden Anfängerfehler aus §11.5, der zum Thema des
    Schritts gehört.
-5. In `index.json` eintragen (Reihenfolge, Titel, ein Satz Beschreibung).
+5. In `index.json` eintragen: `id`, `file`, `module`, `kind` (`module` oder
+   `practice`), Titel und ein Satz Beschreibung. Die Reihenfolge dort ist die
+   Reihenfolge des Tutorials (`docs/design.md` §7.9); was nicht eingetragen ist,
+   hängt die App hinten an.
 6. Prüfen:
 
 ```sh

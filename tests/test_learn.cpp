@@ -11,6 +11,7 @@
 #include "TarockEngine.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QSet>
 #include <QSettings>
 #include <QTemporaryDir>
@@ -218,6 +219,10 @@ QVariantList scriptedHints(TarockEngine& engine, const std::vector<CardList>& ha
 int main(int argc, char* argv[])
 {
     QCoreApplication app(argc, argv);
+    // The same identity main.cpp installs; every QSettings in the app is the
+    // default-constructed one and needs it.
+    QCoreApplication::setOrganizationName(QStringLiteral("harbour-tarock"));
+    QCoreApplication::setApplicationName(QStringLiteral("harbour-tarock"));
     // Never touch the settings of the person running the test.
     QTemporaryDir settingsDir;
     QSettings::setDefaultFormat(QSettings::IniFormat);
@@ -532,6 +537,141 @@ int main(int argc, char* argv[])
         CHECK(second.learn()->level() == LearnEngine::Novice);
         second.learn()->setLevel(LearnEngine::Learning);
     }
+
+    // --- 9. the course, its order and the progress --------------------------
+    // docs/design.md §7.9: the chain of the tutorial is the order index.json
+    // writes down, and what is finished survives the next start.
+    {
+        TarockEngine engine;
+        LearnEngine* learn = engine.learn();
+        engine.coreForLearning().newMatch(ProfileId::AtKrOoe2023, 4, 3u);
+        learn->resetCourse();
+
+        // index.json is the course order, not a lesson of its own.
+        CHECK(!learn->lessonIds().contains(QLatin1String("index")));
+        CHECK(learn->lessonIds().contains(QLatin1String("kr-l0")));
+
+        const QVariantList course = learn->course();
+        CHECK_MSG(course.size() == 12, QString::number(course.size()));
+        if (course.size() == 12) {
+            const QVariantMap first = course.first().toMap();
+            CHECK(first.value(QStringLiteral("id")).toString() == QLatin1String("kr-intro"));
+            CHECK(first.value(QStringLiteral("title")).toString()
+                  == QString::fromUtf8("Spielziel, Ablauf und Regeln"));
+            CHECK(first.value(QStringLiteral("kind")).toString() == QLatin1String("overview"));
+            // The practice hands come last and are marked as such.
+            const QVariantMap last = course.last().toMap();
+            CHECK(last.value(QStringLiteral("id")).toString()
+                  == QLatin1String("kr-practice-3"));
+            CHECK(last.value(QStringLiteral("kind")).toString() == QLatin1String("practice"));
+            // Nothing done yet: the first entry is the one to go on with.
+            CHECK(first.value(QStringLiteral("done")).toBool() == false);
+            CHECK(first.value(QStringLiteral("current")).toBool() == true);
+        }
+        CHECK(learn->lessonCount() == 12);
+        CHECK(learn->lessonsDone() == 0);
+        CHECK(learn->nextLessonId() == QLatin1String("kr-intro"));
+        CHECK(!learn->tourSeen());
+
+        // lessonInfo() answers for a lesson of the index …
+        const QVariantMap info = learn->lessonInfo(QStringLiteral("kr-l4"));
+        CHECK(info.value(QStringLiteral("module")).toString() == QLatin1String("L4"));
+        CHECK(!info.value(QStringLiteral("title")).toString().isEmpty());
+        // … and not for something that is not a lesson.
+        CHECK(learn->lessonInfo(QStringLiteral("kr-l99")).isEmpty());
+
+        learn->markLessonDone(QStringLiteral("kr-intro"));
+        CHECK(learn->lessonDone(QStringLiteral("kr-intro")));
+        CHECK(learn->lessonsDone() == 1);
+        CHECK(learn->nextLessonId() == QLatin1String("kr-l0"));
+        CHECK(learn->course().at(1).toMap().value(QStringLiteral("current")).toBool());
+        // Marking it twice does not count it twice.
+        learn->markLessonDone(QStringLiteral("kr-intro"));
+        CHECK(learn->lessonsDone() == 1);
+        learn->setTourSeen(true);
+    }
+    {
+        // The next start finds tour and progress where they were left.
+        TarockEngine engine;
+        LearnEngine* learn = engine.learn();
+        engine.coreForLearning().newMatch(ProfileId::AtKrOoe2023, 4, 3u);
+        CHECK(learn->tourSeen());
+        CHECK(learn->lessonDone(QStringLiteral("kr-intro")));
+        CHECK(learn->nextLessonId() == QLatin1String("kr-l0"));
+        // "Start over" forgets both.
+        learn->resetCourse();
+        CHECK(!learn->tourSeen());
+        CHECK(learn->lessonsDone() == 0);
+        CHECK(learn->nextLessonId() == QLatin1String("kr-intro"));
+    }
+    {
+        // The Hungarian profile has its own course: so far the overview.
+        TarockEngine engine;
+        LearnEngine* learn = engine.learn();
+        engine.coreForLearning().newMatch(ProfileId::HuIlluItvb2019, 4, 3u);
+        const QVariantList course = learn->course();
+        CHECK_MSG(course.size() == 1, QString::number(course.size()));
+        if (course.size() == 1) {
+            const QVariantMap first = course.first().toMap();
+            CHECK(first.value(QStringLiteral("id")).toString() == QLatin1String("hu-intro"));
+            CHECK(first.value(QStringLiteral("kind")).toString() == QLatin1String("overview"));
+        }
+        // Progress is kept per profile, so Königrufen is untouched by it.
+        learn->markLessonDone(QStringLiteral("hu-intro"));
+        CHECK(learn->lessonsDone() == 1);
+        CHECK(learn->nextLessonId().isEmpty());
+        engine.coreForLearning().newMatch(ProfileId::AtKrOoe2023, 4, 3u);
+        CHECK(learn->lessonsDone() == 0);
+        CHECK(learn->nextLessonId() == QLatin1String("kr-intro"));
+    }
+
+    // --- 10. every shipped lesson loads, validates and starts ---------------
+    // The course of docs/design.md §7.6/§7.9 ships as data, so a typo in a
+    // lesson file is a bug in the app: each one is loaded, its deal is checked
+    // against the deck of its profile and the fixed hand is dealt into a core.
+#ifdef TAROCK_DATA_DIR
+    {
+        struct ProfileDir {
+            const char* stem;
+            ProfileId profile;
+            int expected;      // lesson files, index.json not counted
+        };
+        const ProfileDir directories[] = {
+            {"at-kr-ooe", ProfileId::AtKrOoe2023, 12},
+            {"hu-illu", ProfileId::HuIlluItvb2019, 1},
+        };
+        for (const ProfileDir& entry : directories) {
+            const QString path = QLatin1String(TAROCK_DATA_DIR "/assets/lessons/")
+                                 + QLatin1String(entry.stem);
+            QDir dir(path);
+            CHECK_MSG(dir.exists(), path);
+            const QStringList files = dir.entryList(QStringList() << QStringLiteral("*.json"),
+                                                    QDir::Files, QDir::Name);
+            int seen = 0;
+            for (const QString& file : files) {
+                if (file == QLatin1String("index.json"))
+                    continue;
+                ++seen;
+                const QString full = path + QLatin1Char('/') + file;
+                Lesson lesson;
+                QString error;
+                CHECK_MSG(lesson.loadFile(full, &error), file + QLatin1String(": ") + error);
+                if (!lesson.loaded())
+                    continue;
+                CHECK_MSG(lesson.profile() == entry.profile, file);
+                CHECK_MSG(!lesson.title().isEmpty(), file);
+                CHECK_MSG(lesson.stepCount() > 0, file);
+                CHECK_MSG(lesson.validateDeal(&error), file + QLatin1String(": ") + error);
+                TarockCore core;
+                CHECK_MSG(lesson.begin(core, &error), file + QLatin1String(": ") + error);
+                CHECK_MSG(core.profile().id() == entry.profile, file);
+            }
+            CHECK_MSG(seen == entry.expected,
+                      QString::fromLatin1(entry.stem) + QLatin1String(": ")
+                      + QString::number(seen));
+        }
+    }
+#endif
 
     if (failures == 0)
         std::printf("test_learn: all checks passed\n");

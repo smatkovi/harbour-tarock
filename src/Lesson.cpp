@@ -29,6 +29,7 @@
 #include <QJsonParseError>
 
 #include <string>
+#include <vector>
 
 using tarock::Action;
 using tarock::ActionType;
@@ -38,6 +39,7 @@ using tarock::Card;
 using tarock::CardList;
 using tarock::ContractDef;
 using tarock::ContractId;
+using tarock::Declaration;
 using tarock::Phase;
 using tarock::ProfileId;
 using tarock::RuleProfile;
@@ -65,6 +67,9 @@ const ActionName kActionNames[] = {
     {ActionType::Discard, "discard"},
     {ActionType::ConfirmDiscard, "confirmdiscard"},
     {ActionType::AnnounceBonus, "bonus"},
+    // The lessons of assets/lessons/README.md call it "announce"; both names
+    // mean the same action, and actionNameOf() keeps answering "bonus".
+    {ActionType::AnnounceBonus, "announce"},
     {ActionType::Kontra, "kontra"},
     {ActionType::Ready, "ready"},
     {ActionType::PlayCard, "play"},
@@ -137,6 +142,25 @@ int suitIdFor(const QString& key)
 
 // "a" and "b" may be numbers or the stable text keys of the specification:
 // a contract ("RUFER"), a suit ("S"), a bonus ("PAGAT") or a card ("XVIII").
+// Which declaration of the running hand a lesson means by "GAME" or the key of
+// a bonus. The index is the `a` of a Kontra action (TarockEngine::kontraTargets).
+int kontraIndexFor(const TarockCore& core, ProfileId profile, const QString& key)
+{
+    const bool game = key.compare(QLatin1String("GAME"), Qt::CaseInsensitive) == 0
+                      || key.compare(QLatin1String("SPIEL"), Qt::CaseInsensitive) == 0;
+    const int bonus = game ? -1 : bonusIdFor(profile, key);
+    if (!game && bonus < 0)
+        return -1;
+    const std::vector<Declaration>& declarations = core.declarations();
+    for (std::size_t i = 0; i < declarations.size(); ++i) {
+        const Declaration& declaration = declarations[i];
+        if (game ? declaration.bonus == BonusId::None
+                 : static_cast<int>(declaration.bonus) == bonus)
+            return static_cast<int>(i);
+    }
+    return -1;
+}
+
 int resolveArgument(ProfileId profile, ActionType type, const QVariant& value, bool* ok)
 {
     *ok = true;
@@ -387,28 +411,68 @@ bool Lesson::parseStep(const QVariantMap& raw, int position, Step* step, QString
 
     const QVariantList autos = raw.value(QStringLiteral("auto")).toList();
     for (const QVariant& item : autos) {
-        Action action;
+        AutoAction entry;
         if (item.type() == QVariant::Map) {
             const QVariantMap map = item.toMap();
-            action.type = actionTypeOf(map.value(QStringLiteral("type")).toString());
+            entry.seat = map.value(QStringLiteral("seat"), -1).toInt();
+            if (entry.seat >= m_players) {
+                fail(error, tr("Schritt %1: „auto“ nennt den Sitz %2, den es nicht gibt.")
+                     .arg(step->id).arg(entry.seat));
+                return false;
+            }
+            const QString type = map.value(QStringLiteral("type")).toString();
+            // The whole discard at once, the same shorthand "discardSet" that
+            // `expect` uses; it runs as one Discard per card plus the
+            // confirmation.
+            if (type == QLatin1String("discardSet")) {
+                const QStringList keys = map.value(QStringLiteral("cards")).toStringList();
+                for (const QString& key : keys) {
+                    Card card;
+                    if (!parseCard(key, &card)) {
+                        fail(error, tr("Schritt %1: unbekannte Karte „%2“ in „auto“.")
+                             .arg(step->id, key));
+                        return false;
+                    }
+                    entry.cards.push_back(card);
+                }
+                if (entry.cards.empty()) {
+                    fail(error, tr("Schritt %1: „discardSet“ ohne Karten.").arg(step->id));
+                    return false;
+                }
+                entry.discardSet = true;
+                step->autoActions.append(entry);
+                continue;
+            }
+            entry.action.type = actionTypeOf(type);
             bool ok = true;
-            action.a = static_cast<std::int16_t>(
-                resolveArgument(m_profile, action.type, map.value(QStringLiteral("a")), &ok));
+            const QVariant argument = map.value(QStringLiteral("a"));
+            if (entry.action.type == ActionType::Kontra && argument.type() == QVariant::String) {
+                entry.kontraTarget = argument.toString().trimmed();
+                entry.action.a = -1;
+            } else {
+                entry.action.a = static_cast<std::int16_t>(
+                    resolveArgument(m_profile, entry.action.type, argument, &ok));
+            }
             if (!ok) {
                 fail(error, tr("Schritt %1: „auto“ hat einen unbekannten Parameter.").arg(step->id));
                 return false;
             }
-            action.b = static_cast<std::int16_t>(
-                resolveArgument(m_profile, action.type, map.value(QStringLiteral("b")), &ok));
+            entry.action.b = static_cast<std::int16_t>(
+                resolveArgument(m_profile, entry.action.type, map.value(QStringLiteral("b")), &ok));
+            if (entry.action.type == ActionType::None) {
+                fail(error, tr("Schritt %1: „auto“ nennt eine unbekannte Aktion „%2“.")
+                     .arg(step->id, type));
+                return false;
+            }
         } else {
-            action.type = actionTypeOf(item.toString());
+            entry.action.type = actionTypeOf(item.toString());
+            if (entry.action.type == ActionType::None) {
+                fail(error, tr("Schritt %1: „auto“ nennt eine unbekannte Aktion „%2“.")
+                     .arg(step->id, item.toString()));
+                return false;
+            }
         }
-        if (action.type == ActionType::None) {
-            fail(error, tr("Schritt %1: „auto“ nennt eine unbekannte Aktion „%2“.")
-                 .arg(step->id, item.toString()));
-            return false;
-        }
-        step->autoActions.append(action);
+        step->autoActions.append(entry);
     }
 
     const QVariantList moves = raw.value(QStringLiteral("moves")).toList();
@@ -512,8 +576,14 @@ bool Lesson::parseTraps(const QVariantList& raw, Step* step, QString* error)
                 return false;
             }
             bool ok = true;
-            trap.action.a = static_cast<std::int16_t>(
-                resolveArgument(m_profile, trap.action.type, action.value(QStringLiteral("a")), &ok));
+            const QVariant argument = action.value(QStringLiteral("a"));
+            if (trap.action.type == ActionType::Kontra && argument.type() == QVariant::String) {
+                trap.kontraTarget = argument.toString().trimmed();
+                trap.action.a = -1;
+            } else {
+                trap.action.a = static_cast<std::int16_t>(
+                    resolveArgument(m_profile, trap.action.type, argument, &ok));
+            }
             if (!ok) {
                 fail(error, tr("Schritt %1: „traps“ hat einen unbekannten Parameter.").arg(step->id));
                 return false;
@@ -521,11 +591,9 @@ bool Lesson::parseTraps(const QVariantList& raw, Step* step, QString* error)
             trap.action.b = static_cast<std::int16_t>(
                 resolveArgument(m_profile, trap.action.type, action.value(QStringLiteral("b")), &ok));
         }
-        if (trap.action.type == ActionType::None && !trap.card.valid()) {
-            fail(error, tr("Schritt %1: eine Falle nennt weder „action“ noch „card“.")
-                 .arg(step->id));
-            return false;
-        }
+        // Neither an action nor a card: the misconception of
+        // assets/lessons/README.md that cannot be tapped. It needs a text,
+        // which the next check insists on, and is shown with the step.
         if (trap.reasonKey.isEmpty() && trap.text.isEmpty()) {
             fail(error, tr("Schritt %1: eine Falle nennt weder „reason“ noch „text“.")
                  .arg(step->id));
@@ -583,6 +651,25 @@ bool Lesson::apply(TarockCore& core, int seat, const Action& action)
     return true;
 }
 
+bool Lesson::applyAuto(TarockCore& core, int seat, const AutoAction& entry)
+{
+    if (!entry.kontraTarget.isEmpty()) {
+        const int index = kontraIndexFor(core, m_profile, entry.kontraTarget);
+        if (index < 0)
+            return false;
+        Action action = entry.action;
+        action.a = static_cast<std::int16_t>(index);
+        return apply(core, seat, action);
+    }
+    if (!entry.discardSet)
+        return apply(core, seat, entry.action);
+    for (Card card : entry.cards) {
+        if (!apply(core, seat, Action(ActionType::Discard, static_cast<std::int16_t>(card.id))))
+            return false;
+    }
+    return apply(core, seat, Action(ActionType::ConfirmDiscard));
+}
+
 void Lesson::enterStep(int index, TarockCore& core)
 {
     m_index = index;
@@ -620,17 +707,23 @@ void Lesson::runAutomatic(TarockCore& core)
                 continue;
             }
         }
-        // The `auto` actions belong to the computer players; they run whenever
-        // it is not the learner's turn.
-        if (m_autoCursor < step->autoActions.size() && actor != m_localSeat) {
-            if (apply(core, actor, step->autoActions.at(m_autoCursor))) {
-                ++m_autoCursor;
-                progress = true;
-                continue;
+        // The `auto` actions: the short form runs for whoever is to act as
+        // long as that is not the learner, the long form only for the seat it
+        // names — the learner's own included, which is how a module winds a
+        // hand forward to the point it wants to talk about.
+        if (m_autoCursor < step->autoActions.size()) {
+            const AutoAction& entry = step->autoActions.at(m_autoCursor);
+            const bool due = entry.seat < 0 ? actor != m_localSeat : actor == entry.seat;
+            if (due) {
+                if (applyAuto(core, actor, entry)) {
+                    ++m_autoCursor;
+                    progress = true;
+                    continue;
+                }
+                // A scripted action the core refuses stops the automatic part
+                // rather than looping; the panel then shows the step unchanged.
+                break;
             }
-            // A scripted action the core refuses stops the automatic part
-            // rather than looping; the panel then shows the step unchanged.
-            break;
         }
     }
 }
@@ -681,12 +774,21 @@ bool Lesson::matchesExpect(const Step& step, const Action& action) const
     return true;
 }
 
-const Lesson::TrapDef* Lesson::trapFor(const Step& step, const Action& action) const
+const Lesson::TrapDef* Lesson::trapFor(const TarockCore& core, const Step& step,
+                                       const Action& action) const
 {
     for (const TrapDef& trap : step.traps) {
+        // The misconception without action and card is shown with the step,
+        // never sprung by a move.
+        if (trap.action.type == ActionType::None && !trap.card.valid())
+            continue;
         if (trap.action.type != ActionType::None) {
-            if (trap.action.type == action.type
-                && (trap.action.a < 0 || trap.action.a == action.a)
+            if (trap.action.type != action.type)
+                continue;
+            if (!trap.kontraTarget.isEmpty()
+                && kontraIndexFor(core, m_profile, trap.kontraTarget) != action.a)
+                continue;
+            if ((trap.action.a < 0 || trap.action.a == action.a)
                 && (trap.action.b < 0 || trap.action.b == action.b))
                 return &trap;
             continue;
@@ -709,7 +811,7 @@ Lesson::Outcome Lesson::offer(TarockCore& core, const Action& action, QVariantMa
     if (!step)
         return NotRunning;
 
-    if (const TrapDef* trap = trapFor(*step, action)) {
+    if (const TrapDef* trap = trapFor(core, *step, action)) {
         if (info) {
             info->insert(QStringLiteral("step"), step->id);
             info->insert(QStringLiteral("reason"), trap->reasonKey);
@@ -844,6 +946,18 @@ QVariantMap Lesson::stepMap() const
     }
     if (const Move* move = pendingLocalMove())
         map.insert(QStringLiteral("expectCard"), static_cast<int>(move->card.id));
+    // The misconceptions of this step: they belong to the text, not to a move.
+    QVariantList notes;
+    for (const TrapDef& trap : step->traps) {
+        if (trap.action.type != ActionType::None || trap.card.valid())
+            continue;
+        QVariantMap note;
+        note.insert(QStringLiteral("text"), trap.text);
+        if (!trap.reasonKey.isEmpty())
+            note.insert(QStringLiteral("reason"), trap.reasonKey);
+        notes.append(note);
+    }
+    map.insert(QStringLiteral("notes"), notes);
     return map;
 }
 

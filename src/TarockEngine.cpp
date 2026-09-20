@@ -68,7 +68,6 @@ const int kCardWatchdogMs = 5000;
 const int kTrickWatchdogMs = 7000;
 const int kRevealWatchdogMs = 9000;
 
-const char* const kSettingsScope = "harbour-tarock";
 const char* const kStateKey = "match/state";
 const char* const kSchriftKey = "match/schrift";
 const char* const kGeldKey = "match/geld";
@@ -142,7 +141,7 @@ QString joinInts(const QVector<int>& values)
     QStringList parts;
     for (int index = 0; index < values.size(); ++index)
         parts.append(QString::number(values.at(index)));
-    return parts.join(QLatin1Char(' '));
+    return parts.join(QString::fromLatin1(" "));
 }
 
 QVector<int> splitInts(const QString& text, int size)
@@ -175,30 +174,42 @@ TarockEngine::TarockEngine(QObject* parent)
     m_aiTimer.setSingleShot(true);
     m_trickPauseTimer.setSingleShot(true);
     m_watchdog.setSingleShot(true);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    connect(&m_aiTimer, SIGNAL(timeout()), this, SLOT(runComputer()));
+    connect(&m_trickPauseTimer, SIGNAL(timeout()), this, SLOT(onTrickPauseTimeout()));
+    connect(&m_watchdog, SIGNAL(timeout()), this, SLOT(onWatchdogTimeout()));
+#else
     connect(&m_aiTimer, &QTimer::timeout, this, &TarockEngine::runComputer);
-    connect(&m_trickPauseTimer, &QTimer::timeout, this, [this]() {
-        if (m_visualPhase != TrickPause)
-            return;
-        setVisualPhase(TrickFlight);
-        emit stateChanged();
-        emit trickAnimationRequested(m_flyingWinner);
-        m_watchdog.start(kTrickWatchdogMs);
-    });
-    // A table that never answers must not lock the engine for good.
-    connect(&m_watchdog, &QTimer::timeout, this, [this]() {
-        switch (m_visualPhase) {
-        case CardFlight: completeCardAnimation(); break;
-        case TrickFlight: completeTrickAnimation(); break;
-        case Reveal: completeReveal(); break;
-        default: finishIdle(); break;
-        }
-    });
+    connect(&m_trickPauseTimer, &QTimer::timeout, this, &TarockEngine::onTrickPauseTimeout);
+    connect(&m_watchdog, &QTimer::timeout, this, &TarockEngine::onWatchdogTimeout);
+#endif
 
     loadSettings();
 
     // The learning mode is a layer over the engine, not a second engine; QML
     // reaches it as tarockEngine.learn (docs/design.md §7.2).
     m_learn = new LearnEngine(this, this);
+}
+
+void TarockEngine::onTrickPauseTimeout()
+{
+    if (m_visualPhase != TrickPause)
+        return;
+    setVisualPhase(TrickFlight);
+    emit stateChanged();
+    emit trickAnimationRequested(m_flyingWinner);
+    m_watchdog.start(kTrickWatchdogMs);
+}
+
+// A table that never answers must not lock the engine for good.
+void TarockEngine::onWatchdogTimeout()
+{
+    switch (m_visualPhase) {
+    case CardFlight: completeCardAnimation(); break;
+    case TrickFlight: completeTrickAnimation(); break;
+    case Reveal: completeReveal(); break;
+    default: finishIdle(); break;
+    }
 }
 
 TarockEngine::~TarockEngine()
@@ -210,8 +221,7 @@ TarockEngine::~TarockEngine()
 
 void TarockEngine::loadSettings()
 {
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     m_profileId = profileIdFor(settings.value(QLatin1String(kProfileKey)).toString());
     const QString deck = settings.value(QLatin1String(kDeckKey), m_deck).toString().trimmed();
     if (!deck.isEmpty())
@@ -227,8 +237,7 @@ void TarockEngine::loadSettings()
 
 void TarockEngine::saveSettings()
 {
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     settings.setValue(QLatin1String(kProfileKey), profileKey());
     settings.setValue(QLatin1String(kDeckKey), m_deck);
     settings.setValue(QLatin1String(kDifficultyKey), static_cast<int>(m_difficulty));
@@ -245,10 +254,11 @@ void TarockEngine::persist()
         clearSaved();
         return;
     }
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
+    const std::string serialized = m_core.serialize();
     settings.setValue(QLatin1String(kStateKey),
-                      QString::fromLatin1(QByteArray::fromStdString(m_core.serialize()).toBase64()));
+                      QString::fromLatin1(QByteArray(serialized.data(),
+                                                     int(serialized.size())).toBase64()));
     settings.setValue(QLatin1String(kSchriftKey), joinInts(m_matchSchrift));
     settings.setValue(QLatin1String(kGeldKey), joinInts(m_matchGeld));
     settings.setValue(QLatin1String(kProfileKey), profileKey());
@@ -258,8 +268,7 @@ void TarockEngine::persist()
 
 void TarockEngine::clearSaved()
 {
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     settings.remove(QLatin1String(kMatchGroup));
     settings.sync();
     m_hasSaved = false;
@@ -346,12 +355,11 @@ void TarockEngine::resume()
         emit matchStarted();   // back to the running table
         return;
     }
-    const QString scope = QString::fromLatin1(kSettingsScope);
-    QSettings settings(scope, scope);
+    QSettings settings;
     const QByteArray saved =
         QByteArray::fromBase64(settings.value(QLatin1String(kStateKey)).toString().toLatin1());
     tarock::TarockCore core;
-    if (saved.isEmpty() || !core.restore(saved.toStdString())) {
+    if (saved.isEmpty() || !core.restore(std::string(saved.constData(), saved.size()))) {
         m_hasSaved = false;
         emit stateChanged();
         return;

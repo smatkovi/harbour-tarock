@@ -67,7 +67,7 @@ Page {
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignHCenter
-                text: qsTr("Version %1 · GPL-3.0-or-later · Copyright 2026 smatkovi").arg("0.1.0")
+                text: qsTr("Version %1 · GPL-3.0-or-later · Copyright 2026 smatkovi").arg("0.2.3")
                 color: Theme.secondaryColor
                 font.pixelSize: Theme.fontSizeExtraSmall
             }

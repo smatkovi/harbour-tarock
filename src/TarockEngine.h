@@ -21,6 +21,7 @@
 #ifndef TAROCKENGINE_H
 #define TAROCKENGINE_H
 
+#include "LearnEngine.h"
 #include "core/Ai.h"
 #include "core/TarockCore.h"
 
@@ -32,7 +33,10 @@
 #include <QVariantMap>
 #include <QVector>
 
-class LearnEngine;
+// LearnEngine.h rather than a forward declaration on purpose: QML reads the
+// `learn` property, and a property whose type is still incomplete when moc
+// sees it has no metatype at runtime — tarockEngine.learn then arrives in QML
+// as `undefined`, which silently switches off the whole learning mode.
 
 // The QML facade of the rule core (docs/design.md §5). Seat 0 is always the
 // local player; the others are computer players, and from M7 on people on
@@ -228,8 +232,15 @@ private:
     int trickPauseMs() const;
     void finishIdle();
     void scheduleComputer();
-    void runComputer();
 
+private slots:
+    // Qt 4.7 connects by signature, so these cannot be lambdas or plain
+    // methods. Qt 5 still connects to them by pointer.
+    void runComputer();
+    void onTrickPauseTimeout();
+    void onWatchdogTimeout();
+
+private:
     void loadSettings();
     void saveSettings();
     void persist();

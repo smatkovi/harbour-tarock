@@ -37,7 +37,13 @@ int main(int argc, char *argv[])
     // Same names as [X-Sailjail] in sailfish/desktop/harbour-tarock.desktop and
     // as the Android build, so the QSettings the engine saves its profile,
     // deck and difficulty in land in the private path Sailjail grants us.
-    QCoreApplication::setOrganizationName(QStringLiteral("org.smatkovi"));
+    // This pair is what the [X-Sailjail] section of the desktop file declares,
+    // and the sandbox opens exactly the matching ~/.config/harbour-tarock — the
+    // same organisation-equals-application convention every other Sailfish app
+    // follows. Every QSettings in the app must therefore be the
+    // default-constructed one: a scope of its own writes outside the sandbox,
+    // where nothing survives the next start.
+    QCoreApplication::setOrganizationName(QStringLiteral("harbour-tarock"));
     QCoreApplication::setApplicationName(QStringLiteral("harbour-tarock"));
 
     QQuickView *view = SailfishApp::createView();

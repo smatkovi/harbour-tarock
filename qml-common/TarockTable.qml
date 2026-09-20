@@ -72,12 +72,46 @@ Item {
     readonly property int learnLevel: learn === null || learn.level === undefined ? 0 : learn.level
     // Set by LessonPage; the table then keeps the lesson band even between steps.
     property bool lessonMode: false
+    // The guided tour of docs/design.md §7.9 runs over the ordinary table; the
+    // page that hosts it starts it and is told when it is through.
+    readonly property bool tourActive: tourOverlay.running
     // The reason of the last refused action, for the "why?" button.
     property var lastReason: null
 
     // The page that hosts the table follows these into the rule reference.
     signal ruleRequested(string anchor)
     signal glossaryRequested(string term)
+    // The tour has reached its last step or was skipped.
+    signal tourFinished()
+
+    function startTour() {
+        tourOverlay.start()
+    }
+
+    // The names the steps of TourScript use. An unknown name, and a part that
+    // this table does not show at all, simply leave the step without a frame:
+    // the bubble then sits in the middle and the text still fits.
+    function tourTarget(name) {
+        if (name === "header")
+            return header
+        if (name === "seats")
+            return table.players === 5 ? topLeftSeat : topSeat
+        if (name === "trickArea")
+            return trickArea
+        if (name === "statusLabel")
+            return statusLabel
+        if (name === "handFan")
+            return handFan
+        if (name === "actionBand")
+            return actionBand
+        if (name === "learnPanel")
+            return learnPanel
+        if (name === "learnBar")
+            return learnBar
+        if (name === "mySeat")
+            return mySeat
+        return null
+    }
 
     function openRule(anchor) {
         table.ruleRequested(anchor)
@@ -1032,6 +1066,22 @@ Item {
                 }
             }
         }
+    }
+
+    // --- the guided tour (docs/design.md §7.9) ------------------------------------------
+
+    TourScript {
+        id: tourScript
+    }
+
+    TourOverlay {
+        id: tourOverlay
+        anchors.fill: parent
+        steps: tourScript.steps
+        resolve: table.tourTarget
+        panelColor: table.panelColor
+        maxHeight: table.height * 0.42
+        onFinished: table.tourFinished()
     }
 
     Item {

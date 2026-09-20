@@ -60,16 +60,38 @@ public:
         Finished      // the expected action ended the lesson
     };
 
+    // A trap without action and without card is the third kind of
+    // assets/lessons/README.md: a plain misconception that cannot be tapped
+    // ("35 points are half of it, so I won"). It is shown with the step
+    // instead of waiting for a move.
     struct TrapDef {
         tarock::Action action;        // type None = matched by card only
         tarock::Card card;            // invalid = matched by action only
         QString reasonKey;            // "E_ABLAGE_KOENIG", may be empty
         QString text;                 // own wording, may be empty
+        // Kontra names its posten by name ("GAME", "PAGAT"); which index that
+        // is only follows from the declarations of the running hand, so it is
+        // resolved when the action is offered, not when the file is read.
+        QString kontraTarget;
     };
 
     struct Move {
         int seat = -1;
         tarock::Card card;
+    };
+
+    // One entry of `auto`. The short form ("pass") leaves the seat open: it
+    // runs for whoever is to act as long as that is not the learner. The long
+    // form names a seat and may name the learner's own, which is how the
+    // modules that start in the middle of a hand wind the previous decisions
+    // forward (assets/lessons/README.md). `discardSet` is not an action of the
+    // core but the whole discard at once.
+    struct AutoAction {
+        int seat = -1;
+        tarock::Action action;
+        tarock::CardList cards;
+        bool discardSet = false;
+        QString kontraTarget;         // as in TrapDef
     };
 
     struct Step {
@@ -80,7 +102,7 @@ public:
         QString expectType;           // the action name, "discardSet" included
         tarock::Action expect;
         tarock::CardList expectCards; // discardSet
-        QVector<tarock::Action> autoActions;
+        QVector<AutoAction> autoActions;
         QString text;
         tarock::CardList highlight;
         QVector<TrapDef> traps;
@@ -154,7 +176,10 @@ private:
     bool parseTraps(const QVariantList& raw, Step* step, QString* error);
     // Applies one action and writes it into the journal restartStep() replays.
     bool apply(tarock::TarockCore& core, int seat, const tarock::Action& action);
-    const TrapDef* trapFor(const Step& step, const tarock::Action& action) const;
+    // One `auto` entry, which may be a whole discard.
+    bool applyAuto(tarock::TarockCore& core, int seat, const AutoAction& entry);
+    const TrapDef* trapFor(const tarock::TarockCore& core, const Step& step,
+                           const tarock::Action& action) const;
     bool matchesExpect(const Step& step, const tarock::Action& action) const;
     // The next move of the trick the local seat still owes.
     const Move* pendingLocalMove() const;
