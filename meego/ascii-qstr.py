@@ -19,8 +19,12 @@ import sys
 SUBST = {
     "—": "-",    # em dash
     "–": "-",    # en dash
-    "“": '"', "”": '"',       # English quotes
-    "„": '"', "‚": "'",       # German low quotes
+    # Single quotes, never double: the replacement lands inside a
+    # double-quoted QML literal and a " there ends the string early. That is
+    # what broke MainPage.qml on the first run ("Expected token `)'"), so this
+    # is not a matter of taste.
+    "“": "'", "”": "'",       # English quotes
+    "„": "'", "‚": "'",       # German low quotes
     "‘": "'", "’": "'",
     "…": "...",
     " ": " ",

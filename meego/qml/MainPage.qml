@@ -46,6 +46,7 @@ Page {
     // root context itself.
     Component.onCompleted: Prefs.adopt(page.engine)
 
+
     function startTable() {
         page.pageStack.push(Qt.resolvedUrl("TablePage.qml"))
     }
