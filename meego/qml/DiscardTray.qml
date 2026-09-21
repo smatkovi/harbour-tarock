@@ -43,8 +43,7 @@ Item {
     property real cardRatio: 1.78
     property color panelColor: "#f0202020"
     // function(reason) — set by the table, shows why a card may not go down.
-    property variant explain: null
-
+    signal explain(variant a1)
     property int missing: Math.max(0, target - (cards ? cards.length : 0))
     property real slotWidth:
         Math.min(Style.itemSizeSmall * 0.8,

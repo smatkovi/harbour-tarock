@@ -40,8 +40,7 @@ Item {
     property color panelColor: "#f0202020"
     // function() — the table clears any card still in the air before the
     // engine deals again.
-    property variant beforeContinue: null
-
+    signal beforeContinue()
     implicitHeight: Math.min(frame.implicitHeight, maxHeight)
 
     // struct Ledger (src/core/Scoring.h) as a map: items, schrift, geld.

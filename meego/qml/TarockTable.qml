@@ -579,8 +579,8 @@ Item {
         learn: table.learn
         engine: table.engine
         panelColor: table.panelColor
-        openAnchor: table.openRule
-        openTerm: table.openGlossary
+        onOpenAnchor: table.openRule(a1)
+        onOpenTerm: table.openGlossary(a1)
     }
 
     // The running lesson floats over the seats rather than displacing them.
@@ -768,7 +768,7 @@ Item {
             options: table.engine.options
             headline: table.saidBySeat[table.engine.actor >= 0 ? table.engine.actor : 0]
             panelColor: table.panelColor
-            explain: table.explainOption
+            onExplain: table.explainOption(a1)
         }
     }
 
@@ -781,7 +781,7 @@ Item {
             deck: table.engine.deck
             cardRatio: table.cardRatio
             panelColor: table.panelColor
-            explain: table.explainOption
+            onExplain: table.explainOption(a1)
         }
     }
 
@@ -795,7 +795,7 @@ Item {
             deck: table.engine.deck
             cardRatio: table.cardRatio
             panelColor: table.panelColor
-            explain: table.explainOption
+            onExplain: table.explainOption(a1)
         }
     }
 
@@ -809,7 +809,7 @@ Item {
             announcements: table.me.announcements
             maxHeight: table.height * 0.34
             panelColor: table.panelColor
-            explain: table.explainOption
+            onExplain: table.explainOption(a1)
         }
     }
 
@@ -848,7 +848,7 @@ Item {
         deck: table.engine.deck
         cardRatio: table.cardRatio
         maxCardHeight: table.height * 0.24
-        explain: table.showReason
+        onExplain: table.showReason(a1)
     }
 
     // The learning bar of §6.2 closes the table off at the bottom; off it is
@@ -901,7 +901,7 @@ Item {
         deck: table.engine.deck
         cardRatio: table.cardRatio
         panelColor: table.panelColor
-        openAnchor: table.openRule
+        onOpenAnchor: table.openRule(a1)
     }
 
     // The running helpers of §7.5.
@@ -932,7 +932,7 @@ Item {
         engine: table.engine
         seats: table.seatList
         panelColor: table.panelColor
-        beforeContinue: table.clearFlights
+        onBeforeContinue: table.clearFlights()
     }
 
     // Talon or open discards, held for a moment and then acknowledged.
@@ -1078,7 +1078,7 @@ Item {
         id: tourOverlay
         anchors.fill: parent
         steps: tourScript.steps
-        resolve: table.tourTarget
+        onResolve: table.tourTarget(a1)
         panelColor: table.panelColor
         maxHeight: table.height * 0.42
         onFinished: table.tourFinished()

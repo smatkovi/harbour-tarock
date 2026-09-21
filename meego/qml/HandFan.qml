@@ -46,8 +46,7 @@ Item {
     property real cardRatio: 1.78
     property real maxCardHeight: Style.itemSizeLarge
     // function(reason) — set by the table, shows the "why not?" text.
-    property variant explain: null
-
+    signal explain(variant a1)
     property int count: cards ? cards.length : 0
     property real cardWidth: (function() {
         var room = Math.max(Style.itemSizeSmall, width - 2 * Style.paddingSmall)

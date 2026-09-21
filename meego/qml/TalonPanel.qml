@@ -42,8 +42,7 @@ Item {
     property real cardRatio: 1.78
     property color panelColor: "#f0202020"
     // function(option) — set by the table, shows why an option is barred.
-    property variant explain: null
-
+    signal explain(variant a1)
     implicitHeight: column.height
 
     function cardsOf(half) {

@@ -41,6 +41,7 @@ def convert(text):
     text = re.sub(r':\s*\((\w+)\)\s*=>\s*', r': ', text)
     # Page activation is reported through status, not an attached property.
     text = wrap_activated(text)
+    text = fill_item_roots(text)
     # A plain Flickable never gets to flick when the drag starts on a child
     # MouseArea; pressDelay lets it steal the press back, which is what
     # QtQuick.Controls does for itself.
@@ -52,6 +53,25 @@ def convert(text):
     text = re.sub(r'^(\s*)background: Rectangle \{ color: (.*) \}\s*$',
                   r'\1Rectangle { anchors.fill: parent; color: \2; z: -1 }', text, flags=re.M)
     return text
+
+
+def fill_item_roots(text):
+    """A page whose root is a plain Item gets no size from a MeeGo PageStack.
+
+    The stack anchors a Page to its container and leaves anything else at
+    0x0, so TablePage and LessonPage -- both rooted in Item, as the Android
+    build has them -- came up empty: the engine was running and dealing, and
+    every card sat inside an item of zero size. QtQuick.Controls' StackView
+    sizes whatever it is given, which is why this does not come up there.
+    """
+    m = re.search(r'^Item \{\n(\s*)id: (\w+)\n', text, flags=re.M)
+    if not m:
+        return text
+    if 'anchors.fill: parent' in text[m.end():m.end() + 200]:
+        return text
+    return (text[:m.end()]
+            + '%sanchors.fill: parent   // a MeeGo PageStack sizes only a Page\n' % m.group(1)
+            + text[m.end():])
 
 
 def wrap_activated(text):

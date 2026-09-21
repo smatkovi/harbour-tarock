@@ -58,8 +58,7 @@ Item {
     property bool historyOpen: false
 
     // function(anchor) — set by the table; opens the rule chapter.
-    property variant openAnchor: null
-
+    signal openAnchor(variant a1)
     visible: false
     z: 950
 

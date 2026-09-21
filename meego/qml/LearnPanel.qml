@@ -49,9 +49,8 @@ Item {
     // both into the rule reference. Function properties rather than signals:
     // injected handler parameters are deprecated on Qt 6 and the typed handler
     // syntax does not exist on Qt 5.6.
-    property variant openAnchor: null
-    property variant openTerm: null
-
+    signal openAnchor(variant a1)
+    signal openTerm(variant a1)
     property int level: learn === null || learn.level === undefined ? 0 : learn.level
     property variant explanation: learn === null ? null : learn.explanation
     property bool expanded: learn !== null && learn.panelOpen === true

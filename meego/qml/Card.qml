@@ -32,6 +32,7 @@ import QtQuick 1.1
 //          slot 4..7 = the low cards, strongest first.
 Item {
     id: root
+    anchors.fill: parent   // a MeeGo PageStack sizes only a Page
 
     // --- the interface both platforms implement -----------------------------
     property int cardId: -1

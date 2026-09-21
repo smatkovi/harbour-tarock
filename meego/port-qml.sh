@@ -38,6 +38,10 @@ python3 meego/join-strings.py "$OUT"/*.qml "$OUT"/context/*.qml
 # QtQuick.Controls spellings com.nokia.meego does not have.
 python3 meego/fix-meego.py "$OUT"/*.qml
 
+# qml-common hands functions around as property values; QtQuick 1.1 cannot
+# hold one, so they become signals here.
+python3 meego/fix-callbacks.py "$OUT"/*.qml
+
 python3 meego/ascii-qstr.py qml "$OUT"/*.qml "$OUT"/context/*.qml
 
 echo "== $(ls qml-common/*.qml | wc -l) shared files -> $OUT"

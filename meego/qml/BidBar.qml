@@ -41,8 +41,7 @@ Item {
     property string headline: ""
     property color panelColor: "#f0202020"
     // function(option) — set by the table, shows why an option is barred.
-    property variant explain: null
-
+    signal explain(variant a1)
     property variant groups: []
 
     implicitHeight: column.height

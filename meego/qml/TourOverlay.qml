@@ -40,8 +40,7 @@ Item {
     // [{ target, title, text }] — normally TourScript.steps.
     property variant steps: []
     // function(name) -> Item, set by the table.
-    property variant resolve: null
-
+    signal resolve(variant a1)
     property color panelColor: "#f0202020"
     property color dimColor: "#c0000000"
     property real maxHeight: Style.itemSizeLarge * 3

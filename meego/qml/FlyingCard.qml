@@ -27,6 +27,7 @@ import QtQuick 1.1
 // Same property interface as sailfish/FlyingCard.qml.
 Item {
     id: root
+    anchors.fill: parent   // a MeeGo PageStack sizes only a Page
 
     // --- the card it shows (same names as Card.qml) -------------------------
     property int cardId: -1

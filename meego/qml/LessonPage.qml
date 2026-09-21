@@ -25,6 +25,7 @@ import com.nokia.meego 1.0
 // band switched on.
 Item {
     id: page
+    anchors.fill: parent   // a MeeGo PageStack sizes only a Page
     objectName: "lessonPage"
 
     property variant engine: tarockEngine

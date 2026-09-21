@@ -24,6 +24,7 @@ import com.nokia.meego 1.0
 // sailfish/TablePage.qml. The table itself is qml-common/TarockTable.qml.
 Item {
     id: page
+    anchors.fill: parent   // a MeeGo PageStack sizes only a Page
     objectName: "tablePage"
 
     property variant engine: tarockEngine
