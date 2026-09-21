@@ -4,10 +4,7 @@ import com.nokia.meego 1.0
 Label {
     x: AppTheme.horizontalPageMargin
     width: parent ? parent.width - 2 * AppTheme.horizontalPageMargin : implicitWidth
-    // Controls' Label has topPadding; a QtQuick 1.1 Text does not, so the
-    // gap is made by height instead and the text sits at its bottom.
-    height: implicitHeight + AppTheme.paddingMedium
-    verticalAlignment: Text.AlignBottom
+    y: AppTheme.paddingMedium   // QtQuick 1.1 has no padding here
     horizontalAlignment: Text.AlignRight
     font.pixelSize: AppTheme.fontSizeSmall
     color: AppTheme.highlightColor

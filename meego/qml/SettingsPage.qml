@@ -111,56 +111,56 @@ SubPage {
         font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Show hints automatically")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.autoHint
-        onToggled: {
+        onCheckedChanged: {
             if (page.learn !== null)
                 page.learn.autoHint = checked
         }
     }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Warn before a bonus is lost")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.warnBonusLoss
-        onToggled: {
+        onCheckedChanged: {
             if (page.learn !== null)
                 page.learn.warnBonusLoss = checked
         }
     }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Dim illegal cards instead of hiding them")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.dimIllegal
-        onToggled: {
+        onCheckedChanged: {
             if (page.learn !== null)
                 page.learn.dimIllegal = checked
         }
     }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Counting help after every trick")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.countTutor
-        onToggled: {
+        onCheckedChanged: {
             if (page.learn !== null)
                 page.learn.countTutor = checked
         }
     }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Always play positive games out to the twelfth trick")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.playToEnd
-        onToggled: {
+        onCheckedChanged: {
             if (page.learn !== null)
                 page.learn.playToEnd = checked
         }
@@ -212,11 +212,11 @@ SubPage {
 
     SectionLabel { text: qsTr("Animation") }
 
-    Switch {
+    TextSwitch {
         x: AppTheme.horizontalPageMargin
         text: qsTr("Enable animations")
         checked: page.engine.animationsEnabled
-        onToggled: page.engine.animationsEnabled = checked
+        onCheckedChanged: page.engine.animationsEnabled = checked
     }
     TextBlock {
         text: qsTr("Turn off for immediate card movement")
@@ -236,12 +236,12 @@ SubPage {
         id: speedSlider
         x: AppTheme.horizontalPageMargin
         width: parent.width - 2 * AppTheme.horizontalPageMargin
-        from: 50
-        to: 200
+        minimumValue: 50
+        maximumValue: 200
         stepSize: 25
         value: page.engine.animationSpeed
         enabled: page.engine.animationsEnabled
-        onMoved: page.engine.animationSpeed = Math.round(value)
+        onValueChanged: page.engine.animationSpeed = Math.round(value)
     }
 
     Button {

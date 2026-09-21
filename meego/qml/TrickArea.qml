@@ -95,7 +95,7 @@ Item {
         model: area.cards
 
         Item {
-            property point place: area.slot(modelData.seat === undefined ? 0 : modelData.seat)
+            property variant place: area.slot(modelData.seat === undefined ? 0 : modelData.seat)
             width: area.cardWidth
             height: area.cardHeight
             x: place.x - width / 2

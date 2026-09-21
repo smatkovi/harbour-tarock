@@ -153,8 +153,6 @@ Item {
             color: root.inkColor
             font.pixelSize: root.isTarock ? root.width * 0.42 : root.width * 0.58
             font.bold: true
-            fontSizeMode: Text.HorizontalFit
-            minimumPixelSize: 8
         }
 
         // The full name from the engine, so the placeholder deck still reads

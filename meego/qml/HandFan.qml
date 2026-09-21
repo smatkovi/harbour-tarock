@@ -49,14 +49,14 @@ Item {
     property variant explain: null
 
     property int count: cards ? cards.length : 0
-    property real cardWidth: {
+    property real cardWidth: (function() {
         var room = Math.max(Style.itemSizeSmall, width - 2 * Style.paddingSmall)
         var byHeight = maxCardHeight / cardRatio
         if (count <= 1)
             return Math.min(room, byHeight)
         // Even at the tightest overlap the whole fan must fit the width.
         return Math.min(room / (1 + 0.28 * (count - 1)), byHeight)
-    }
+    })()
     property real cardHeight: cardWidth * cardRatio
     // The x of every card, worked out once per change instead of per delegate.
     property variant offsets: []

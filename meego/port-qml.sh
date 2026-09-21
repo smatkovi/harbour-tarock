@@ -27,6 +27,17 @@ done
 # Qt 4.7 pushes the source text of a translation through Latin-1, so an em
 # dash inside qsTr() arrives mangled. Plain literals are fine and are left
 # alone; see meego/ascii-qstr.py.
-python3 meego/ascii-qstr.py qml "$OUT"/*.qml
+# The platform pages come from android/qml, not from qml-common, and have to
+# be regenerated here too -- otherwise a fix to the scripts below never
+# reaches them.
+python3 meego/port-platform.py
+
+# Qt 4.7's QML parser has no adjacent string literals.
+python3 meego/join-strings.py "$OUT"/*.qml "$OUT"/context/*.qml
+
+# QtQuick.Controls spellings com.nokia.meego does not have.
+python3 meego/fix-meego.py "$OUT"/*.qml
+
+python3 meego/ascii-qstr.py qml "$OUT"/*.qml "$OUT"/context/*.qml
 
 echo "== $(ls qml-common/*.qml | wc -l) shared files -> $OUT"

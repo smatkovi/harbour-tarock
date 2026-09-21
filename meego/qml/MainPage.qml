@@ -39,13 +39,10 @@ Page {
     property bool offerTutorial: !page.offerHidden && page.learn !== null
                                           && page.learn.tourSeen !== true
 
-    // A MeeGo Page has no background property.
     Rectangle { anchors.fill: parent; color: AppTheme.tableColor; z: -1 }
-
     // The first page hands the engine to the singleton, which cannot read the
     // root context itself.
     Component.onCompleted: Prefs.adopt(page.engine)
-
 
     function startTable() {
         page.pageStack.push(Qt.resolvedUrl("TablePage.qml"))
@@ -53,13 +50,14 @@ Page {
 
     Flickable {
         anchors.fill: parent
+        pressDelay: 150
         contentHeight: content.height + AppTheme.paddingLarge
         clip: true
 
         Column {
             id: content
             width: page.width
-            y: AppTheme.paddingLarge   // QtQuick 1.1 positioners have no padding
+            y: AppTheme.paddingLarge   // QtQuick 1.1 has no padding here
             spacing: AppTheme.paddingMedium
 
             Label {

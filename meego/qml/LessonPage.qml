@@ -70,18 +70,18 @@ Item {
         MenuItem {
             text: qsTr("Play on freely")
             enabled: page.learn !== null && page.learn.lessonActive
-            onTriggered: {
+            onClicked: {
                 page.freePlay = true
                 page.learn.stopLesson()
             }
         }
         MenuItem {
             text: qsTr("Leave lesson")
-            onTriggered: page.leave()
+            onClicked: page.leave()
         }
         MenuItem {
             text: qsTr("Rules")
-            onTriggered: page.pageStack.push(Qt.resolvedUrl("RulesPage.qml"))
+            onClicked: page.pageStack.push(Qt.resolvedUrl("RulesPage.qml"))
         }
     }
 

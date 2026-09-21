@@ -85,7 +85,7 @@ SubPage {
     TextBlock {
         text: page.learn === null || page.learn.lessonCount === 0
               ? qsTr("No lessons are installed for this rule profile.")
-              : qsTr(""Learn to play" takes the overview, the eight modules and the three practice hands in order and remembers where you are: %1 of %2 done.")
+              : qsTr("'Learn to play' takes the overview, the eight modules and the three practice hands in order and remembers where you are: %1 of %2 done.")
                 .arg(page.learn.lessonsDone).arg(page.learn.lessonCount)
         color: AppTheme.secondaryColor
         font.pixelSize: AppTheme.fontSizeExtraSmall

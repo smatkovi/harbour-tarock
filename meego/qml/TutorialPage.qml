@@ -157,8 +157,8 @@ SubPage {
     ProgressBar {
         x: AppTheme.horizontalPageMargin
         width: parent.width - 2 * AppTheme.horizontalPageMargin
-        from: 0
-        to: Math.max(1, page.units.length)
+        minimumValue: 0
+        maximumValue: Math.max(1, page.units.length)
         value: page.doneCount
     }
 

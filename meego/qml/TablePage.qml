@@ -61,15 +61,15 @@ Item {
         id: menu
         MenuItem {
             text: qsTr("Scores")
-            onTriggered: page.pageStack.push(Qt.resolvedUrl("ScorePage.qml"))
+            onClicked: page.pageStack.push(Qt.resolvedUrl("ScorePage.qml"))
         }
         MenuItem {
             text: qsTr("Settings")
-            onTriggered: page.pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
+            onClicked: page.pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
         }
         MenuItem {
             text: qsTr("About")
-            onTriggered: page.pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
+            onClicked: page.pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
         }
     }
 
@@ -88,10 +88,15 @@ Item {
 
     // The tour waits for the page to be on top: before that the table has no
     // size yet and the frames would sit next to the parts they point at.
-    onStatusChanged: if (status === PageStatus.Active) {
+    Component.onCompleted: activatedTimer.start()
+    Timer {
+        id: activatedTimer
+        interval: 400
+        onTriggered: {
         if (page.runTour) {
             page.runTour = false
             tableView.startTour()
         }
+    }
     }
 }

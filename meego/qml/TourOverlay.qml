@@ -61,7 +61,7 @@ Item {
 
     // The rectangle that stays bright. An empty one dims the whole table,
     // which is what the steps without a target want.
-    property rect hole: {
+    property variant hole: (function() {
         var item = tour.targetItem
         if (item === null || !item.visible || item.width <= 0 || item.height <= 0)
             return Qt.rect(0, 0, 0, 0)
@@ -73,7 +73,7 @@ Item {
         if (right <= left || bottom <= top)
             return Qt.rect(0, 0, 0, 0)
         return Qt.rect(left, top, right - left, bottom - top)
-    }
+    })()
 
     property bool hasHole: hole.width > 0 && hole.height > 0
 
