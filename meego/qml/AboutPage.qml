@@ -24,7 +24,7 @@ SubPage {
     title: qsTr("About Tarock")
 
     Image {
-        width: Theme.itemSizeHuge
+        width: AppTheme.itemSizeHuge
         height: width
         anchors.horizontalCenter: parent.horizontalCenter
         source: "qrc:/sailfish/icons/icon-256.png"
@@ -36,45 +36,45 @@ SubPage {
         width: parent.width
         horizontalAlignment: Text.AlignHCenter
         text: "Tarock"
-        font.pixelSize: Theme.fontSizeHuge
+        font.pixelSize: AppTheme.fontSizeHuge
         font.bold: true
-        color: Theme.highlightColor
+        color: AppTheme.highlightColor
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
         text: qsTr("Königrufen and Hungarian Tarokk with a learning mode")
-        color: Theme.secondaryHighlightColor
-        font.pixelSize: Theme.fontSizeSmall
+        color: AppTheme.secondaryHighlightColor
+        font.pixelSize: AppTheme.fontSizeSmall
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
         text: qsTr("Version %1 · GPL-3.0-or-later · Copyright 2026 smatkovi").arg("0.2.3")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         text: qsTr("Rule sources")
-        color: Theme.highlightColor
-        font.pixelSize: Theme.fontSizeSmall
+        color: AppTheme.highlightColor
+        font.pixelSize: AppTheme.fontSizeSmall
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         wrapMode: Text.WordWrap
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeSmall
         text: qsTr("The rules this game follows are written down in four specifications that ship with the source code. Every rule the app enforces can be traced back to a numbered section in them.")
     }
 
@@ -90,38 +90,38 @@ SubPage {
               title: qsTr("Strohmandeln") }
         ]
         Column {
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
             Label {
                 width: parent.width
                 text: modelData.title
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: AppTheme.fontSizeSmall
             }
             Label {
                 width: parent.width
                 text: modelData.source + "  ·  " + modelData.profile
-                color: Theme.secondaryColor
-                font.pixelSize: Theme.fontSizeExtraSmall
+                color: AppTheme.secondaryColor
+                font.pixelSize: AppTheme.fontSizeExtraSmall
                 wrapMode: Text.WordWrap
             }
         }
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         text: qsTr("Card artwork")
-        color: Theme.highlightColor
-        font.pixelSize: Theme.fontSizeSmall
+        color: AppTheme.highlightColor
+        font.pixelSize: AppTheme.fontSizeSmall
     }
 
     Label {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         wrapMode: Text.WordWrap
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeSmall
         text: qsTr("Credits for the card decks, fonts and other assets are listed in CREDITS/ASSETS.md. The decks themselves are added in a later release.")
     }
 }

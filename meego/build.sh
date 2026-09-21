@@ -72,4 +72,19 @@ MK=$OUT/Makefile
 } > "$MK"
 
 nice make -C "$OUT" -j"$JOBS" all
+
+# Translations. Qt 4.7's lrelease only knows TS version 2.0 while the
+# catalogues say 2.1, so the header is rewritten on the way in.
+LRELEASE=$SIMQT/bin/lrelease
+mkdir -p "$OUT/translations"
+for lang in de hu; do
+    src=$HERE/translations/harbour-tarock-$lang.ts
+    [ -f "$src" ] || continue
+    sed 's/<TS version="2\.1"/<TS version="2.0"/' "$src" > "$OUT/harbour-tarock-$lang.ts"
+    # The same Latin-1 substitution the QML got, so the keys still match.
+    python3 "$HERE/meego/ascii-qstr.py" ts "$OUT/harbour-tarock-$lang.ts" >/dev/null
+    "$LRELEASE" -silent "$OUT/harbour-tarock-$lang.ts" \
+        -qm "$OUT/translations/harbour-tarock-$lang.qm"
+done
+
 echo "== built $OUT/harbour-tarock"

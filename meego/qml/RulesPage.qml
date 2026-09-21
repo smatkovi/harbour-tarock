@@ -111,24 +111,24 @@ SubPage {
 
     // The chapter a "more on this" pointed at, opened at the top.
     Rectangle {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
-        height: openedColumn.height + 2 * Theme.paddingMedium
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
+        height: openedColumn.height + 2 * AppTheme.paddingMedium
         visible: page.anchor !== ""
-        radius: Theme.paddingSmall
+        radius: AppTheme.paddingSmall
         color: "transparent"
-        border.color: Theme.highlightColor
+        border.color: AppTheme.highlightColor
 
         Column {
             id: openedColumn
             anchors.centerIn: parent
-            width: parent.width - 2 * Theme.paddingMedium
+            width: parent.width - 2 * AppTheme.paddingMedium
 
             Label {
                 width: parent.width
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeSmall
-                color: Theme.highlightColor
+                font.pixelSize: AppTheme.fontSizeSmall
+                color: AppTheme.highlightColor
                 text: page.opened ? page.chapterTitle(page.opened)
                                   : qsTr("Chapter %1 of %2").arg(page.sectionOf(page.anchor))
                                     .arg(page.documentOf(page.anchor))
@@ -137,8 +137,8 @@ SubPage {
                 width: parent.width
                 visible: text !== ""
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: Theme.secondaryColor
+                font.pixelSize: AppTheme.fontSizeExtraSmall
+                color: AppTheme.secondaryColor
                 text: page.opened && page.opened.text ? page.opened.text : ""
             }
         }
@@ -146,15 +146,15 @@ SubPage {
 
     TextBlock {
         text: qsTr("Every rule the app enforces is written down in one of the specifications below, section by section.")
-        color: Theme.secondaryColor
+        color: AppTheme.secondaryColor
     }
 
     TextField {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         visible: page.chapters.length > 0
         placeholderText: qsTr("Search the rules")
-        font.pixelSize: Theme.fontSizeSmall
+        font.pixelSize: AppTheme.fontSizeSmall
         onTextChanged: page.filter = text.trim()
     }
 
@@ -169,8 +169,8 @@ SubPage {
         ItemDelegate {
             id: chapterItem
             property bool open: page.sameAnchor(modelData.anchor, page.openAnchor)
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
             visible: page.matches(modelData)
             height: visible ? implicitHeight : 0
             highlighted: chapterItem.open
@@ -180,16 +180,16 @@ SubPage {
                 Label {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: chapterItem.open ? Theme.highlightColor : Theme.primaryColor
+                    font.pixelSize: AppTheme.fontSizeSmall
+                    color: chapterItem.open ? AppTheme.highlightColor : AppTheme.primaryColor
                     text: page.chapterTitle(modelData)
                 }
                 Label {
                     width: parent.width
                     visible: chapterItem.open && text !== ""
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.secondaryColor
+                    font.pixelSize: AppTheme.fontSizeExtraSmall
+                    color: AppTheme.secondaryColor
                     text: modelData.text ? modelData.text : ""
                 }
             }
@@ -202,8 +202,8 @@ SubPage {
         model: page.engine.profileKeys()
 
         ItemDelegate {
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
             highlighted: modelData === Prefs.profileKey
             onClicked: Prefs.profileKey = modelData
 
@@ -212,16 +212,16 @@ SubPage {
                     width: parent.width
                     text: page.engine.profileNameFor(modelData)
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: modelData === Prefs.profileKey ? Theme.highlightColor
-                                                          : Theme.primaryColor
+                    font.pixelSize: AppTheme.fontSizeSmall
+                    color: modelData === Prefs.profileKey ? AppTheme.highlightColor
+                                                          : AppTheme.primaryColor
                 }
                 Label {
                     width: parent.width
                     text: modelData
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.secondaryColor
+                    font.pixelSize: AppTheme.fontSizeExtraSmall
+                    color: AppTheme.secondaryColor
                 }
             }
         }
@@ -238,21 +238,21 @@ SubPage {
         ]
 
         Column {
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
 
             Label {
                 width: parent.width
                 text: modelData.title
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeSmall
+                font.pixelSize: AppTheme.fontSizeSmall
             }
             Label {
                 width: parent.width
                 text: modelData.source
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: Theme.secondaryColor
+                font.pixelSize: AppTheme.fontSizeExtraSmall
+                color: AppTheme.secondaryColor
             }
         }
     }

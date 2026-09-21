@@ -150,13 +150,13 @@ SubPage {
 
     TextBlock {
         text: qsTr("The way into the game: the goal, the run of a hand and the rules in one read-through, then the table itself, then the rules module by module and three hands played through step by step. Every unit can be repeated, and none has to be taken in this order.")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     ProgressBar {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         from: 0
         to: Math.max(1, page.units.length)
         value: page.doneCount
@@ -164,8 +164,8 @@ SubPage {
 
     TextBlock {
         text: qsTr("%1 of %2 done").arg(page.doneCount).arg(page.units.length)
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     Button {
@@ -180,8 +180,8 @@ SubPage {
         visible: page.nextUnit !== null
         horizontalAlignment: Text.AlignHCenter
         text: page.nextUnit === null ? "" : page.nextUnit.title
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     SectionLabel { text: qsTr("The course") }
@@ -190,40 +190,40 @@ SubPage {
         model: page.units
 
         ItemDelegate {
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
             onClicked: page.start(modelData)
 
             contentItem: Row {
-                spacing: Theme.paddingMedium
+                spacing: AppTheme.paddingMedium
 
                 Label {
-                    width: Theme.fontSizeLarge
+                    width: AppTheme.fontSizeLarge
                     horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: Theme.fontSizeSmall
+                    font.pixelSize: AppTheme.fontSizeSmall
                     text: page.badge(modelData)
-                    color: modelData.done ? Theme.highlightColor
-                                          : (modelData.current ? Theme.primaryColor
-                                                               : Theme.secondaryColor)
+                    color: modelData.done ? AppTheme.highlightColor
+                                          : (modelData.current ? AppTheme.primaryColor
+                                                               : AppTheme.secondaryColor)
                 }
 
                 Column {
-                    width: parent.width - Theme.fontSizeLarge - Theme.paddingMedium
+                    width: parent.width - AppTheme.fontSizeLarge - AppTheme.paddingMedium
 
                     Label {
                         width: parent.width
                         wrapMode: Text.WordWrap
-                        font.pixelSize: Theme.fontSizeSmall
+                        font.pixelSize: AppTheme.fontSizeSmall
                         text: modelData.title
-                        color: modelData.current ? Theme.highlightColor : Theme.primaryColor
+                        color: modelData.current ? AppTheme.highlightColor : AppTheme.primaryColor
                     }
 
                     Label {
                         width: parent.width
                         visible: text !== ""
                         wrapMode: Text.WordWrap
-                        font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.secondaryColor
+                        font.pixelSize: AppTheme.fontSizeExtraSmall
+                        color: AppTheme.secondaryColor
                         text: page.subtitle(modelData)
                     }
                 }

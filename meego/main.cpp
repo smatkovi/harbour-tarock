@@ -40,6 +40,10 @@
 #include <cstdio>
 
 #include "TarockEngine.h"
+#include "LearnEngine.h"
+
+#include <QDeclarativeItem>
+#include <qdeclarative.h>
 
 // Debug aid: with TAROCK_SHOT_DIR set, a PNG of the view is written there
 // every 2.5 seconds. The N9 has no other way to look at the UI over ssh.
@@ -80,19 +84,37 @@ private:
 // which is why none of those references had to change.
 static QObject* instantiate(QDeclarativeEngine* engine, const QString& file)
 {
-    QDeclarativeComponent component(engine, QUrl::fromLocalFile(file));
-    if (component.isError()) {
-        const QList<QDeclarativeError> errors = component.errors();
+    // The component is parented to the engine rather than left on the stack:
+    // an object created by a QDeclarativeComponent lives in a context owned by
+    // that component, so destroying it tears the context down and every
+    // binding in the object silently evaluates to undefined afterwards. That
+    // showed up as a white screen with default font sizes, because the QML
+    // still found Theme but every property on it read as undefined.
+    QDeclarativeComponent* component =
+        new QDeclarativeComponent(engine, QUrl::fromLocalFile(file), engine);
+    if (component->isError()) {
+        const QList<QDeclarativeError> errors = component->errors();
         for (int i = 0; i < errors.size(); ++i)
             std::fprintf(stderr, "%s: %s\n", qPrintable(file), qPrintable(errors[i].toString()));
         return 0;
     }
-    return component.create(engine->rootContext());
+    QObject* object = component->create(engine->rootContext());
+    if (object) {
+        object->setParent(engine);
+        QDeclarativeEngine::setObjectOwnership(object, QDeclarativeEngine::CppOwnership);
+    } else {
+        std::fprintf(stderr, "%s: component created no object\n", qPrintable(file));
+    }
+    return object;
 }
 
 int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
+    // Without this the QML cannot read tarockEngine.learn: Qt 4 refuses an
+    // unregistered QObject* property type.
+    qmlRegisterUncreatableType<LearnEngine>("harbour.tarock", 1, 0, "LearnEngine",
+                                            QString::fromLatin1("reached through tarockEngine.learn"));
     // Qt 4 passes untranslated tr()/qsTr() sources through Latin-1, and the
     // German strings are full of umlauts ("Königrufen").
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
@@ -122,10 +144,20 @@ int main(int argc, char* argv[])
     QDeclarativeContext* ctx = view.rootContext();
     ctx->setContextProperty(QString::fromLatin1("tarockEngine"), &engine);
     const QString qml = root + QString::fromLatin1("/qml/");
+    // They live in qml/context/, not beside the pages: QtQuick 1.1 turns every
+    // .qml file in a directory into a type of that name for its neighbours, so
+    // a Theme.qml next to the pages would register a *type* called Theme and
+    // shadow this context property. Reading a property off a type yields
+    // undefined, which is what painted the first run white.
+    const QString ctxQml = qml + QString::fromLatin1("context/");
     // Theme first: Style reads it, and Prefs reads neither.
-    ctx->setContextProperty(QString::fromLatin1("Theme"), instantiate(view.engine(), qml + QString::fromLatin1("Theme.qml")));
-    ctx->setContextProperty(QString::fromLatin1("Style"), instantiate(view.engine(), qml + QString::fromLatin1("Style.qml")));
-    ctx->setContextProperty(QString::fromLatin1("Prefs"), instantiate(view.engine(), qml + QString::fromLatin1("Prefs.qml")));
+    // Not "Theme": com.nokia.meego puts a Theme of its own into scope, which
+    // wins over a context property of that name -- the QML then read every
+    // metric off the wrong object and got undefined. Style and Prefs are not
+    // affected, so only this one is renamed.
+    ctx->setContextProperty(QString::fromLatin1("AppTheme"), instantiate(view.engine(), ctxQml + QString::fromLatin1("Theme.qml")));
+    ctx->setContextProperty(QString::fromLatin1("Style"), instantiate(view.engine(), ctxQml + QString::fromLatin1("Style.qml")));
+    ctx->setContextProperty(QString::fromLatin1("Prefs"), instantiate(view.engine(), ctxQml + QString::fromLatin1("Prefs.qml")));
 
     view.setSource(QUrl::fromLocalFile(qml + QString::fromLatin1("harbour-tarock.qml")));
     if (view.status() == QDeclarativeView::Error) {

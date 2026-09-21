@@ -82,18 +82,18 @@ SubPage {
     }
 
     TextField {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         placeholderText: qsTr("Search term")
-        font.pixelSize: Theme.fontSizeSmall
+        font.pixelSize: AppTheme.fontSizeSmall
         onTextChanged: page.filter = text.trim()
     }
 
     TextBlock {
         visible: page.entries.length === 0
         text: qsTr("The glossary is not loaded yet.")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     Repeater {
@@ -102,8 +102,8 @@ SubPage {
         ItemDelegate {
             id: delegate
             property bool open: modelData.term === page.openTerm
-            x: Theme.horizontalPageMargin
-            width: parent.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: parent.width - 2 * AppTheme.horizontalPageMargin
             visible: page.matches(modelData)
             height: visible ? implicitHeight : 0
             highlighted: delegate.open
@@ -113,16 +113,16 @@ SubPage {
                 Label {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeSmall
-                    color: delegate.open ? Theme.highlightColor : Theme.primaryColor
+                    font.pixelSize: AppTheme.fontSizeSmall
+                    color: delegate.open ? AppTheme.highlightColor : AppTheme.primaryColor
                     text: modelData.term ? modelData.term : String(modelData)
                 }
                 Label {
                     width: parent.width
                     visible: delegate.open && text !== ""
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.secondaryColor
+                    font.pixelSize: AppTheme.fontSizeExtraSmall
+                    color: AppTheme.secondaryColor
                     text: modelData.definition ? modelData.definition : ""
                 }
                 Label {
@@ -130,8 +130,8 @@ SubPage {
                     visible: delegate.open && modelData.anchor !== undefined
                              && modelData.anchor !== ""
                     wrapMode: Text.WordWrap
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    color: Theme.highlightColor
+                    font.pixelSize: AppTheme.fontSizeExtraSmall
+                    color: AppTheme.highlightColor
                     text: qsTr("More on this")
 
                     MouseArea {

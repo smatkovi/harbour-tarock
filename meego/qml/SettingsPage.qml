@@ -53,50 +53,50 @@ SubPage {
 
     TextBlock {
         text: qsTr("Rule profile")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         model: page.profileNames
         currentIndex: Math.max(0, page.profileKeys.indexOf(Prefs.profileKey))
         onActivated: Prefs.profileKey = page.profileKeys[index]
     }
     TextBlock {
         text: qsTr("Applies to the next new match")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     TextBlock {
         text: qsTr("Players")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         model: [qsTr("Four"), qsTr("Five")]
         currentIndex: Prefs.players === 5 ? 1 : 0
         onActivated: Prefs.players = index === 1 ? 5 : 4
     }
     TextBlock {
         text: qsTr("At five the dealer sits out the hand")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     SectionLabel { text: qsTr("Learning mode") }
 
     TextBlock {
         text: qsTr("Level")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         enabled: page.learn !== null
         model: [qsTr("Off"), qsTr("Learning"), qsTr("Novice")]
         currentIndex: page.learn === null ? 0 : page.learn.level
@@ -107,12 +107,12 @@ SubPage {
     }
     TextBlock {
         text: qsTr("Takes effect at once, in a LAN match too")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Show hints automatically")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.autoHint
@@ -123,7 +123,7 @@ SubPage {
     }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Warn before a bonus is lost")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.warnBonusLoss
@@ -134,7 +134,7 @@ SubPage {
     }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Dim illegal cards instead of hiding them")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.dimIllegal
@@ -145,7 +145,7 @@ SubPage {
     }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Counting help after every trick")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.countTutor
@@ -156,7 +156,7 @@ SubPage {
     }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Always play positive games out to the twelfth trick")
         enabled: page.learn !== null
         checked: page.learn !== null && page.learn.playToEnd
@@ -182,12 +182,12 @@ SubPage {
 
     TextBlock {
         text: qsTr("Difficulty")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         model: [qsTr("Beginner"), qsTr("Club"), qsTr("Tournament")]
         currentIndex: page.engine.difficulty
         onActivated: page.engine.difficulty = index
@@ -197,14 +197,14 @@ SubPage {
 
     TextBlock {
         text: qsTr("Card deck")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     // Deck ids of assets/decks (docs/design.md §10). Everything that is not the
     // historical pack is the clear one, which is also the engine's fallback.
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         model: [qsTr("Clear"), qsTr("Classic Vienna 1904")]
         currentIndex: page.engine.deck === "iug1904" ? 1 : 0
         onActivated: page.engine.deck = index === 1 ? "iug1904" : "clean54"
@@ -213,15 +213,15 @@ SubPage {
     SectionLabel { text: qsTr("Animation") }
 
     Switch {
-        x: Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
         text: qsTr("Enable animations")
         checked: page.engine.animationsEnabled
         onToggled: page.engine.animationsEnabled = checked
     }
     TextBlock {
         text: qsTr("Turn off for immediate card movement")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     // animationSpeed is the per cent of the normal flight duration, so the
@@ -229,13 +229,13 @@ SubPage {
     TextBlock {
         text: qsTr("Card speed") + ": " + (speedSlider.value <= 75 ? qsTr("Fast")
                                            : speedSlider.value <= 125 ? qsTr("Normal") : qsTr("Slow"))
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     Slider {
         id: speedSlider
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         from: 50
         to: 200
         stepSize: 25

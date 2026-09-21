@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Tarock
+Comment=Königrufen and Hungarian Tarokk with a learning mode
+Icon=harbour-tarock
+Exec=/opt/harbour-tarock/bin/harbour-tarock
+Type=Application
+Categories=Game;
+X-MeeGo-Logical-Id=harbour-tarock

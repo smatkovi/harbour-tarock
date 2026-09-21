@@ -62,7 +62,7 @@ Item {
     property int scaledDuration: animate ? Math.max(1, Math.round(flightDuration * paceP / 100)) : 1
     property int scaledDelay: animate ? Math.max(0, Math.round(startDelay * paceP / 100)) : 0
 
-    width: Theme.itemSizeSmall
+    width: AppTheme.itemSizeSmall
     height: width * 1.6
     x: fromX - width / 2
     y: fromY - height / 2

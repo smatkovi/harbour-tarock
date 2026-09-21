@@ -39,7 +39,8 @@ Page {
     property bool offerTutorial: !page.offerHidden && page.learn !== null
                                           && page.learn.tourSeen !== true
 
-    background: Rectangle { color: Theme.tableColor }
+    // A MeeGo Page has no background property.
+    Rectangle { anchors.fill: parent; color: AppTheme.tableColor; z: -1 }
 
     // The first page hands the engine to the singleton, which cannot read the
     // root context itself.
@@ -51,64 +52,64 @@ Page {
 
     Flickable {
         anchors.fill: parent
-        contentHeight: content.height + Theme.paddingLarge
+        contentHeight: content.height + AppTheme.paddingLarge
         clip: true
 
         Column {
             id: content
             width: page.width
-            topPadding: Theme.paddingLarge
-            spacing: Theme.paddingMedium
+            y: AppTheme.paddingLarge   // QtQuick 1.1 positioners have no padding
+            spacing: AppTheme.paddingMedium
 
             Label {
-                x: Theme.horizontalPageMargin
-                width: parent.width - 2 * Theme.horizontalPageMargin
+                x: AppTheme.horizontalPageMargin
+                width: parent.width - 2 * AppTheme.horizontalPageMargin
                 horizontalAlignment: Text.AlignHCenter
                 text: qsTr("Tarock")
-                font.pixelSize: Theme.fontSizeExtraLarge
-                color: Theme.highlightColor
+                font.pixelSize: AppTheme.fontSizeExtraLarge
+                color: AppTheme.highlightColor
             }
 
             Label {
-                x: Theme.horizontalPageMargin
-                width: parent.width - 2 * Theme.horizontalPageMargin
+                x: AppTheme.horizontalPageMargin
+                width: parent.width - 2 * AppTheme.horizontalPageMargin
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
                 text: page.engine.profileNameFor(Prefs.profileKey) + " · "
                       + qsTr("%1 players").arg(Prefs.players)
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: Theme.secondaryColor
+                font.pixelSize: AppTheme.fontSizeExtraSmall
+                color: AppTheme.secondaryColor
             }
 
-            Item { width: 1; height: Theme.paddingLarge }
+            Item { width: 1; height: AppTheme.paddingLarge }
 
             // The welcome of §7.9: shown until the tour has run once.
             Column {
                 width: parent.width
                 visible: page.offerTutorial
-                spacing: Theme.paddingSmall
+                spacing: AppTheme.paddingSmall
 
                 Label {
-                    x: Theme.horizontalPageMargin
-                    width: page.width - 2 * Theme.horizontalPageMargin
+                    x: AppTheme.horizontalPageMargin
+                    width: page.width - 2 * AppTheme.horizontalPageMargin
                     wrapMode: Text.WordWrap
-                    color: Theme.highlightColor
-                    font.pixelSize: Theme.fontSizeSmall
+                    color: AppTheme.highlightColor
+                    font.pixelSize: AppTheme.fontSizeSmall
                     text: qsTr("New to tarock?")
                 }
 
                 Label {
-                    x: Theme.horizontalPageMargin
-                    width: page.width - 2 * Theme.horizontalPageMargin
+                    x: AppTheme.horizontalPageMargin
+                    width: page.width - 2 * AppTheme.horizontalPageMargin
                     wrapMode: Text.WordWrap
-                    color: Theme.secondaryColor
-                    font.pixelSize: Theme.fontSizeExtraSmall
-                    text: qsTr("It teaches the whole game in one go — the goal, how a hand runs and the rules — then shows you the table and takes the rules module by module.")
+                    color: AppTheme.secondaryColor
+                    font.pixelSize: AppTheme.fontSizeExtraSmall
+                    text: qsTr("It teaches the whole game in one go - the goal, how a hand runs and the rules - then shows you the table and takes the rules module by module.")
                 }
 
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: Theme.paddingMedium
+                    spacing: AppTheme.paddingMedium
 
                     Button {
                         text: qsTr("Learn to play")
@@ -175,15 +176,15 @@ Page {
                 onClicked: page.pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
 
-            Item { width: 1; height: Theme.paddingLarge }
+            Item { width: 1; height: AppTheme.paddingLarge }
 
             Label {
-                x: Theme.horizontalPageMargin
-                width: parent.width - 2 * Theme.horizontalPageMargin
+                x: AppTheme.horizontalPageMargin
+                width: parent.width - 2 * AppTheme.horizontalPageMargin
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
-                font.pixelSize: Theme.fontSizeExtraSmall
-                color: Theme.secondaryColor
+                font.pixelSize: AppTheme.fontSizeExtraSmall
+                color: AppTheme.secondaryColor
                 text: page.engine.canResume ? qsTr("A saved match is waiting for you.")
                                             : qsTr("Nothing saved yet.")
             }

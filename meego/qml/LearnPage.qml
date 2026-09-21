@@ -59,18 +59,18 @@ SubPage {
 
     TextBlock {
         text: qsTr("The learning mode is a layer over the normal game: every match, a LAN match too, can have it switched on. The lessons themselves are in the tutorial, which keeps their order and remembers your progress.")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     TextBlock {
         text: qsTr("Level")
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
-        x: Theme.horizontalPageMargin
-        width: parent.width - 2 * Theme.horizontalPageMargin
+        x: AppTheme.horizontalPageMargin
+        width: parent.width - 2 * AppTheme.horizontalPageMargin
         enabled: page.learn !== null
         model: [qsTr("Off"), qsTr("Learning"), qsTr("Novice")]
         currentIndex: page.learn === null ? 0 : page.learn.level
@@ -85,10 +85,10 @@ SubPage {
     TextBlock {
         text: page.learn === null || page.learn.lessonCount === 0
               ? qsTr("No lessons are installed for this rule profile.")
-              : qsTr("“Learn to play” takes the overview, the eight modules and the three practice hands in order and remembers where you are: %1 of %2 done.")
+              : qsTr(""Learn to play" takes the overview, the eight modules and the three practice hands in order and remembers where you are: %1 of %2 done.")
                 .arg(page.learn.lessonsDone).arg(page.learn.lessonCount)
-        color: Theme.secondaryColor
-        font.pixelSize: Theme.fontSizeExtraSmall
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
     Button {
@@ -123,11 +123,11 @@ SubPage {
         model: page.mistakesOpen ? page.mistakes : []
 
         Label {
-            x: Theme.horizontalPageMargin
-            width: page.width - 2 * Theme.horizontalPageMargin
+            x: AppTheme.horizontalPageMargin
+            width: page.width - 2 * AppTheme.horizontalPageMargin
             wrapMode: Text.WordWrap
-            font.pixelSize: Theme.fontSizeExtraSmall
-            color: Theme.secondaryColor
+            font.pixelSize: AppTheme.fontSizeExtraSmall
+            color: AppTheme.secondaryColor
             text: "· " + page.mistakeText(modelData)
         }
     }

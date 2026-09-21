@@ -56,7 +56,7 @@ Item {
 
     property bool showsBack: faceDown || !faceUp
 
-    width: Theme.itemSizeSmall
+    width: AppTheme.itemSizeSmall
     height: width * 1.6
 
     property int suitIndex: suit >= 0 ? suit : root.suitOf(cardId)
@@ -111,7 +111,7 @@ Item {
         visible: !root.showsBack
         color: "#f4efe2"
         border.width: Math.max(1, root.width * 0.02)
-        border.color: root.selected ? Theme.highlightColor : "#b8ad93"
+        border.color: root.selected ? AppTheme.highlightColor : "#b8ad93"
 
         // Corner index, repeated upside down in the opposite corner the way a
         // real card carries it.
@@ -128,14 +128,14 @@ Item {
                 Text {
                     text: root.rankText(root.cardId)
                     color: root.inkColor
-                    font.pixelSize: Math.max(Theme.fontSizeTiny, root.width * 0.26)
+                    font.pixelSize: Math.max(AppTheme.fontSizeTiny, root.width * 0.26)
                     font.bold: true
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: root.suitSymbol(root.suitIndex)
                     color: root.inkColor
-                    font.pixelSize: Math.max(Theme.fontSizeTiny, root.width * 0.22)
+                    font.pixelSize: Math.max(AppTheme.fontSizeTiny, root.width * 0.22)
                     visible: !root.isTarock
                 }
             }
@@ -167,7 +167,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.label
-            visible: root.label !== "" && root.height > Theme.itemSizeSmall
+            visible: root.label !== "" && root.height > AppTheme.itemSizeSmall
             color: "#6b6455"
             font.pixelSize: Math.max(8, root.width * 0.14)
         }

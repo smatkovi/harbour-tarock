@@ -36,7 +36,7 @@ QtObject {
         {
             "target": "",
             "title": qsTr("Welcome to the table"),
-            "text": qsTr("You sit at the bottom, the computer players sit around you. This short tour shows what each part of the table does. What the game itself is about — bids, the called king, the talon — is taught by the course.")
+            "text": qsTr("You sit at the bottom, the computer players sit around you. This short tour shows what each part of the table does. What the game itself is about - bids, the called king, the talon - is taught by the course.")
         },
         {
             "target": "header",
@@ -46,7 +46,7 @@ QtObject {
         {
             "target": "seats",
             "title": qsTr("The other players"),
-            "text": qsTr("Each of the other players has a panel like the framed one: it shows what that player has just said — a bid, an announcement, Kontra. As soon as the called king falls, your partner is marked green and your opponents red.")
+            "text": qsTr("Each of the other players has a panel like the framed one: it shows what that player has just said - a bid, an announcement, Kontra. As soon as the called king falls, your partner is marked green and your opponents red.")
         },
         {
             "target": "trickArea",
@@ -71,17 +71,17 @@ QtObject {
         {
             "target": "learnPanel",
             "title": qsTr("The explanation bar"),
-            "text": qsTr("With the learning mode switched on it says where you are in the hand, what happens in this phase and what you have to decide now. “More on this” opens the matching rule chapter.")
+            "text": qsTr("With the learning mode switched on it says where you are in the hand, what happens in this phase and what you have to decide now. "More on this" opens the matching rule chapter.")
         },
         {
             "target": "learnBar",
             "title": qsTr("Hint, why and standing"),
-            "text": qsTr("Hint proposes a move and gives the reason for it, “Why?” explains the last refusal, and Standing counts what your party has so far. When the hand is over, Review goes through your decisions. This bar and the explanation bar belong to the learning mode, which the settings can turn down or off.")
+            "text": qsTr("Hint proposes a move and gives the reason for it, "Why?" explains the last refusal, and Standing counts what your party has so far. When the hand is over, Review goes through your decisions. This bar and the explanation bar belong to the learning mode, which the settings can turn down or off.")
         },
         {
             "target": "",
             "title": qsTr("That was the table"),
-            "text": qsTr("The course under “Tutorial” teaches the game itself: eight modules and three practice hands, each with a fixed deal, one step at a time. A lesson can be left at any moment, and its hand played out freely.")
+            "text": qsTr("The course under "Tutorial" teaches the game itself: eight modules and three practice hands, each with a fixed deal, one step at a time. A lesson can be left at any moment, and its hand played out freely.")
         }
     ]
 }

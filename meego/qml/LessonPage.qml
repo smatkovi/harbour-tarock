@@ -41,7 +41,7 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.tableColor
+        color: AppTheme.tableColor
     }
 
     TarockTable {
@@ -60,7 +60,7 @@ Item {
         anchors.top: parent.top
         anchors.right: parent.right
         text: "⋮"
-        font.pixelSize: Theme.fontSizeLarge
+        font.pixelSize: AppTheme.fontSizeLarge
         z: 2000
         onClicked: menu.popup(menuButton, 0, menuButton.height)
     }

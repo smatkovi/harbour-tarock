@@ -14,11 +14,11 @@ Item {
     property bool highlighted: false
     signal clicked()
 
-    implicitHeight: contentItem ? contentItem.height + 2 * Theme.paddingSmall : 0
+    implicitHeight: contentItem ? contentItem.height + 2 * AppTheme.paddingSmall : 0
 
     Rectangle {
         anchors.fill: parent
-        color: Theme.highlightColor
+        color: AppTheme.highlightColor
         opacity: root.highlighted ? 0.18 : (area.pressed ? 0.28 : 0)
         Behavior on opacity { NumberAnimation { duration: 100 } }
     }
@@ -26,7 +26,7 @@ Item {
     Item {
         id: holder
         anchors.fill: parent
-        anchors.margins: Theme.paddingSmall
+        anchors.margins: AppTheme.paddingSmall
     }
 
     Binding { target: root.contentItem; property: "width"; value: holder.width }

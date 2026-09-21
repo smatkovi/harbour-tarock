@@ -24,4 +24,9 @@ for f in qml-common/*.qml; do
         -e 's/\bproperty var /property variant /g' \
         "$f" > "$OUT/$name"
 done
+# Qt 4.7 pushes the source text of a translation through Latin-1, so an em
+# dash inside qsTr() arrives mangled. Plain literals are fine and are left
+# alone; see meego/ascii-qstr.py.
+python3 meego/ascii-qstr.py qml "$OUT"/*.qml
+
 echo "== $(ls qml-common/*.qml | wc -l) shared files -> $OUT"
