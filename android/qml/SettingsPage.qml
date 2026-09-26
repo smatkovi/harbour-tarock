@@ -204,11 +204,16 @@ SubPage {
     // Deck ids of assets/decks (docs/design.md §10). Everything that is not the
     // historical pack is the clear one, which is also the engine's fallback.
     ComboBox {
+        id: deckBox
         x: Theme.horizontalPageMargin
         width: parent.width - 2 * Theme.horizontalPageMargin
-        model: [qsTr("Clear"), qsTr("Classic Vienna 1904")]
-        currentIndex: page.engine.deck === "iug1904" ? 1 : 0
-        onActivated: (index) => page.engine.deck = index === 1 ? "iug1904" : "clean54"
+        property var keys: page.engine.deckKeys()
+        model: page.engine.deckNames()
+        currentIndex: Math.max(0, keys.indexOf(page.engine.deck))
+        onActivated: (index) => {
+            if (index >= 0 && index < deckBox.keys.length)
+                page.engine.deck = deckBox.keys[index]
+        }
     }
 
     SectionLabel { text: qsTr("Animation") }
@@ -253,7 +258,7 @@ SubPage {
                 Prefs.profileKey = page.profileKeys[0]
             Prefs.players = 4
             page.engine.difficulty = 1
-            page.engine.deck = "clean54"
+            page.engine.deck = "iug1904"
             page.engine.animationsEnabled = true
             page.engine.animationSpeed = 100
         }

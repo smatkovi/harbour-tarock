@@ -205,9 +205,13 @@ SubPage {
     ComboBox {
         x: AppTheme.horizontalPageMargin
         width: parent.width - 2 * AppTheme.horizontalPageMargin
-        model: [qsTr("Clear"), qsTr("Classic Vienna 1904")]
-        currentIndex: page.engine.deck === "iug1904" ? 1 : 0
-        onActivated: page.engine.deck = index === 1 ? "iug1904" : "clean54"
+        property variant keys: page.engine.deckKeys()
+        model: page.engine.deckNames()
+        currentIndex: Math.max(0, keys.indexOf(page.engine.deck))
+        onActivated: {
+            if (index >= 0 && index < keys.length)
+                page.engine.deck = keys[index]
+        }
     }
 
     SectionLabel { text: qsTr("Animation") }
@@ -252,7 +256,7 @@ SubPage {
                 Prefs.profileKey = page.profileKeys[0]
             Prefs.players = 4
             page.engine.difficulty = 1
-            page.engine.deck = "clean54"
+            page.engine.deck = "iug1904"
             page.engine.animationsEnabled = true
             page.engine.animationSpeed = 100
         }

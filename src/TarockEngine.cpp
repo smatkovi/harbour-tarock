@@ -77,6 +77,11 @@ const char* const kGeldKey = "match/geld";
 const char* const kMatchGroup = "match";
 const char* const kProfileKey = "settings/profile";
 const char* const kDeckKey = "settings/deck";
+// Bis 0.3.x gab es nur das gezeichnete Blatt, und "modern" stand ungefragt in
+// jeder Einstellungsdatei. Seit es Kartenbilder gibt, wäre dieser Eintrag eine
+// Wahl, die niemand getroffen hat: nur ein Blatt, das der Benutzer selbst
+// ausgesucht hat, sticht die Voreinstellung.
+const char* const kDeckPickedKey = "settings/deck-picked";
 const char* const kDifficultyKey = "settings/difficulty";
 const char* const kAnimationsKey = "settings/animations";
 const char* const kAnimationSpeedKey = "settings/animation-speed";
@@ -237,8 +242,9 @@ void TarockEngine::loadSettings()
 {
     QSettings settings;
     m_profileId = profileIdFor(settings.value(QLatin1String(kProfileKey)).toString());
+    m_deckPicked = settings.value(QLatin1String(kDeckPickedKey), false).toBool();
     const QString deck = settings.value(QLatin1String(kDeckKey), m_deck).toString().trimmed();
-    if (!deck.isEmpty())
+    if (m_deckPicked && !deck.isEmpty())
         m_deck = deck;
     m_difficulty = static_cast<Difficulty>(
         qBound(0, settings.value(QLatin1String(kDifficultyKey), static_cast<int>(m_difficulty)).toInt(), 2));
@@ -254,6 +260,7 @@ void TarockEngine::saveSettings()
     QSettings settings;
     settings.setValue(QLatin1String(kProfileKey), profileKey());
     settings.setValue(QLatin1String(kDeckKey), m_deck);
+    settings.setValue(QLatin1String(kDeckPickedKey), m_deckPicked);
     settings.setValue(QLatin1String(kDifficultyKey), static_cast<int>(m_difficulty));
     settings.setValue(QLatin1String(kAnimationsKey), m_animationsEnabled);
     settings.setValue(QLatin1String(kAnimationSpeedKey), m_animationSpeed);
@@ -324,6 +331,9 @@ void TarockEngine::setDeck(const QString& value)
     if (deck.isEmpty() || deck == m_deck)
         return;
     m_deck = deck;
+    // Jetzt hat jemand wirklich gewählt -- ab hier gilt die Datei, nicht mehr
+    // die Voreinstellung.
+    m_deckPicked = true;
     saveSettings();
     emit settingsChanged();
 }
@@ -388,7 +398,10 @@ void TarockEngine::startTableMatch()
     if (!m_table.hosting())
         return;
     m_table.closeTable();
-    startMatch(profileKey(), m_table.seatCount());
+    // Die Regeln kommen vom Tisch, nicht aus den Einstellungen: wer eröffnet,
+    // wählt sie auf der Netzseite eigens aus.
+    const QString tableProfile = m_table.tableProfileKey();
+    startMatch(tableProfile.isEmpty() ? profileKey() : tableProfile, m_table.seatCount());
     publishViews();
 }
 
@@ -1227,6 +1240,15 @@ QString TarockEngine::deckName(const QString& key) const
     if (key == QLatin1String("iug1904"))
         return tr("Klassisch Wien 1904–12");
     return tr("Gezeichnet");
+}
+
+QStringList TarockEngine::deckNames() const
+{
+    QStringList names;
+    const QStringList keys = deckKeys();
+    for (int i = 0; i < keys.size(); ++i)
+        names << deckName(keys.at(i));
+    return names;
 }
 
 QVariantList TarockEngine::options() const

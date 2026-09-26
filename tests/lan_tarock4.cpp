@@ -14,6 +14,7 @@
 // braucht zwei Geräte; er steht deshalb nicht hier.
 #include "TarockEngine.h"
 #include "net/LanTable.h"
+#include "core/RuleProfile.h"
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -116,7 +117,14 @@ int main(int argc, char** argv)
     if (!hostTable || !guestTable)
         return 1;
 
-    check(host.hostTable(QStringLiteral("at-kr-ooe-2023"), 4), "der Tisch geht auf");
+    // Welche Regeln am Tisch gelten, sagt die Kommandozeile -- so läuft
+    // dieselbe Prüfung einmal österreichisch und einmal ungarisch (das
+    // ungarische Blatt hat 42 Karten und neun auf der Hand, und es bietet
+    // anders). Ohne Angabe: österreichisch.
+    const QString profileKey = argc > 1 ? QString::fromLocal8Bit(argv[1])
+                                        : QStringLiteral("AT-KR-OOE-2023-04");
+    std::printf("Regeln: %s\n", profileKey.toLocal8Bit().constData());
+    check(host.hostTable(profileKey, 4), "der Tisch geht auf");
     guest.joinTable(QStringLiteral("127.0.0.1"));
     check(waitFor(app, [&] { return guestTable->mySeat() >= 1; }), "der Gast bekommt einen Platz");
     std::printf("Gast sitzt auf Platz %d\n", guestTable->mySeat() + 1);
@@ -137,11 +145,17 @@ int main(int argc, char** argv)
     // Anzahl, und er selbst sitzt auf Platz 0.
     const QVariantList seats = guest.seats();
     check(seats.size() == 4, "vier Plätze am Tisch des Gastes");
+    const int handCards = tarock::RuleProfile::get(
+                              profileKey == QLatin1String("HU-ILLU-ITVB-2019")
+                                  ? tarock::ProfileId::HuIlluItvb2019
+                                  : tarock::ProfileId::AtKrOoe2023).handCards();
     int shown = 0;
     for (int i = 0; i < seats.size(); ++i)
         shown += seats.at(i).toMap().value(QStringLiteral("cardCount")).toInt();
-    check(shown == 48, "alle 48 Handkarten sind gezählt, auch die verdeckten");
-    check(guest.hand().size() == 12, "die eigene Hand hat zwölf Karten");
+    std::printf("Handkarten laut Regeln: %d, gezählt: %d, eigene Hand: %d\n",
+                handCards, shown, guest.hand().size());
+    check(shown == 4 * handCards, "alle Handkarten sind gezählt, auch die verdeckten");
+    check(guest.hand().size() == handCards, "die eigene Hand ist vollständig");
     check(seats.at(0).toMap().value(QStringLiteral("isMe")).toBool(),
           "der Gast sitzt in seiner Sicht auf Platz 0");
 

@@ -48,6 +48,9 @@ public:
     QString status() const { return m_status; }
     int mySeat() const { return m_mySeat; }
     int seatCount() const { return m_players; }
+    // Die Regeln, unter denen dieser Tisch aufgemacht wurde -- nicht die aus
+    // den Einstellungen: am Tisch wird eigens gewählt.
+    QString tableProfileKey() const { return m_profileKey; }
     // Ein Eintrag je Platz: {seat, name, human}.
     QVariantList lobby() const;
     QObject* browserObject() { return &m_browser; }

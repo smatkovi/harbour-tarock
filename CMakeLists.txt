@@ -73,7 +73,7 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_cards test_hands test_learn test_legality test_lessons test_qmlbridge test_scoring test_selfplay test_skeleton lan_tarock4 lan_tarock5)
+    foreach(t test_cards test_hands test_learn test_legality test_lessons test_qmlbridge test_scoring test_selfplay test_settings test_skeleton lan_tarock4 lan_tarock5)
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/${t}.cpp)
             add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
             target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -82,6 +82,12 @@ if(TAROCK_BUILD_TESTS)
             # engine contract; the others do not use it and do not mind.
             target_link_libraries(${t} Qt5::Core Qt5::DBus Qt5::Gui Qt5::Network Qt5::Qml)
             add_test(NAME ${t} COMMAND ${t})
+            # Derselbe Vierertisch noch einmal mit dem ungarischen Blatt: 42
+            # Karten, neun auf der Hand, eigene Ansagen. Was am Netztisch nur
+            # für die österreichischen Regeln geprüft wird, ist nicht geprüft.
+            if(t STREQUAL "lan_tarock4")
+                add_test(NAME lan_tarock4_hu COMMAND lan_tarock4 HU-ILLU-ITVB-2019)
+            endif()
         else()
             message(STATUS "harbour-tarock: tests/${t}.cpp is not there yet, skipping it")
         endif()

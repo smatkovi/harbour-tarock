@@ -1,3 +1,17 @@
+harbour-tarock (0.4.2) unstable; urgency=low
+
+  * Die Kartenbilder erscheinen jetzt auch dort, wo die App schon vor 0.4.0
+    lief: in älteren Einstellungsdateien stand "modern" als Blatt, obwohl
+    niemand das je gewählt hatte -- dieser Eintrag sticht die Voreinstellung
+    nicht mehr. Wer das gezeichnete Blatt wirklich aussucht, behält es.
+  * Die Kartenwahl in den Einstellungen zeigt die Blätter, die die App
+    tatsächlich hat, statt einer festen Liste.
+  * Am Tisch mit anderen Geräten galten die gewählten Regeln nur auf dem
+    Zettel: gegeben wurde immer Königrufen. Jetzt gibt der Tisch nach den
+    Regeln, unter denen er eröffnet wurde.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 20:10:00 +0200
+
 harbour-tarock (0.4.1) unstable; urgency=low
 
   * Am Tisch mit anderen Geräten sind jetzt auch die Regeln zu wählen --

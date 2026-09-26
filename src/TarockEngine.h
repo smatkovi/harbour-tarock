@@ -201,6 +201,9 @@ public:
     // jedes Deck aus assets/decks, das seine deck.json mitbringt.
     Q_INVOKABLE QStringList deckKeys() const;
     Q_INVOKABLE QString deckName(const QString& key) const;
+    // Die Namen zu deckKeys(), in derselben Reihenfolge -- damit die
+    // Einstellungsseiten kein JavaScript dafür brauchen (Qt 4.7).
+    Q_INVOKABLE QStringList deckNames() const;
     void setDeck(const QString& value);
     int difficulty() const { return static_cast<int>(m_difficulty); }
     void setDifficulty(int value);
@@ -306,6 +309,7 @@ private:
     // Voreinstellung ist das historische Blatt; fehlt es auf dem Gerät,
     // zeichnet Card.qml die Karten wie bisher selbst.
     QString m_deck = QStringLiteral("iug1904");
+    bool m_deckPicked = false;
 
     VisualPhase m_visualPhase = Idle;
     QTimer m_aiTimer;

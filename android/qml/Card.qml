@@ -50,7 +50,7 @@ Item {
     // The shared table says faceUp instead; either side may be set, the card
     // shows its back as soon as one of them asks for it.
     property bool faceUp: !faceDown
-    // Deck id from TarockEngine.deck ("clean54", "iug1904"). The text card
+    // Deck id from TarockEngine.deck ("modern", "iug1904"). The text card
     // below ignores it; M8 picks the artwork with it (docs/design.md §10).
     property string deck: ""
     signal clicked()

@@ -195,17 +195,23 @@ Page {
             SectionHeader { text: qsTr("Cards") }
 
             ComboBox {
+                id: deckBox
                 width: parent.width
                 label: qsTr("Card deck")
-                // Deck ids of assets/decks (docs/design.md §10). Everything
-                // that is not the historical pack is the clear one, which is
-                // also what the engine falls back to.
-                currentIndex: page.engine.deck === "iug1904" ? 1 : 0
+                // The decks the engine actually has (docs/design.md §10); a
+                // pack that is not installed does not show up here.
+                property var keys: page.engine.deckKeys()
+                currentIndex: Math.max(0, keys.indexOf(page.engine.deck))
                 menu: ContextMenu {
-                    MenuItem { text: qsTr("Clear") }
-                    MenuItem { text: qsTr("Classic Vienna 1904") }
+                    Repeater {
+                        model: page.engine.deckNames()
+                        MenuItem { text: modelData }
+                    }
                 }
-                onCurrentIndexChanged: page.engine.deck = currentIndex === 1 ? "iug1904" : "clean54"
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0 && currentIndex < keys.length)
+                        page.engine.deck = keys[currentIndex]
+                }
             }
 
             SectionHeader { text: qsTr("Animation") }
@@ -241,7 +247,7 @@ Page {
                         Prefs.profileKey = page.profileKeys[0]
                     Prefs.players = 4
                     page.engine.difficulty = 1
-                    page.engine.deck = "clean54"
+                    page.engine.deck = "iug1904"
                     page.engine.animationsEnabled = true
                     page.engine.animationSpeed = 100
                 }

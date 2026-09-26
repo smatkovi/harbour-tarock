@@ -97,19 +97,45 @@ int main(int argc, char** argv)
     check(shownCards(first) == 48, "der erste Gast zählt dieselben 48");
     check(shownCards(second) == 48, "der zweite Gast auch");
 
+    // Wer aussetzt, ist der Geber, und der wird beim Start ausgelost -- es
+    // kann also jeder der fünf Plätze sein, auch einer der beiden vom
+    // Computer. Die Sicht des Gastgebers zählt die Plätze wie sie sind und
+    // sagt, welcher es ist; danach muss jede gedrehte Gastsicht genau dann
+    // ihren eigenen Platz 0 als aussetzend zeigen, wenn es seiner ist. Sonst
+    // prüft diese Stelle gar nichts (und hat es lange auch nicht).
+    const QVariantList hostSeats = host.seats();
+    check(hostSeats.size() == 5, "der Gastgeber sieht fünf Plätze");
+    int outSeat = -1;
+    int outCount = 0;
+    for (int i = 0; i < hostSeats.size(); ++i) {
+        if (hostSeats.at(i).toMap().value(QStringLiteral("isSittingOut")).toBool()) {
+            outSeat = i;
+            ++outCount;
+        }
+    }
+    check(outCount == 1, "genau ein Platz setzt aus");
+    std::printf("aussetzend: Platz %d von 5\n", outSeat + 1);
+
     TarockEngine* sittingOut = 0;
     TarockEngine* playing = 0;
-    for (TarockEngine* engine : { &host, &first, &second }) {
-        const QVariantList seats = engine->seats();
+    const int seatOfEngine[3] = { 0, firstTable->mySeat(), secondTable->mySeat() };
+    TarockEngine* engines[3] = { &host, &first, &second };
+    for (int i = 0; i < 3; ++i) {
+        const QVariantList seats = engines[i]->seats();
+        check(!seats.isEmpty(), "jede Sicht hat Plätze");
         if (seats.isEmpty())
             continue;
         const bool out = seats.at(0).toMap().value(QStringLiteral("isSittingOut")).toBool();
+        check(out == (seatOfEngine[i] == outSeat),
+              "die eigene Sicht zeigt das Aussetzen genau für den Platz, der aussetzt");
         if (out)
-            sittingOut = engine;
+            sittingOut = engines[i];
         else if (!playing)
-            playing = engine;
+            playing = engines[i];
     }
-    std::printf("aussetzend: %s\n", sittingOut ? "ja" : "niemand von den dreien");
+    check(playing != 0, "mindestens einer der drei spielt mit");
+    if (!sittingOut)
+        std::printf("der Aussetzer ist diesmal ein Computerplatz\n");
 
     // Der Talon liegt verdeckt, bis ihn jemand aufschlägt; danach sehen ihn
     // die vier aktiven Spieler, der Fünfte nie. Vor dem Aufschlagen darf
