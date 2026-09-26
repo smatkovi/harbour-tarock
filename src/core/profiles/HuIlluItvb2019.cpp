@@ -64,6 +64,7 @@ const RuleProfile& makeHungarian()
         builder.handCards = 9;
         builder.talonSize = 6;
         builder.dealPlan = DealPlan{{5, 4}, 6, 0};   // talon first, then five and four
+        builder.seatCounts = {4};   // das ungarische Blatt wird zu viert gespielt
 
         builder.contracts = {
             contract(ContractId::Harom, "HAROM", 1, 1, 3),

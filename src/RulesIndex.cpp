@@ -419,7 +419,11 @@ const ChapterRow kChaptersKr[] = {
 
 const char* profileStem(ProfileId profile)
 {
-    return profile == ProfileId::HuIlluItvb2019 ? "hu-illu" : "at-kr-ooe";
+    switch (profile) {
+    case ProfileId::HuIlluItvb2019: return "hu-illu";
+    case ProfileId::AtTappKlassik:  return "at-tapp";
+    default:                        return "at-kr-ooe";
+    }
 }
 
 // The chain of the explanation panel: "3 von 7 · König rufen" (§7.2).
@@ -596,6 +600,12 @@ QString RulesIndex::anchorFor(ProfileId profile, const QString& chapter)
 QVariantList RulesIndex::chapters(ProfileId profile)
 {
     QVariantList list;
+    // Die Kapitelliste ist die des Königrufens (und, in denselben Nummern,
+    // die des ungarischen Blattes). Für das Tapp-Tarock steht das Regelwerk
+    // bisher nur in docs/tapptarock.md; lieber keine Kapitel zeigen als
+    // fremde (docs/design.md §12, M11).
+    if (profile == ProfileId::AtTappKlassik)
+        return list;
     for (const ChapterRow& row : kChaptersKr) {
         QVariantMap entry;
         entry.insert(QStringLiteral("chapter"), QString::fromLatin1(row.anchor));

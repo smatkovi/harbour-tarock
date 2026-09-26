@@ -99,9 +99,71 @@ Posten makePosten(PostenType type, Party winner, int value, int kontra)
 // Everyone plays for himself, the loser is whoever holds the most points, and
 // the pot can be split between two "Jungfrauen". Amounts stay in thirds here so
 // that a split is exact; only the display rounds.
+// Trischaken am Dreiertisch (docs/tapptarock.md §7.6): Verlierer ist, wer die
+// meisten Punkte hat; er zahlt jedem anderen den Tarif, und wer keinen Stich
+// gemacht hat, bekommt vom Verlierer denselben Betrag noch einmal. Sind zwei
+// gleichauf an der Spitze, zahlen beide; sind alle gleichauf, zahlt niemand.
+void buildTrischakenPerOpponent(const HandResult& hand, const RuleProfile& profile,
+                                std::vector<Posten>& items)
+{
+    std::vector<int> active;
+    for (int seat = 0; seat < hand.players && seat < kMaxSeats; ++seat) {
+        if (seat != hand.sittingOut)
+            active.push_back(seat);
+    }
+    if (active.size() < 2)
+        return;
+
+    const int rate = 3 * profile.trischakenValue();   // in Dritteln
+    std::array<int, kMaxSeats> amount{};
+    std::vector<int> losers;
+    int best = -1;
+    for (int seat : active)
+        best = std::max(best, profile.count(hand.seatCards[seat]).units);
+    for (int seat : active) {
+        if (profile.count(hand.seatCards[seat]).units == best)
+            losers.push_back(seat);
+    }
+    if (losers.size() == active.size())
+        return;   // alle gleichauf: niemand zahlt
+
+    for (int loser : losers) {
+        for (int seat : active) {
+            if (seat == loser)
+                continue;
+            amount[loser] -= rate;
+            amount[seat] += rate;
+            // Eine Jungfrau -- kein einziger Stich -- bekommt den Betrag noch
+            // einmal, und zwar von jedem Verlierer.
+            if (tricksWonBy(hand, seat) == 0) {
+                amount[loser] -= rate;
+                amount[seat] += rate;
+            }
+        }
+    }
+
+    for (int seat : active) {
+        if (amount[seat] == 0)
+            continue;
+        Posten posten;
+        posten.type = PostenType::Trischaken;
+        posten.owner = Party::Neutral;
+        posten.winner = Party::Neutral;
+        posten.achieved = amount[seat] > 0;
+        posten.value = pointsFromThirds(amount[seat]);
+        posten.thirds = amount[seat];
+        posten.againstSeat = static_cast<std::int8_t>(seat);
+        items.push_back(posten);
+    }
+}
+
 void buildTrischaken(const HandResult& hand, const RuleProfile& profile,
                      std::vector<Posten>& items)
 {
+    if (profile.trischakenStyle() == TrischakenStyle::PerOpponent) {
+        buildTrischakenPerOpponent(hand, profile, items);
+        return;
+    }
     std::vector<int> active;
     for (int seat = 0; seat < hand.players && seat < kMaxSeats; ++seat) {
         if (seat != hand.sittingOut)

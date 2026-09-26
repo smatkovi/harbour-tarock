@@ -70,6 +70,9 @@ const RuleProfile& makeKoenigrufen()
         builder.handCards = 12;
         builder.talonSize = 6;
         builder.dealPlan = DealPlan{{6, 6}, 6, 1};   // six each, talon, six each
+        builder.seatCounts = {4, 5};
+        builder.forehandMustBid = true;
+        builder.trischakenStyle = TrischakenStyle::KoenigrufenPot;
 
         builder.contracts = {
             contract(ContractId::Trischaken, "TRISCHAKEN", 1, 1, TalonMode::ToLastTrick, 0, 0,

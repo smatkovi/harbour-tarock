@@ -60,6 +60,9 @@ Item {
     readonly property real cardRatio: 1.78
 
     readonly property int players: engine.players
+    // Der Platz rechts: zu dritt der zweite, zu viert der dritte, zu fünft
+    // der vierte.
+    readonly property int lastSeat: table.players === 5 ? 4 : (table.players === 3 ? 2 : 3)
     readonly property var seatList: engine.seats
     readonly property var me: seatList.length > 0 ? seatList[0] : ({})
     readonly property bool meSittingOut: me.isSittingOut === true
@@ -183,6 +186,9 @@ Item {
 
     // Seat 0 sits at the bottom; the others go clockwise around the table.
     function seatPanelOf(seat) {
+        // Zu dritt (Tapp-Tarock) sitzt niemand gegenüber: links und rechts.
+        if (table.players === 3)
+            return seat === 1 ? leftSeat : rightSeat
         if (table.players === 5) {
             if (seat === 1)
                 return leftSeat
@@ -680,10 +686,12 @@ Item {
         anchors.top: leftSeat.top
         width: parent.width * 0.3
         engine: table.engine
-        // Bound, not assigned: the same table serves four and five seats.
-        seat: table.players === 5 ? 4 : 3
-        info: table.seatInfo(table.players === 5 ? 4 : 3)
-        said: table.saidBySeat[table.players === 5 ? 4 : 3]
+        // Bound, not assigned: the same table serves three, four and five
+        // seats -- rechts sitzt der letzte Platz, und das ist je nachdem der
+        // zweite, dritte oder vierte.
+        seat: table.lastSeat
+        info: table.seatInfo(table.lastSeat)
+        said: table.saidBySeat[table.lastSeat]
         deck: table.engine.deck
         cardRatio: table.cardRatio
         partnerColor: table.partnerColor

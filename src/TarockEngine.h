@@ -148,6 +148,11 @@ public:
     Q_INVOKABLE QString bonusLabel(int bonusId) const;
     Q_INVOKABLE QVariantList lastTrick() const;
     Q_INVOKABLE QStringList profileKeys() const;
+    // Die Sitzzahlen, die dieses Regelprofil kennt: Königrufen vier und fünf,
+    // das ungarische Blatt vier, Tapp-Tarock drei.
+    Q_INVOKABLE QVariantList seatOptionsFor(const QString& profileKey) const;
+    // Die Sitzzahl, mit der eine Partie unter diesen Regeln wirklich beginnt.
+    Q_INVOKABLE int seatsFor(const QString& profileKey, int wanted) const;
     Q_INVOKABLE QString profileNameFor(const QString& key) const;
 
     // --- properties ---------------------------------------------------------

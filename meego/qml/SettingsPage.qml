@@ -75,11 +75,29 @@ SubPage {
         font.pixelSize: AppTheme.fontSizeExtraSmall
     }
     ComboBox {
+        id: playersBox
         x: AppTheme.horizontalPageMargin
         width: parent.width - 2 * AppTheme.horizontalPageMargin
-        model: [qsTr("Four"), qsTr("Five")]
-        currentIndex: Prefs.players === 5 ? 1 : 0
-        onActivated: Prefs.players = index === 1 ? 5 : 4
+        // Wie viele mitspielen können, sagt das Regelprofil: Königrufen vier
+        // oder fünf, das ungarische Blatt vier, Tapp-Tarock drei.
+        property variant seats: page.engine.seatOptionsFor(Prefs.profileKey)
+        model: seatNames()
+        function seatNames() {
+            var names = []
+            for (var i = 0; i < seats.length; ++i)
+                names.push(String(seats[i]))
+            return names
+        }
+        enabled: seats.length > 1
+        currentIndex: Math.max(0, seats.indexOf(Prefs.players))
+        onActivated: {
+            if (index >= 0 && index < playersBox.seats.length)
+                Prefs.players = playersBox.seats[index]
+        }
+        onSeatsChanged: {
+            if (seats.indexOf(Prefs.players) < 0 && seats.length > 0)
+                Prefs.players = seats[0]
+        }
     }
     TextBlock {
         text: qsTr("At five the dealer sits out the hand")

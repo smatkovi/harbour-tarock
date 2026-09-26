@@ -66,7 +66,7 @@ Page {
             PageHeader {
                 title: qsTr("Tarock")
                 description: page.engine.profileNameFor(Prefs.profileKey) + " · "
-                             + qsTr("%1 players").arg(Prefs.players)
+                             + qsTr("%1 players").arg(page.engine.seatsFor(Prefs.profileKey, Prefs.players))
             }
 
             // The welcome of §7.9: shown until the tour has run once.

@@ -46,7 +46,9 @@ TarockCore::TarockCore(ProfileId profile, int players, std::uint32_t seed, const
 void TarockCore::newMatch(ProfileId profile, int players, std::uint32_t seed, const FlagSet& flags)
 {
     m_profile = &RuleProfile::get(profile);
-    m_players = players == 5 ? 5 : 4;
+    // Wie viele am Tisch sitzen, sagt das Profil: Königrufen vier oder fünf,
+    // das ungarische Blatt vier, Tapp-Tarock drei.
+    m_players = m_profile->playableWith(players) ? players : m_profile->defaultSeats();
     m_flags = flags;
     m_rng.seed(seed);
     m_hand = 0;
@@ -205,6 +207,8 @@ std::vector<Action> TarockCore::legalActions(int seat) const
         const bool isForehand = seat == forehand();
         const int currentRank = m_bid == ContractId::None ? 0 : profile().contract(m_bid).rank;
         for (const ContractDef& def : profile().contracts()) {
+            if (def.bidFlags & WhenAllPass)
+                continue;   // das wird das Spiel von selbst, niemand sagt es an
             if (def.bidFlags & ForehandOnly) {
                 if (!isForehand)
                     continue;
@@ -228,10 +232,11 @@ std::vector<Action> TarockCore::legalActions(int seat) const
             actions.push_back(Action(ActionType::OpenForehand));
         if (isForehand && m_bid != ContractId::None && m_bidHolder != seat)
             actions.push_back(Action(ActionType::Hold));
-        // The forehand may never pass while no game has been bid: neither when
-        // speaking first nor after all the others have said "weiter"
-        // (docs/koenigrufen.md §3.3.1 and §3.3.3, end condition B).
-        if (!(isForehand && m_bid == ContractId::None))
+        // Im Königrufen darf die Vorhand nicht passen, solange kein Spiel
+        // angesagt ist -- weder zuerst noch nachdem alle anderen "weiter"
+        // gesagt haben (docs/koenigrufen.md §3.3.1 und §3.3.3, Ende B). Im
+        // Tapp-Tarock darf sie: dann wird trischakt (tapptarock.md §3.5).
+        if (!(isForehand && m_bid == ContractId::None && profile().forehandMustBid()))
             actions.push_back(Action(ActionType::Pass));
         break;
     }
@@ -255,8 +260,15 @@ std::vector<Action> TarockCore::legalActions(int seat) const
             break;
         const ContractDef& def = contractDef();
         if (def.talon == TalonMode::OpenHalves) {
-            actions.push_back(Action(ActionType::TakeTalon, 0));
-            actions.push_back(Action(ActionType::TakeTalon, 1));
+            // Im Tapp-Tarock legt sich der Spieler mit "Unterer" und "Oberer"
+            // schon beim Ansagen auf eine Hälfte fest; nur der Dreier lässt
+            // ihm die Wahl (tapptarock.md §4.2, Lesart A).
+            if (def.talonHalf < 0) {
+                actions.push_back(Action(ActionType::TakeTalon, 0));
+                actions.push_back(Action(ActionType::TakeTalon, 1));
+            } else {
+                actions.push_back(Action(ActionType::TakeTalon, def.talonHalf));
+            }
             // The called king lying in the talon lets the declarer give up.
             if (def.partner == PartnerMode::CallKing && m_calledSuit >= 0) {
                 const Card king = calledKing();
@@ -495,7 +507,8 @@ Reason TarockCore::check(int seat, const Action& action) const
             return refuse(ReasonCode::NotYourTurn);
         if (hasPassed(seat))
             return refuse(ReasonCode::AlreadyPassed);
-        if (action.type == ActionType::Pass && seat == forehand() && m_bid == ContractId::None)
+        if (action.type == ActionType::Pass && seat == forehand() && m_bid == ContractId::None
+            && profile().forehandMustBid())
             return refuse(ReasonCode::ForehandMustSpeak);
         if (action.type == ActionType::Hold) {
             if (seat != forehand())
@@ -802,7 +815,10 @@ bool TarockCore::apply(int seat, const Action& action, Reason* out)
         }
         if (m_bid != ContractId::None && (activeBidders <= 1 || m_turn == m_bidHolder))
             finishBidding();
-        else if (m_bid == ContractId::None && activeBidders <= 1 && m_forehandSpoke)
+        else if (m_bid == ContractId::None && activeBidders == 0 && !profile().forehandMustBid())
+            beginAllPassedGame();
+        else if (m_bid == ContractId::None && activeBidders <= 1 && m_forehandSpoke
+                 && profile().forehandMustBid())
             m_turn = forehand();   // the forehand now names its game
     }
     if (m_phase == Phase::Announce) {
@@ -815,6 +831,22 @@ bool TarockCore::apply(int seat, const Action& action, Reason* out)
             beginPlay();
     }
     return true;
+}
+
+// Alle haben "Weiter" gesagt: dann wird das Spiel gespielt, das das Profil
+// dafür vorsieht -- im Tapp-Tarock das Trischaken, jeder gegen jeden
+// (tapptarock.md §3.5.3). Gibt es keines, bleibt es beim alten Verhalten.
+void TarockCore::beginAllPassedGame()
+{
+    for (const ContractDef& def : profile().contracts()) {
+        if (!(def.bidFlags & WhenAllPass))
+            continue;
+        m_bid = def.id;
+        m_bidHolder = forehand();
+        finishBidding();
+        return;
+    }
+    m_turn = forehand();
 }
 
 void TarockCore::finishBidding()

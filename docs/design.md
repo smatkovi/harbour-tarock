@@ -74,6 +74,7 @@ harbour-tarock/
 │  │  ├─ profiles/
 │  │  │  ├─ AtKrOoe2023.cpp           # Tabellen AT-KR-OOE-2023-04
 │  │  │  ├─ HuIlluItvb2019.cpp        # Tabellen HU-ILLU-ITVB-2019
+│  │  │  ├─ AtTappKlassik.cpp        # Tabellen AT-TAPP-KLASSIK (Tapp-Tarock zu dritt)
 │  │  │  └─ HuPaskievics.cpp          # Flag-Overlay (§12 hungarian.md)
 │  │  ├─ TarockRules.h/.cpp           # abstrakte Basis + gemeinsame Stichlogik
 │  │  ├─ KoenigrufenRules.h/.cpp
@@ -166,6 +167,7 @@ pkg_check_modules(SAILFISHAPP REQUIRED sailfishapp)
 set(TAROCK_CORE_SOURCES
     src/core/Deck.cpp src/core/RuleProfile.cpp
     src/core/profiles/AtKrOoe2023.cpp src/core/profiles/HuIlluItvb2019.cpp
+    src/core/profiles/AtTappKlassik.cpp
     src/core/profiles/HuPaskievics.cpp
     src/core/TarockRules.cpp src/core/KoenigrufenRules.cpp src/core/HungarianRules.cpp
     src/core/TarockCore.cpp src/core/Scoring.cpp
@@ -1744,6 +1746,8 @@ nicht, LAN zwischen Sailfish und Android gemischt, Vordergrunddienst überlebt B
 | **M8** | Asset-Pipeline: `fetch_iiif.py`, `mapping.csv`, Retusche, beide Decks, `deck.json`, `CREDITS/ASSETS.md`, Deckwahl | `verify_deck.py` grün; beide Decks in der App wählbar, Credits vollständig |
 | **M9** | **Zweites Regelprofil:** `HungarianRules`, Profiltabellen, ⚙-Flags, ungarische Ansage-UI, Lektionen L0–L7 und drei Übungspartien | `test_profile_hu`, `hu_*`-Tests und `test_lessons` (HU) grün |
 | **M10** | Android-Feinschliff, Übersetzungen (de/hu/en), Portrait-Prüfliste, Icons, Release-Notizen, RPM + APK | Abnahme nach §11.7; Version 1.0 |
+| **M11** | **Tapp-Tarock zu dritt** (`tapptarock.md`, Profil `AT-TAPP-KLASSIK`): drei Sitze im Kern, festgelegte Talonhälfte für Unterer/Oberer, Lizitleiter Dreier/Unterer/Oberer/Solo, Pagat ultimo und Valat, Dreiertisch in der Oberfläche | `test_profile_tapp` und die sieben Beispiele aus `tapptarock.md` §7.4 in `test_scoring` grün; zu dritt gegen Computerspieler durchspielbar |
+| **M12** | **Strohmandeln zu zweit** (`strohmandeln.md`, Profil `AT-STROH-MS-ERW`): zwei Sitze, die drei Strohmänner als eigener Kartenort mit offener oberster Karte und Nachrücken, Zweiertisch in der Oberfläche | `test_profile_stroh` grün; zu zweit gegen den Computer durchspielbar |
 
 **Reihenfolgebegründung.** Königrufen zuerst, weil es das reichere Regelwerk ist (13 Spiele, Negativspiele,
 Farbenspiele) – wer damit fertig ist, hat die Profil-Abstraktion bewiesen, und das ungarische Profil in M9
@@ -1764,5 +1768,5 @@ in einem Zug abgearbeitet werden sollen.
 | O3 | Fünfertisch-Spielzahl je Durchgang (`koenigrufen.md` §8.1 **[OFFEN] M-1**) | 20 Spiele (4 Radl), einstellbar |
 | O4 | Trischaken-Wertung mit zwei Jungfrauen erzeugt Drittelbeträge (`koenigrufen.md` §7.6) | `Ledger` in Dritteln führen, erst in der Anzeige runden |
 | O5 | Ouvert-Team-Chat im LAN (`koenigrufen.md` §6.4) | in M7 als einfache, vorgefertigte Signalliste statt Freitext |
-| O6 | Weitere Profile (`tapptarock.md`, `strohmandeln.md`) | passen ohne Kernänderung in `ProfileRegistry`; nach 1.0 |
+| O6 | Weitere Profile (`tapptarock.md`, `strohmandeln.md`) | **erledigt als M11/M12.** Die ursprüngliche Einschätzung „ohne Kernänderung“ war falsch: `TarockCore` kannte nur vier und fünf Sitze, und die festgelegte Talonhälfte (Unterer/Oberer) sowie die Strohmänner sind Mechanik, keine Tabellenwerte. Was dagegen wirklich passte: Lizitleiter, Talonhälften, Alleinspieler gegen alle, Gewinnschwelle 107/210 -- die gelten im Tapp-Tarock unverändert |
 | O7 | Übersetzung der Lektionstexte (JSON außerhalb von Linguist) | Overlay-Dateien je Sprache, §7.6 |

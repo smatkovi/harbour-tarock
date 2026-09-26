@@ -104,20 +104,20 @@ SubPage {
     }
 
     Row {
-        spacing: Theme.paddingMedium
-        property int players: Prefs.players === 5 ? 5 : 4
         id: seatRow
-        Button {
-            text: "4"
-            checked: seatRow.players === 4
-            onClicked: seatRow.players = 4
-        }
-        Button {
-            text: "5"
-            // Den fünften Platz kennt nur das Königrufen.
-            visible: profileBox.key !== "HU-ILLU-ITVB-2019"
-            checked: seatRow.players === 5
-            onClicked: seatRow.players = 5
+        spacing: Theme.paddingMedium
+        // Die Sitzzahlen des gewählten Profils: Königrufen vier oder fünf,
+        // das ungarische Blatt vier, Tapp-Tarock drei.
+        property var seats: page.engine.seatOptionsFor(profileBox.key)
+        property int players: seats.indexOf(Prefs.players) >= 0 ? Prefs.players
+                              : (seats.length > 0 ? seats[0] : 4)
+        Repeater {
+            model: seatRow.seats
+            Button {
+                text: String(modelData)
+                checked: seatRow.players === modelData
+                onClicked: seatRow.players = modelData
+            }
         }
         Button {
             text: qsTr("Eröffnen")

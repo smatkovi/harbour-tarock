@@ -101,16 +101,25 @@ SubPage {
     ButtonRow {
         id: playersRow
         width: parent.width
-        property int currentIndex: Prefs.players === 5 ? 1 : 0
-        Button { text: "4"; onClicked: playersRow.currentIndex = 0 }
-        Button { text: "5"; onClicked: playersRow.currentIndex = 1 }
+        // Die Sitzzahlen des gewählten Profils, nicht mehr fest vier und fünf.
+        property variant seats: tarockEngine.seatOptionsFor(profileRow.key)
+        property int currentIndex: Math.max(0, seats.indexOf(Prefs.players))
+        property int count: seats.length === 0 ? 4
+                : seats[Math.max(0, Math.min(currentIndex, seats.length - 1))]
+        Repeater {
+            model: playersRow.seats
+            Button {
+                text: String(modelData)
+                onClicked: playersRow.currentIndex = index
+            }
+        }
     }
 
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
         enabled: page.table.role === 0
         text: qsTr("Eröffnen")
-        onClicked: page.engine.hostTable(profileRow.key, playersRow.currentIndex + 4)
+        onClicked: page.engine.hostTable(profileRow.key, playersRow.count)
     }
 
     TextBlock {

@@ -13,8 +13,9 @@
 namespace tarock {
 
 enum class ProfileId : std::uint8_t {
-    AtKrOoe2023 = 0,   // Königrufen, Oberösterreich 4/2023
-    HuIlluItvb2019 = 1 // ungarisches Illusztrált tarokk, ITVB 2019
+    AtKrOoe2023 = 0,    // Königrufen, Oberösterreich 4/2023
+    HuIlluItvb2019 = 1, // ungarisches Illusztrált tarokk, ITVB 2019
+    AtTappKlassik = 2   // Tapp-Tarock zu dritt, docs/tapptarock.md
 };
 
 enum class ContractId : std::uint8_t {
@@ -23,7 +24,11 @@ enum class ContractId : std::uint8_t {
     Trischaken, Rufer, Piccolo, Bettel, Solorufer, Besserrufer, Farbendreier,
     Sechserdreier, Dreier, Farbensolo, PiccoloOuvert, BettelOuvert, Solodreier,
     // Hungarian
-    Harom, Ketto, Egy, Szolo
+    Harom, Ketto, Egy, Szolo,
+    // Tapp-Tarock: the ladder Dreier < Unterer < Oberer < Solo. The names
+    // Unterer and Oberer mean the half of the talon the declarer commits to
+    // before it is turned up (tapptarock.md §4.2), not a number of cards.
+    TappDreier, TappUnterer, TappOberer, TappSolo
 };
 
 // Shared ids where the two games mean the same thing: Trull = tulétroá,
@@ -60,6 +65,10 @@ enum class PlayMode : std::uint8_t { Positive, SuitGame, Negative, Trischaken };
 enum class LeadRule : std::uint8_t { Forehand, Declarer };
 enum class KontraMode : std::uint8_t { None, Party, Individual };
 enum class CountMode : std::uint8_t { ThirdsAustrian, PlainHungarian };
+// How a hand nobody bid is settled. Königrufen pays out of a pot that doubles
+// when the loser is over the threshold (koenigrufen.md §7.6); at a table of
+// three the loser simply pays every other player (tapptarock.md §7.6).
+enum class TrischakenStyle : std::uint8_t { KoenigrufenPot, PerOpponent };
 
 // Who may bid a contract and when.
 enum BidFlag : std::uint16_t {
@@ -69,7 +78,10 @@ enum BidFlag : std::uint16_t {
     ForehandFirstOnly = 1 << 2,   // "vorneweg": only as the very first bid
     RequiresBird = 1 << 3,        // Besserrufer needs a bird in hand
     ForbidsFourKings = 1 << 4,    // a caller may not hold all four kings
-    AnnounceWithBid = 1 << 5      // bonuses are announced together with the bid
+    AnnounceWithBid = 1 << 5,     // bonuses are announced together with the bid
+    // Nobody bids this one: it is what the hand becomes when everybody has
+    // said "Weiter" (tapptarock.md §3.5, Vorgabe Trischaken).
+    WhenAllPass = 1 << 6
 };
 
 struct ContractDef {
@@ -88,6 +100,9 @@ struct ContractDef {
     std::uint32_t bonusMask = 0;  // 1 << BonusId
     bool soloDoublesBonuses = false;
     std::uint16_t bidFlags = BidAnyone;
+    // Which half of the talon the declarer has to take: -1 = his choice,
+    // 0 = the lower, 1 = the upper one (tapptarock.md §4.2, Lesart A).
+    std::int8_t talonHalf = -1;
 };
 
 struct BonusDef {
@@ -131,6 +146,17 @@ public:
     int handCards() const { return m_handCards; }
     int talonSize() const { return m_talonSize; }
     const DealPlan& dealPlan() const { return m_dealPlan; }
+    // The table sizes this profile is played at, smallest first. Königrufen
+    // has four and five, the Hungarian deck four, Tapp-Tarock three.
+    const std::vector<int>& seatCounts() const { return m_seatCounts; }
+    bool playableWith(int seats) const;
+    int defaultSeats() const { return m_seatCounts.empty() ? 4 : m_seatCounts.front(); }
+    // Must the forehand name a game when everybody else has passed? In
+    // Königrufen she must (koenigrufen.md §3.2); in Tapp-Tarock she may say
+    // "Weiter" and the hand becomes a Trischaken (tapptarock.md §3.5).
+    bool forehandMustBid() const { return m_forehandMustBid; }
+    TrischakenStyle trischakenStyle() const { return m_trischakenStyle; }
+    int trischakenValue() const { return m_trischakenValue; }
 
     int cardValue(Card card) const;
     CountResult count(const CardSet& cards) const;
@@ -155,6 +181,10 @@ private:
     int m_handCards = 12;
     int m_talonSize = 6;
     DealPlan m_dealPlan;
+    std::vector<int> m_seatCounts{4};
+    bool m_forehandMustBid = true;
+    TrischakenStyle m_trischakenStyle = TrischakenStyle::KoenigrufenPot;
+    int m_trischakenValue = 0;    // per opponent, PerOpponent style only
     std::vector<ContractDef> m_contracts;
     std::vector<BonusDef> m_bonuses;
 };
@@ -171,6 +201,10 @@ struct RuleProfileBuilder {
     int handCards = 0;
     int talonSize = 0;
     DealPlan dealPlan;
+    std::vector<int> seatCounts{4};
+    bool forehandMustBid = true;
+    TrischakenStyle trischakenStyle = TrischakenStyle::KoenigrufenPot;
+    int trischakenValue = 0;
     std::vector<ContractDef> contracts;
     std::vector<BonusDef> bonuses;
 

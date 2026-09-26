@@ -56,6 +56,14 @@ Item {
         var cy = height / 2
         var dx = width * 0.28
         var dy = height * 0.26
+        if (players === 3) {
+            // Zu dritt: unten, links, rechts (tapptarock.md §2.1).
+            if (seat === 0)
+                return Qt.point(cx, cy + dy)
+            if (seat === 1)
+                return Qt.point(cx - dx, cy - dy * 0.3)
+            return Qt.point(cx + dx, cy - dy * 0.3)
+        }
         if (players === 5) {
             if (seat === 0)
                 return Qt.point(cx, cy + dy)

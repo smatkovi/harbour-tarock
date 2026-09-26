@@ -128,24 +128,27 @@ Page {
                 id: playersBox
                 width: parent.width
                 label: qsTr("Spieler")
-                enabled: page.table.role === 0
-                currentIndex: Prefs.players === 5 ? 1 : 0
+                enabled: page.table.role === 0 && seats.length > 1
+                // Die Sitzzahlen des gewählten Profils: Königrufen vier oder
+                // fünf (der fünfte setzt aus), das ungarische Blatt vier,
+                // Tapp-Tarock drei.
+                property var seats: page.engine.seatOptionsFor(profileBox.key)
+                currentIndex: Math.max(0, seats.indexOf(Prefs.players))
                 menu: ContextMenu {
-                    MenuItem { text: qsTr("4") }
-                    MenuItem {
-                        text: qsTr("5")
-                        // Den fünften Platz (den Aussetzer) kennt nur das
-                        // Königrufen; das ungarische Blatt spielt zu viert.
-                        visible: profileBox.key !== "HU-ILLU-ITVB-2019"
+                    Repeater {
+                        model: playersBox.seats
+                        MenuItem { text: String(modelData) }
                     }
                 }
+                property int count: seats.length === 0 ? 4
+                        : seats[Math.max(0, Math.min(currentIndex, seats.length - 1))]
             }
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: page.table.role === 0
                 text: qsTr("Eröffnen")
-                onClicked: page.engine.hostTable(profileBox.key, playersBox.currentIndex + 4)
+                onClicked: page.engine.hostTable(profileBox.key, playersBox.count)
             }
 
             Label {

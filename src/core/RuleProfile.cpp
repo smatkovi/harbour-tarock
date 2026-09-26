@@ -1,10 +1,12 @@
 #include "RuleProfile.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 namespace tarock {
 const RuleProfile& makeKoenigrufen();
 const RuleProfile& makeHungarian();
+const RuleProfile& makeTappTarock();
 }
 
 namespace tarock {
@@ -48,6 +50,11 @@ CountResult RuleProfile::count(const CardSet& cards) const
     return result;
 }
 
+bool RuleProfile::playableWith(int seats) const
+{
+    return std::find(m_seatCounts.begin(), m_seatCounts.end(), seats) != m_seatCounts.end();
+}
+
 const ContractDef& RuleProfile::contract(ContractId id) const
 {
     for (const ContractDef& def : m_contracts) {
@@ -79,6 +86,10 @@ RuleProfile RuleProfileBuilder::build() const
     profile.m_handCards = handCards;
     profile.m_talonSize = talonSize;
     profile.m_dealPlan = dealPlan;
+    profile.m_seatCounts = seatCounts;
+    profile.m_forehandMustBid = forehandMustBid;
+    profile.m_trischakenStyle = trischakenStyle;
+    profile.m_trischakenValue = trischakenValue;
     profile.m_contracts = contracts;
     profile.m_bonuses = bonuses;
     return profile;
@@ -89,6 +100,7 @@ const RuleProfile& RuleProfile::get(ProfileId id)
     switch (id) {
     case ProfileId::AtKrOoe2023: return makeKoenigrufen();
     case ProfileId::HuIlluItvb2019: return makeHungarian();
+    case ProfileId::AtTappKlassik: return makeTappTarock();
     }
     return makeKoenigrufen();
 }

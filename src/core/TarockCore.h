@@ -38,6 +38,9 @@ struct Declaration {
 class TarockCore {
 public:
     static constexpr int MaxSeats = 5;
+    // Die längste Hand aller Profile: Tapp-Tarock zu dritt hat sechzehn
+    // Stiche (tapptarock.md §1.5), Königrufen zwölf, das ungarische neun.
+    static constexpr int MaxTricks = 16;
 
     TarockCore() = default;
     TarockCore(ProfileId profile, int players, std::uint32_t seed, const FlagSet& flags = {});
@@ -153,6 +156,7 @@ private:
     void startHand();
     void beginBidding();
     void finishBidding();
+    void beginAllPassedGame();
     void beginCall();
     void beginTalon();
     void beginAnnounce();
@@ -190,8 +194,8 @@ private:
     CardList m_trick;
     int m_leader = 0;
     int m_trickNumber = 0;
-    std::array<std::int8_t, 12> m_trickWinners{};
-    std::array<CardList, 12> m_trickCards{};
+    std::array<std::int8_t, MaxTricks> m_trickWinners{};
+    std::array<CardList, MaxTricks> m_trickCards{};
     // Negative games are doubled against each opponent separately (§7.5).
     std::array<int, MaxSeats> m_seatKontra{{1, 1, 1, 1, 1}};
     Ledger m_ledger;

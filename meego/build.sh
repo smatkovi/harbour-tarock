@@ -24,6 +24,7 @@ ENGINE_SRC="src/TarockEngine.cpp src/LearnEngine.cpp src/Lesson.cpp src/ReasonTe
  src/core/Action.cpp src/core/Ai.cpp src/core/Card.cpp src/core/Deck.cpp src/core/Reason.cpp \
  src/core/RuleProfile.cpp src/core/Scoring.cpp src/core/TarockCore.cpp \
  src/core/profiles/AtKrOoe2023.cpp src/core/profiles/HuIlluItvb2019.cpp \
+ src/core/profiles/AtTappKlassik.cpp \
  src/net/BtLink.cpp src/net/LanSession.cpp src/net/LanTable.cpp"
 MOC_HEADERS="src/TarockEngine.h src/LearnEngine.h src/net/BtLink.h src/net/LanSession.h \
  src/net/LanTable.h"

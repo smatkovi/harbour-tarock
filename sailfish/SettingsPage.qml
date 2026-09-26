@@ -81,15 +81,34 @@ Page {
             }
 
             ComboBox {
+                id: playersCombo
                 width: parent.width
                 label: qsTr("Players")
-                description: qsTr("At five the dealer sits out the hand")
-                currentIndex: Prefs.players === 5 ? 1 : 0
+                // Wie viele mitspielen können, sagt das Regelprofil:
+                // Königrufen vier oder fünf, das ungarische Blatt vier,
+                // Tapp-Tarock drei.
+                property var seats: page.engine.seatOptionsFor(Prefs.profileKey)
+                description: seats.length === 1
+                             ? qsTr("These rules are played by %1").arg(seats[0])
+                             : qsTr("At five the dealer sits out the hand")
+                enabled: seats.length > 1
+                currentIndex: Math.max(0, seats.indexOf(Prefs.players))
                 menu: ContextMenu {
-                    MenuItem { text: qsTr("Four") }
-                    MenuItem { text: qsTr("Five") }
+                    Repeater {
+                        model: playersCombo.seats
+                        MenuItem { text: String(modelData) }
+                    }
                 }
-                onCurrentIndexChanged: Prefs.players = currentIndex === 1 ? 5 : 4
+                onCurrentIndexChanged: {
+                    if (currentIndex >= 0 && currentIndex < seats.length)
+                        Prefs.players = seats[currentIndex]
+                }
+                onSeatsChanged: {
+                    // Ein Profilwechsel darf keine Spielerzahl stehen lassen,
+                    // die es dort nicht gibt.
+                    if (seats.indexOf(Prefs.players) < 0 && seats.length > 0)
+                        Prefs.players = seats[0]
+                }
             }
 
             SectionHeader { text: qsTr("Learning mode") }

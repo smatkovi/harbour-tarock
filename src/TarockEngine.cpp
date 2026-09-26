@@ -135,8 +135,11 @@ std::uint32_t freshSeed()
 
 ProfileId profileIdFor(const QString& key)
 {
-    return key == QLatin1String("HU-ILLU-ITVB-2019") ? ProfileId::HuIlluItvb2019
-                                                     : ProfileId::AtKrOoe2023;
+    if (key == QLatin1String("HU-ILLU-ITVB-2019"))
+        return ProfileId::HuIlluItvb2019;
+    if (key == QLatin1String("AT-TAPP-KLASSIK"))
+        return ProfileId::AtTappKlassik;
+    return ProfileId::AtKrOoe2023;
 }
 
 Severity severityOf(const Reason& reason)
@@ -311,18 +314,41 @@ QString TarockEngine::profileName() const
     return profileNameFor(profileKey());
 }
 
+// Die nächstbeste Sitzzahl, die dieses Profil kennt: wer fünf bestellt, wo es
+// nur vier gibt, bekommt vier, und zu dritt gibt es nur drei.
+int TarockEngine::seatsFor(const QString& profileKeyName, int wanted) const
+{
+    const RuleProfile& profile = RuleProfile::get(profileIdFor(profileKeyName));
+    return profile.playableWith(wanted) ? wanted : profile.defaultSeats();
+}
+
+QVariantList TarockEngine::seatOptionsFor(const QString& profileKeyName) const
+{
+    // Wie viele am Tisch sitzen können, sagt das Regelprofil -- die
+    // Oberfläche soll das nicht mehr selbst wissen müssen.
+    QVariantList seats;
+    const std::vector<int>& counts = RuleProfile::get(profileIdFor(profileKeyName)).seatCounts();
+    for (std::size_t i = 0; i < counts.size(); ++i)
+        seats.append(counts[i]);
+    return seats;
+}
+
 QStringList TarockEngine::profileKeys() const
 {
     QStringList keys;
     keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::AtKrOoe2023).key()));
     keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::HuIlluItvb2019).key()));
+    keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::AtTappKlassik).key()));
     return keys;
 }
 
 QString TarockEngine::profileNameFor(const QString& key) const
 {
-    return profileIdFor(key) == ProfileId::HuIlluItvb2019 ? tr("Illusztrált tarokk")
-                                                          : tr("Königrufen");
+    switch (profileIdFor(key)) {
+    case ProfileId::HuIlluItvb2019: return tr("Illusztrált tarokk");
+    case ProfileId::AtTappKlassik:  return tr("Tapp-Tarock zu dritt");
+    default:                        return tr("Königrufen");
+    }
 }
 
 void TarockEngine::setDeck(const QString& value)
@@ -384,7 +410,7 @@ void TarockEngine::publishViews()
 bool TarockEngine::hostTable(const QString& profileKeyName, int players)
 {
     QString error;
-    players = players == 5 ? 5 : 4;
+    players = seatsFor(profileKeyName, players);
     if (!m_table.startHosting(seatName(0), profileKeyName, players, &error)) {
         emit actionRejected(QVariantMap());
         return false;
@@ -526,7 +552,7 @@ void TarockEngine::onTableClosed(const QString& reason)
 void TarockEngine::startMatch(const QString& profileKeyName, int players)
 {
     m_profileId = profileIdFor(profileKeyName);
-    players = players == 5 ? 5 : 4;
+    players = seatsFor(profileKeyName, players);
     m_aiTimer.stop();
     m_trickPauseTimer.stop();
     m_watchdog.stop();

@@ -77,7 +77,7 @@ Page {
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
                 text: page.engine.profileNameFor(Prefs.profileKey) + " · "
-                      + qsTr("%1 players").arg(Prefs.players)
+                      + qsTr("%1 players").arg(page.engine.seatsFor(Prefs.profileKey, Prefs.players))
                 font.pixelSize: Theme.fontSizeExtraSmall
                 color: Theme.secondaryColor
             }

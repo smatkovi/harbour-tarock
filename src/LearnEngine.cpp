@@ -148,6 +148,18 @@ int mistakeFor(ReasonCode code)
 
 const char* const kProfileStemAt = "at-kr-ooe";
 const char* const kProfileStemHu = "hu-illu";
+// Für das Tapp-Tarock gibt es noch keine Lektionen; der eigene Stamm sorgt
+// dafür, dass dort auch keine fremden auftauchen (docs/design.md §12, M11).
+const char* const kProfileStemTapp = "at-tapp";
+
+const char* profileStemOf(ProfileId profile)
+{
+    switch (profile) {
+    case ProfileId::HuIlluItvb2019: return kProfileStemHu;
+    case ProfileId::AtTappKlassik:  return kProfileStemTapp;
+    default:                        return kProfileStemAt;
+    }
+}
 
 } // namespace
 
@@ -1037,8 +1049,7 @@ QVariantMap LearnEngine::bonusPurpose(int bonusId) const
 
 QStringList LearnEngine::lessonDirectories() const
 {
-    const QString stem = QLatin1String(profileId() == ProfileId::HuIlluItvb2019
-                                           ? kProfileStemHu : kProfileStemAt);
+    const QString stem = QLatin1String(profileStemOf(profileId()));
     QStringList directories;
 #ifdef TAROCK_DATA_DIR
     // The tests of docs/design.md §11 run from the build directory and are
@@ -1297,9 +1308,7 @@ const QVariantList& LearnEngine::courseOrder() const
 
 QString LearnEngine::progressKey() const
 {
-    return QLatin1String(kProgressKey)
-           + QLatin1String(profileId() == ProfileId::HuIlluItvb2019 ? kProfileStemHu
-                                                                    : kProfileStemAt);
+    return QLatin1String(kProgressKey) + QLatin1String(profileStemOf(profileId()));
 }
 
 QStringList LearnEngine::doneLessons() const

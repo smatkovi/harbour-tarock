@@ -149,7 +149,9 @@ Page {
                 width: parent.width - 2 * Theme.horizontalPageMargin
                 wrapMode: Text.WordWrap
                 color: Theme.secondaryColor
-                text: qsTr("Every rule the app enforces is written down in one of the specifications below, section by section.")
+                text: page.chapters.length > 0
+                      ? qsTr("Every rule the app enforces is written down in one of the specifications below, section by section.")
+                      : qsTr("For these rules the app does not carry the chapters yet -- they are in the specification in the source tree. The glossary below applies all the same.")
             }
 
             SearchField {
