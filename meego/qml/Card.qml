@@ -180,7 +180,6 @@ Item {
         // The full name from the engine, so the placeholder deck still reads
         // like a card until the artwork replaces it.
         Text {
-            visible: !artworkImage.visible
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: root.height * 0.06
@@ -188,7 +187,12 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.label
-            visible: root.label !== "" && root.height > AppTheme.itemSizeSmall
+            // Beides in einer Bindung: die Beschriftung gehört zur
+            // gezeichneten Karte und hat neben einem Kartenbild nichts zu
+            // suchen. Zwei getrennte visible-Zeilen wären ein Fehler, den QML
+            // nicht verzeiht -- dann lädt das ganze Bauteil nicht.
+            visible: !artworkImage.visible && root.label !== ""
+                     && root.height > AppTheme.itemSizeSmall
             color: "#6b6455"
             font.pixelSize: Math.max(8, root.width * 0.14)
         }
