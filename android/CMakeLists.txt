@@ -2,7 +2,22 @@
 # the CMakeLists.txt one directory up; both compile the same sources from
 # src/ and the same shared QML from qml-common/.
 cmake_minimum_required(VERSION 3.21)
-project(tarock VERSION 0.6.0 LANGUAGES CXX)
+
+# Die Fassung steht an genau einer Stelle: in rpm/harbour-tarock.spec, aus der
+# auch das RPM und das Harmattan-Paket sie nehmen. Hier stand sie frueher von
+# Hand und blieb zweimal stehen -- ein APK mit einer alten versionCode laesst
+# sich auf dem Telefon nicht ueber das vorige legen.
+file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../rpm/harbour-tarock.spec TAROCK_SPEC)
+string(REGEX MATCH "Version:[ \t]*([0-9]+\.[0-9]+\.[0-9]+)" TAROCK_VERSION_MATCH "${TAROCK_SPEC}")
+if(NOT CMAKE_MATCH_1)
+    message(FATAL_ERROR "keine Version in rpm/harbour-tarock.spec gefunden")
+endif()
+project(tarock VERSION ${CMAKE_MATCH_1} LANGUAGES CXX)
+
+# Die versionCode muss mit jedem APK steigen: Haupt*10000 + Neben*100 + Fehler.
+math(EXPR TAROCK_VERSION_CODE
+     "${PROJECT_VERSION_MAJOR} * 10000 + ${PROJECT_VERSION_MINOR} * 100 + ${PROJECT_VERSION_PATCH}")
+message(STATUS "harbour-tarock: Fassung ${PROJECT_VERSION}, versionCode ${TAROCK_VERSION_CODE}")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -145,8 +160,8 @@ set_target_properties(tarock PROPERTIES
     QT_ANDROID_APP_ICON "@drawable/icon"
     QT_ANDROID_MIN_SDK_VERSION 28
     QT_ANDROID_TARGET_SDK_VERSION 36
-    QT_ANDROID_VERSION_CODE 203
-    QT_ANDROID_VERSION_NAME "0.2.3"
+    QT_ANDROID_VERSION_CODE ${TAROCK_VERSION_CODE}
+    QT_ANDROID_VERSION_NAME "${PROJECT_VERSION}"
 )
 
 if(ANDROID)
