@@ -28,7 +28,10 @@ else
     HOST=arch
 fi
 REPO=${REPO:-smatkovi/harbour-tarock}
-TAG=v$VERSION
+# Das APK geht in das private Repo tarock-releases und traegt dort eine eigene
+# Marke, damit die beiden Reihen sich nicht ins Gehege kommen:
+#   REPO=smatkovi/tarock-releases TAG=android-0.6.0 tools/release.sh 0.6.0 <apk>
+TAG=${TAG:-v$VERSION}
 WORK=/tmp/tarock-release
 
 # Keep a local copy next to the other apps' packages — unless the file that was
@@ -53,8 +56,19 @@ NOTES=$(mktemp)
         seen && $0 !~ /^ -- / { print }
     ' meego/changelog | sed -e 's/^  \* /* /' -e 's/^    //'
     echo
-    echo "Pakete für Sailfish OS (\`.rpm\`, aarch64 und armv7hl) und für MeeGo Harmattan"
-    echo "auf dem Nokia N9/N950 (\`.deb\`, armel)."
+    # Was wirklich dabei ist, statt einer festen Zeile: wer nur das APK
+    # veroeffentlicht, soll nicht RPMs versprechen.
+    for FILE in "$@"; do
+        case "$FILE" in
+        *.rpm) HAS_RPM=1 ;;
+        *.deb) HAS_DEB=1 ;;
+        *.apk) HAS_APK=1 ;;
+        esac
+    done
+    [ -n "$HAS_RPM" ] && echo "Pakete für Sailfish OS (\`.rpm\`, aarch64 und armv7hl)."
+    [ -n "$HAS_DEB" ] && echo "Paket für MeeGo Harmattan auf dem Nokia N9/N950 (\`.deb\`, armel)."
+    [ -n "$HAS_APK" ] && echo "Paket für Android (\`.apk\`, arm64-v8a)."
+    true
 } > "$NOTES"
 
 ssh "$HOST" "rm -rf $WORK && mkdir -p $WORK"
