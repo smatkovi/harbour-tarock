@@ -1,3 +1,18 @@
+harbour-tarock (0.5.0) unstable; urgency=low
+
+  * Tarock zu dritt: Tapp-Tarock nach den Wiener Regeln -- Dreier, Unterer,
+    Oberer und Solo, Pagat ultimo und Valat, und wenn alle "Weiter" sagen,
+    wird trischakt. In den Einstellungen und am Netztisch zu wählen; die
+    Spielerzahl richtet sich jetzt nach den Regeln.
+  * Die Karten waren seit 0.4.0 gar nicht mehr zu sehen: in Card.qml stand
+    "visible" zweimal, und damit hat QML das Bauteil abgelehnt -- mit ihm
+    den ganzen Tisch. Behoben, und ein Prüfer im Werkzeugkasten sucht diesen
+    Fehler künftig im ganzen Baum.
+  * N9/N950: Tipps auf Zeilen -- Glossar, Regeln, Lernen -- gehen nicht mehr
+    verloren, wenn der Finger dabei ein Haar weit wandert.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 21:30:00 +0200
+
 harbour-tarock (0.4.2) unstable; urgency=low
 
   * Die Kartenbilder erscheinen jetzt auch dort, wo die App schon vor 0.4.0

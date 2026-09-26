@@ -138,7 +138,7 @@ SubPage {
 
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: page.table.browser.searching ? qsTr("Suche läuft …") : qsTr("Suchen")
+        text: page.table.browser.searching ? qsTr("Suche läuft ...") : qsTr("Suchen")
         enabled: !page.table.browser.searching
         onClicked: {
             page.table.browser.search()

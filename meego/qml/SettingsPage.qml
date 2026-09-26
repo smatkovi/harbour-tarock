@@ -221,14 +221,15 @@ SubPage {
     // Deck ids of assets/decks (docs/design.md §10). Everything that is not the
     // historical pack is the clear one, which is also the engine's fallback.
     ComboBox {
+        id: deckBox
         x: AppTheme.horizontalPageMargin
         width: parent.width - 2 * AppTheme.horizontalPageMargin
         property variant keys: page.engine.deckKeys()
         model: page.engine.deckNames()
         currentIndex: Math.max(0, keys.indexOf(page.engine.deck))
         onActivated: {
-            if (index >= 0 && index < keys.length)
-                page.engine.deck = keys[index]
+            if (index >= 0 && index < deckBox.keys.length)
+                page.engine.deck = deckBox.keys[index]
         }
     }
 
