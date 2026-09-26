@@ -1,3 +1,12 @@
+harbour-tarock (0.4.0) unstable; urgency=low
+
+  * Echte Kartenbilder: das historische Blatt "Industrie und Glück" von
+    Piatnik (um 1904-12) aus der Sammlung des Volkskundemuseums Wien,
+    gemeinfrei (Public Domain Mark 1.0). Schutzmarke und Firmenadressen sind
+    entfernt. Wo ein Bild fehlt, zeichnet die App die Karte wie bisher.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 16:00:00 +0200
+
 harbour-tarock (0.3.0) unstable; urgency=low
 
   * Ein Tisch mit anderen Geräten: über WLAN oder über Bluetooth. Ein Gerät

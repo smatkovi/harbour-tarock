@@ -93,6 +93,15 @@ qt_add_qml_module(tarock
 
 # Android has no /usr/share, so everything the app reads at runtime becomes a
 # resource. LearnEngine looks for the lessons under ":/lessons/<profile>".
+# Die Kartenbilder (docs/design.md §10) liegen unter ":/decks/<deck>/<datei>".
+file(GLOB TAROCK_DECK_FILES ${TAROCK_ROOT}/assets/decks/*/*)
+foreach(file ${TAROCK_DECK_FILES})
+    get_filename_component(name ${file} NAME)
+    get_filename_component(dir ${file} DIRECTORY)
+    get_filename_component(stem ${dir} NAME)
+    set_source_files_properties(${file} PROPERTIES QT_RESOURCE_ALIAS "decks/${stem}/${name}")
+endforeach()
+
 file(GLOB TAROCK_LESSON_FILES ${TAROCK_ROOT}/assets/lessons/*/*.json)
 foreach(file ${TAROCK_LESSON_FILES})
     get_filename_component(name ${file} NAME)
@@ -105,6 +114,7 @@ qt_add_resources(tarock tarock_data
     PREFIX "/"
     BASE "${TAROCK_ROOT}"
     FILES "${TAROCK_ROOT}/sailfish/icons/icon-256.png" ${TAROCK_LESSON_FILES}
+          ${TAROCK_DECK_FILES}
 )
 
 # The Android Qt package has no Linguist tools, so use lrelease of the host Qt.

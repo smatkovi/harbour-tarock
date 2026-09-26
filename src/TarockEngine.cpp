@@ -20,6 +20,9 @@
 */
 #include "TarockEngine.h"
 
+#include <QCoreApplication>
+#include <QFile>
+
 #include "LearnEngine.h"
 
 #include <QByteArray>
@@ -420,9 +423,21 @@ void TarockEngine::onTableRequest(int seat, const QString& type, int a, int b)
     if (!m_table.hosting() || !m_active)
         return;
     if (m_visualPhase != Idle) {
-        // Die Tischanimation läuft noch. Der Gast bekommt sein Tippen zurück
-        // und den Zustand gleich danach mit publishViews().
-        m_table.sendNack(seat, tr("Noch einen Augenblick"));
+        // Die Tischanimation läuft noch. Der Wunsch wird gemerkt und
+        // nachgeholt, sobald der Tisch still steht; abgelehnt würde der Gast
+        // ihn sofort wieder schicken, und das in einer Schleife.
+        PendingRequest pending;
+        pending.seat = seat;
+        pending.type = type;
+        pending.a = a;
+        pending.b = b;
+        for (int i = 0; i < m_pendingRequests.size(); ++i) {
+            if (m_pendingRequests[i].seat == seat) {
+                m_pendingRequests[i] = pending;
+                return;
+            }
+        }
+        m_pendingRequests.append(pending);
         return;
     }
     const tarock::Action action(actionTypeOf(type), static_cast<std::int16_t>(a),
@@ -480,8 +495,9 @@ void TarockEngine::onTableMatchStarted(const QString& profileKeyName, int player
 void TarockEngine::onTableRefused(const QString& reason)
 {
     Q_UNUSED(reason);
-    // Der Wunsch ist abgelehnt; der Gast darf wieder tippen.
-    m_awaitingView = false;
+    // Das Tippen bleibt gesperrt, bis der Zustand kommt: der Gastgeber
+    // schickt nach jeder Ablehnung einen, und ohne diese Bremse fragt ein
+    // Gast in einer Schleife.
     emit stateChanged();
 }
 
@@ -742,6 +758,13 @@ void TarockEngine::setVisualPhase(VisualPhase phase)
 void TarockEngine::finishIdle()
 {
     setVisualPhase(Idle);
+    // Wünsche, die während der Animation kamen, jetzt nachholen.
+    if (!m_pendingRequests.isEmpty()) {
+        const QList<PendingRequest> waiting = m_pendingRequests;
+        m_pendingRequests.clear();
+        for (int i = 0; i < waiting.size(); ++i)
+            onTableRequest(waiting[i].seat, waiting[i].type, waiting[i].a, waiting[i].b);
+    }
     emit stateChanged();
     if (m_learn)
         m_learn->refresh();
@@ -1145,6 +1168,66 @@ int TarockEngine::tricksTotal() const
 }
 
 // --- decisions ----------------------------------------------------------------------
+
+// Wo die Kartenbilder liegen. Dieselbe Suche wie bei den Lektionen: im
+// Quellbaum beim Prüfen, neben der Binärdatei auf MeeGo, unter /usr/share auf
+// Sailfish, als Ressource auf Android.
+static QString deckDirectory(const QString& deck)
+{
+    if (deck.isEmpty() || deck == QLatin1String("modern"))
+        return QString();
+    QStringList directories;
+#ifdef TAROCK_DATA_DIR
+    directories << QLatin1String(TAROCK_DATA_DIR "/assets/decks/") + deck;
+#endif
+    const QString appDir = QCoreApplication::applicationDirPath();
+    if (!appDir.isEmpty()) {
+        directories << appDir + QLatin1String("/decks/") + deck;
+        directories << appDir + QLatin1String("/assets/decks/") + deck;
+        directories << appDir + QLatin1String("/../assets/decks/") + deck;
+    }
+    directories << QLatin1String("/usr/share/harbour-tarock/assets/decks/") + deck;
+    directories << QLatin1String("assets/decks/") + deck;
+    directories << QLatin1String(":/decks/") + deck;
+    for (int i = 0; i < directories.size(); ++i) {
+        if (QFile::exists(directories.at(i) + QLatin1String("/deck.json")))
+            return directories.at(i);
+    }
+    return QString();
+}
+
+QString TarockEngine::deckPath(int cardId) const
+{
+    const QString directory = deckDirectory(m_deck);
+    if (directory.isEmpty())
+        return QString();
+    const QString file = cardId < 0 ? QStringLiteral("back.jpg")
+                                    : QStringLiteral("card-%1.jpg").arg(cardId);
+    const QString path = directory + QLatin1Char('/') + file;
+    if (!QFile::exists(path))
+        return QString();
+    return path.startsWith(QLatin1Char(':')) ? QLatin1String("qrc") + path
+                                             : QLatin1String("file://") + path;
+}
+
+QStringList TarockEngine::deckKeys() const
+{
+    QStringList keys;
+    keys << QStringLiteral("modern");
+    const QStringList known = QStringList() << QStringLiteral("iug1904");
+    for (int i = 0; i < known.size(); ++i) {
+        if (!deckDirectory(known.at(i)).isEmpty())
+            keys << known.at(i);
+    }
+    return keys;
+}
+
+QString TarockEngine::deckName(const QString& key) const
+{
+    if (key == QLatin1String("iug1904"))
+        return tr("Klassisch Wien 1904–12");
+    return tr("Gezeichnet");
+}
 
 QVariantList TarockEngine::options() const
 {

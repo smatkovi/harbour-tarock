@@ -35,10 +35,13 @@ cp "$BIN" "$STAGE/opt/harbour-tarock/bin/harbour-tarock"
 chmod 755 "$STAGE/opt/harbour-tarock/bin/harbour-tarock"
 cp -a "$PKG/qml" "$STAGE/opt/harbour-tarock/qml"
 # The lesson JSON: the engine looks for it at appDir/../assets/lessons,
-# which is exactly where this puts it. assets/decks holds only a README --
+# which is exactly where this puts it. assets/decks holds the card images --
 # the card decks come in a later release.
 mkdir -p "$STAGE/opt/harbour-tarock/assets"
 cp -a "$HERE/assets/lessons" "$STAGE/opt/harbour-tarock/assets/lessons"
+# Die Kartenbilder (docs/design.md §10); TarockEngine::deckPath sucht sie
+# unter appDir/../assets/decks.
+cp -a "$HERE/assets/decks" "$STAGE/opt/harbour-tarock/assets/decks"
 cp -a "$OUT/arm/translations" "$STAGE/opt/harbour-tarock/translations"
 cp "$HERE/sailfish/icons/icon-256.png" "$STAGE/opt/harbour-tarock/icons/icon-256.png"
 

@@ -57,6 +57,12 @@ Item {
 
     readonly property bool showsBack: faceDown || !faceUp
 
+    // M8: das Bild aus dem eingestellten Deck (docs/design.md §10). Findet die
+    // Engine keines -- Deck "modern", oder die Datei fehlt --, bleibt die
+    // gezeichnete Karte darunter stehen.
+    readonly property string artwork: (typeof tarockEngine === "undefined")
+                                       ? "" : tarockEngine.deckPath(root.showsBack ? -1 : root.cardId)
+
     width: Theme.itemSizeSmall
     height: width * 1.6
 
@@ -111,12 +117,26 @@ Item {
         radius: width * 0.1
         visible: !root.showsBack
         color: "#f4efe2"
+
+        // Das Kartenbild liegt über der Zeichnung; erst wenn es wirklich da
+        // ist, verschwindet sie darunter.
+        Image {
+            id: artworkImage
+            anchors.fill: parent
+            anchors.margins: face.border.width
+            source: root.artwork
+            visible: status === Image.Ready
+            asynchronous: true
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+        }
         border.width: Math.max(1, root.width * 0.02)
         border.color: root.selected ? Theme.highlightColor : "#b8ad93"
 
         // Corner index, repeated upside down in the opposite corner the way a
         // real card carries it.
         Repeater {
+            visible: !artworkImage.visible
             model: 2
             Column {
                 x: index === 0 ? face.border.width + root.width * 0.06
@@ -145,6 +165,7 @@ Item {
         // The middle of the card: the big suit symbol, or the numeral again on
         // a tarock, where the number is what the player reads.
         Text {
+            visible: !artworkImage.visible
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -root.height * 0.04
             width: parent.width * 0.8
@@ -161,6 +182,7 @@ Item {
         // The full name from the engine, so the placeholder deck still reads
         // like a card until the artwork replaces it.
         Text {
+            visible: !artworkImage.visible
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: root.height * 0.06
@@ -181,11 +203,23 @@ Item {
         anchors.fill: parent
         radius: face.radius
         visible: root.showsBack
+
+        Image {
+            id: backArtwork
+            anchors.fill: parent
+            anchors.margins: parent.border.width
+            source: root.showsBack ? root.artwork : ""
+            visible: status === Image.Ready
+            asynchronous: true
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+        }
         color: "#7b2230"
         border.width: face.border.width
         border.color: "#f4efe2"
 
         Rectangle {
+            visible: !backArtwork.visible
             anchors.fill: parent
             anchors.margins: root.width * 0.1
             radius: parent.radius * 0.6
@@ -195,6 +229,7 @@ Item {
         }
 
         Text {
+            visible: !backArtwork.visible
             anchors.centerIn: parent
             text: "✹"
             color: "#f0d7a8"

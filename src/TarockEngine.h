@@ -193,6 +193,14 @@ public:
     bool paused() const { return m_paused; }
     void setPaused(bool value);
     QString deck() const { return m_deck; }
+    // Die Adresse des Kartenbildes im eingestellten Deck; leer, wenn es das
+    // Bild nicht gibt -- dann zeichnet Card.qml die Karte wie bisher selbst.
+    // cardId -1 ist die Rückseite.
+    Q_INVOKABLE QString deckPath(int cardId) const;
+    // Welche Decks liegen auf diesem Gerät? Immer "modern" (gezeichnet), dazu
+    // jedes Deck aus assets/decks, das seine deck.json mitbringt.
+    Q_INVOKABLE QStringList deckKeys() const;
+    Q_INVOKABLE QString deckName(const QString& key) const;
     void setDeck(const QString& value);
     int difficulty() const { return static_cast<int>(m_difficulty); }
     void setDifficulty(int value);
@@ -282,10 +290,22 @@ private:
     // Ohne das schickt ein hängengebliebener Finger denselben Wunsch hundert
     // Mal, und am Tisch käme er hundert Mal an.
     bool m_awaitingView = false;
+    // Gastgeber: der Wunsch eines Gastes, der während einer Tischanimation
+    // kam. Er wird nicht abgelehnt, sondern nachgeholt, sobald der Tisch
+    // wieder still steht -- sonst fragt der Gast im Kreis.
+    struct PendingRequest {
+        int seat = -1;
+        QString type;
+        int a = -1;
+        int b = -1;
+    };
+    QList<PendingRequest> m_pendingRequests;
     bool m_animationsEnabled = true;
     int m_animationSpeed = 100;
     int m_handsPerMatch = 4;         // one Radl at a table of four
-    QString m_deck = QStringLiteral("modern");
+    // Voreinstellung ist das historische Blatt; fehlt es auf dem Gerät,
+    // zeichnet Card.qml die Karten wie bisher selbst.
+    QString m_deck = QStringLiteral("iug1904");
 
     VisualPhase m_visualPhase = Idle;
     QTimer m_aiTimer;

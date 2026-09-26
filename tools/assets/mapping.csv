@@ -1,0 +1,59 @@
+# Leinwand des IIIF-Manifests -> Karte (src/core/Card.h).
+# Das Manifest führt keine Kartentitel, nur "[1]".."[55]";
+# diese Liste ist an den Bildern selbst abgelesen.
+# leinwand;kartenId;kurz;bezeichnung
+01;21;Sk;Sküs
+02;20;T21;Tarock 21
+03;19;T20;Tarock 20
+04;18;T19;Tarock 19
+05;17;T18;Tarock 18
+06;16;T17;Tarock 17
+07;15;T16;Tarock 16
+08;14;T15;Tarock 15
+09;13;T14;Tarock 14
+10;12;T13;Tarock 13
+11;11;T12;Tarock 12
+12;10;T11;Tarock 11
+13;9;T10;Tarock 10
+14;8;T9;Tarock 9
+15;7;T8;Tarock 8
+16;6;T7;Tarock 7
+17;5;T6;Tarock 6
+18;4;T5;Tarock 5
+19;3;T4;Tarock 4
+20;2;T3;Tarock 3
+21;1;T2;Tarock 2
+22;0;T1;Tarock 1
+23;30;Karo-K;Karo K
+24;31;Karo-D;Karo D
+25;32;Karo-R;Karo R
+26;33;Karo-B;Karo B
+27;34;Karo-A;Karo A
+28;35;Karo-2;Karo 2
+29;36;Karo-3;Karo 3
+30;37;Karo-4;Karo 4
+31;22;Herz-K;Herz K
+32;23;Herz-D;Herz D
+33;24;Herz-R;Herz R
+34;25;Herz-B;Herz B
+35;26;Herz-A;Herz A
+36;27;Herz-2;Herz 2
+37;28;Herz-3;Herz 3
+38;29;Herz-4;Herz 4
+39;38;Pik-K;Pik K
+40;39;Pik-D;Pik D
+41;40;Pik-R;Pik R
+42;41;Pik-B;Pik B
+43;42;Pik-10;Pik 10
+44;43;Pik-9;Pik 9
+45;44;Pik-8;Pik 8
+46;45;Pik-7;Pik 7
+47;46;Kreuz-K;Kreuz K
+48;47;Kreuz-D;Kreuz D
+49;48;Kreuz-R;Kreuz R
+50;49;Kreuz-B;Kreuz B
+51;50;Kreuz-10;Kreuz 10
+52;51;Kreuz-9;Kreuz 9
+53;52;Kreuz-8;Kreuz 8
+54;53;Kreuz-7;Kreuz 7
+55;-1;BACK;Rückseite

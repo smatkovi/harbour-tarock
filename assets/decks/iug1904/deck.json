@@ -1,0 +1,19 @@
+{
+  "id": "iug1904",
+  "name": "Klassisch Wien 1904–12",
+  "deck": 54,
+  "file": "card-%1.jpg",
+  "back": "back.jpg",
+  "widths": [
+    400
+  ],
+  "aspect": 0.5502,
+  "cornerIndex": "overlay",
+  "credit": "Volkskundemuseum Wien, ÖMV/87.529, Public Domain Mark 1.0",
+  "source": "https://sammlung.volkskundemuseum.at/i3f/v20/201122/manifest",
+  "retouched": [
+    "Schutzmarke",
+    "Firmenadressen"
+  ],
+  "license": "PDM-1.0"
+}
