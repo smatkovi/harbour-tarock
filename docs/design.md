@@ -139,9 +139,24 @@ harbour-tarock/
 │  ├─ test_lessons.cpp  test_selfplay.cpp  test_rotation.cpp  test_serialize.cpp
 │  ├─ lan_tarock4.cpp  lan_tarock5.cpp
 │  └─ data/                           # erwartete Ledger je Beispiel aus den Specs
+├─ meego/tests/                       # der QML-Prüfer des Harmattan-Ports
+│  ├─ qml_check.cpp                   # lädt jede Datei aus meego/qml und meldet, was fehlt
+│  ├─ check-qml.sh                    # baut ihn (meego/build.sh check) und ruft ihn auf
+│  ├─ make-stubs.sh                   # erzeugt die Stellvertreter aus den echten Quellen
+│  └─ stubs/com/nokia/meego/          # nur die Schnittstelle, eingecheckt
 └─ translations/
    ├─ harbour-tarock-de.ts  harbour-tarock-hu.ts  harbour-tarock-en.ts
 ```
+
+**Der QML-Prüfer des MeeGo-Ports.** Eine doppelt zugewiesene Eigenschaft lässt QtQuick das ganze Bauteil
+ablehnen -- in 0.4.0 bis 0.4.2 war deshalb der Tisch unsichtbar, auf allen drei Plattformen. `tools/qml-doppelt.py`
+findet genau diesen Fall im ganzen Baum; `meego/tests/check-qml.sh` geht weiter und lädt jede Datei aus
+`meego/qml` mit einer echten QtDeclarative-1-Maschine. Die Bauteile von `com.nokia.meego` lassen sich dabei
+nicht laden (ihr Erweiterungsteil ist für das Qt 4.7.4 des SDK gebaut, das ohne Bildschirm abbricht), also
+stehen unter `meego/tests/stubs` Stellvertreter, die `make-stubs.sh` aus den echten Quellen erzeugt: genau die
+Eigenschaften, Signale und Funktionen, die das echte Bauteil hat, und keine darüber hinaus. Von Hand
+geschriebene wären schlechter als keine -- sie nähmen Eigenschaften an, die es nicht gibt, und die Prüfung
+ginge durch, wo das Gerät scheitert.
 
 **Sprachpolitik:** Quelltexte in `tr()` sind **deutsch** (die Regelspezifikationen sind deutsch, `koenigrufen.md`
 §11.4 und `hungarian.md` §11.6 geben den finalen Wortlaut vor). `harbour-tarock-en.ts` und `-hu.ts` sind

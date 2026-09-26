@@ -3,6 +3,8 @@
 # machine.
 #
 #   meego/build.sh arm     -> build/meego/arm/harbour-tarock
+#   meego/build.sh check   -> build/meego/check/harbour-tarock, der QML-Prüfer
+#                             (meego/tests/check-qml.sh baut und ruft ihn auf)
 #
 # MADDE's own GCC 4.4 cannot compile the C++17 core, so this uses the GCC 14
 # cross toolchain from harbour-snapszer/meego/toolchain.sh (XGCC) against the
@@ -48,9 +50,27 @@ arm)
  -Wl,--exclude-libs,ALL -Wl,--dynamic-linker=/lib/ld-linux.so.3"
     LIBS="-lQtDeclarative -lQtScript -lQtNetwork -lQtDBus -lQtGui -lQtCore -lpthread"
     ;;
+check)
+    # Der QML-Prüfer tritt an die Stelle von meego/main.cpp und wird gegen das
+    # schlichte Qt des SDK (4.8.1) gebaut: das Qt des Simulators (4.7.4) bricht
+    # ohne Bildschirm selbst für ein Programm ohne Oberfläche ab, und das Qt
+    # des Geräts läuft hier gar nicht. QtDeclarative 1 liest beide Male
+    # dasselbe, und darum geht es.
+    CXX=${CXX:-g++}
+    PROBEQT=${PROBEQT:-$HOME/QtSDK/Desktop/Qt/4.8.1/gcc}
+    [ -x "$PROBEQT/bin/moc" ] || { echo "Qt 4.8 des SDK fehlt: $PROBEQT" >&2; exit 1; }
+    MOC=$PROBEQT/bin/moc
+    QTINC=$PROBEQT/include
+    CXXFLAGS="$QT4_FLAGS -I$QTINC"
+    for m in $QT4_MODULES; do CXXFLAGS="$CXXFLAGS -I$QTINC/$m"; done
+    LDFLAGS="-L$PROBEQT/lib -Wl,-rpath,$PROBEQT/lib"
+    LIBS="-lQtDeclarative -lQtScript -lQtNetwork -lQtDBus -lQtGui -lQtCore -lpthread"
+    MAIN=meego/tests/qml_check.cpp
+    ;;
 *)
-    echo "usage: $0 arm" >&2; exit 2 ;;
+    echo "usage: $0 arm|check" >&2; exit 2 ;;
 esac
+MAIN=${MAIN:-meego/main.cpp}
 
 MK=$OUT/Makefile
 {
@@ -68,13 +88,18 @@ MK=$OUT/Makefile
     done
     echo "ENGINE_OBJS=$objs"; echo
     echo "all: harbour-tarock"
-    echo "main.moc: \$(SRC)/meego/main.cpp"; printf '\t$(MOC) $< -o $@\n'
-    echo "main.o: \$(SRC)/meego/main.cpp main.moc"; printf '\t$(CXX) $(CXXFLAGS) -I. -c $< -o $@\n'
+    echo "main.moc: \$(SRC)/$MAIN"; printf '\t$(MOC) $< -o $@\n'
+    echo "main.o: \$(SRC)/$MAIN main.moc"; printf '\t$(CXX) $(CXXFLAGS) -I. -c $< -o $@\n'
     echo "harbour-tarock: main.o \$(ENGINE_OBJS)"
     printf '\t$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)\n'
 } > "$MK"
 
 nice make -C "$OUT" -j"$JOBS" all
+
+if [ "$MODE" = check ]; then
+    echo "== built $OUT/harbour-tarock (der QML-Prüfer)"
+    exit 0
+fi
 
 # Translations. Qt 4.7's lrelease only knows TS version 2.0 while the
 # catalogues say 2.1, so the header is rewritten on the way in.
