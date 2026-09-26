@@ -203,6 +203,8 @@ int main(int argc, char** argv)
               "alle Päckchenkarten sind gezählt");
         check(shown + packetCards == profile.deck().size(),
               "Hand und Päckchen sind zusammen das ganze Blatt");
+        // Vor der Erklärung liegt noch kein Deckblatt; sobald eines liegt,
+        // zählt es beim Strohmann und nicht mehr im Blatt.
     }
 
     // Und jetzt eine ganze Hand über beide Geräte.
@@ -211,7 +213,12 @@ int main(int argc, char** argv)
     clock.start();
     QElapsedTimer sinceMove;
     sinceMove.start();
-    while (clock.elapsed() < 180000 && !host.handOver()) {
+    // Die Schranke richtet sich nach der Zahl der Stiche: zwölf im
+    // Königrufen, siebenundzwanzig im Strohmandeln. Jeder Zug kostet hier
+    // einen Netzweg und eine Pause, und was für zwölf Stiche reichlich ist,
+    // reicht für siebenundzwanzig nicht.
+    const int budgetMs = 60000 + profile.tricks() * 15000;
+    while (clock.elapsed() < budgetMs && !host.handOver()) {
         app.processEvents(QEventLoop::AllEvents, 10);
         // Nach jeder eigenen Aktion erst einmal zusehen: der Gast wartet auf
         // den neuen Zustand, sonst schickt er denselben Wunsch tausendmal.

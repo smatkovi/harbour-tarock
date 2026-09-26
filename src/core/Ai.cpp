@@ -540,8 +540,11 @@ Scored scoreBid(const View& v, const Action& action)
         // The forehand may not pass while no game stands (§3.3.1), so a weak
         // hand still has to name the least bad of them.
         out.score = 50 + margin;
-        out.reason = isForehand && core.bidHolder() < 0 ? HintReason::ForehandMustChoose
-                                                        : HintReason::HandTooWeak;
+        // "Die Vorhand muss ein Spiel nennen" gilt nur, wo sie das wirklich
+        // muss: im Tapp-Tarock und im Strohmandeln darf sie "Weiter" sagen.
+        out.reason = isForehand && core.bidHolder() < 0 && core.profile().forehandMustBid()
+                             ? HintReason::ForehandMustChoose
+                             : HintReason::HandTooWeak;
         return out;
     }
     out.score = 100 + def.rank * 6 + margin * 4;
@@ -562,6 +565,7 @@ Scored scoreBid(const View& v, const Action& action)
     out.reason = id == ContractId::Besserrufer ? HintReason::BirdCountSufficient
             : isSoloContract(id) ? HintReason::SoloWorthIt
             : isForehand && !core.hasPassed(v.seat) && core.bidHolder() < 0
+              && core.profile().forehandMustBid()
               ? HintReason::ForehandMustChoose
             : position != 0 && margin <= 1 ? HintReason::SeatPosition
             : HintReason::HandStrongEnough;

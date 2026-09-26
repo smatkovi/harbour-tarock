@@ -1039,7 +1039,12 @@ QVariantList TarockEngine::seats() const
 
         // handSize() statt hand().count(): am Netztisch sind fremde Hände
         // verdeckt, ihre Kartenzahl steht aber fest.
-        entry.insert(QStringLiteral("cardCount"), m_core.handSize(seat));
+        // Die Deckblätter liegen offen auf den Strohmännern und werden dort
+        // gezeigt; im Blatt zählt dieser Platz sie nicht mit, sonst stünden
+        // sie zweimal am Tisch (strohmandeln.md §4.4).
+        entry.insert(QStringLiteral("cardCount"),
+                     m_core.handSize(seat)
+                             - static_cast<int>(m_core.strawmanTops(seat).count()));
         int tricks = 0;
         for (int number = 1; number <= m_core.trickNumber(); ++number)
             tricks += m_core.trickWinner(number) == seat ? 1 : 0;
