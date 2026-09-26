@@ -109,6 +109,22 @@ Page {
             SectionHeader { text: qsTr("Tisch eröffnen") }
 
             ComboBox {
+                id: profileBox
+                width: parent.width
+                label: qsTr("Regeln")
+                enabled: page.table.role === 0
+                currentIndex: Math.max(0, page.engine.profileKeys().indexOf(Prefs.profileKey))
+                menu: ContextMenu {
+                    Repeater {
+                        model: page.engine.profileKeys()
+                        MenuItem { text: page.engine.profileNameFor(modelData) }
+                    }
+                }
+                property string key: page.engine.profileKeys()[
+                        Math.max(0, Math.min(currentIndex, page.engine.profileKeys().length - 1))]
+            }
+
+            ComboBox {
                 id: playersBox
                 width: parent.width
                 label: qsTr("Spieler")
@@ -116,7 +132,12 @@ Page {
                 currentIndex: Prefs.players === 5 ? 1 : 0
                 menu: ContextMenu {
                     MenuItem { text: qsTr("4") }
-                    MenuItem { text: qsTr("5") }
+                    MenuItem {
+                        text: qsTr("5")
+                        // Den fünften Platz (den Aussetzer) kennt nur das
+                        // Königrufen; das ungarische Blatt spielt zu viert.
+                        visible: profileBox.key !== "HU-ILLU-ITVB-2019"
+                    }
                 }
             }
 
@@ -124,7 +145,7 @@ Page {
                 anchors.horizontalCenter: parent.horizontalCenter
                 enabled: page.table.role === 0
                 text: qsTr("Eröffnen")
-                onClicked: page.engine.hostTable(Prefs.profileKey, playersBox.currentIndex + 4)
+                onClicked: page.engine.hostTable(profileBox.key, playersBox.currentIndex + 4)
             }
 
             Label {

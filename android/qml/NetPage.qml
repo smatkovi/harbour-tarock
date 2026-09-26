@@ -91,6 +91,18 @@ SubPage {
         text: qsTr("Tisch eröffnen")
     }
 
+    ComboBox {
+        id: profileBox
+        width: parent.width
+        model: page.engine.profileKeys().map(function (key) {
+            return page.engine.profileNameFor(key)
+        })
+        currentIndex: Math.max(0, page.engine.profileKeys().indexOf(Prefs.profileKey))
+        enabled: page.table.role === 0
+        property string key: page.engine.profileKeys()[
+                Math.max(0, Math.min(currentIndex, page.engine.profileKeys().length - 1))]
+    }
+
     Row {
         spacing: Theme.paddingMedium
         property int players: Prefs.players === 5 ? 5 : 4
@@ -102,13 +114,15 @@ SubPage {
         }
         Button {
             text: "5"
+            // Den fünften Platz kennt nur das Königrufen.
+            visible: profileBox.key !== "HU-ILLU-ITVB-2019"
             checked: seatRow.players === 5
             onClicked: seatRow.players = 5
         }
         Button {
             text: qsTr("Eröffnen")
             enabled: page.table.role === 0
-            onClicked: page.engine.hostTable(Prefs.profileKey, seatRow.players)
+            onClicked: page.engine.hostTable(profileBox.key, seatRow.players)
         }
     }
 

@@ -81,6 +81,23 @@ SubPage {
 
     SectionLabel { text: qsTr("Tisch eröffnen") }
 
+    SectionLabel { text: qsTr("Regeln") }
+
+    ButtonRow {
+        id: profileRow
+        width: parent.width
+        property variant keys: tarockEngine.profileKeys()
+        property int currentIndex: Math.max(0, keys.indexOf(Prefs.profileKey))
+        property string key: keys[Math.max(0, Math.min(currentIndex, keys.length - 1))]
+        Repeater {
+            model: profileRow.keys
+            Button {
+                text: tarockEngine.profileNameFor(modelData)
+                onClicked: profileRow.currentIndex = index
+            }
+        }
+    }
+
     ButtonRow {
         id: playersRow
         width: parent.width
@@ -93,7 +110,7 @@ SubPage {
         anchors.horizontalCenter: parent.horizontalCenter
         enabled: page.table.role === 0
         text: qsTr("Eröffnen")
-        onClicked: page.engine.hostTable(Prefs.profileKey, playersRow.currentIndex + 4)
+        onClicked: page.engine.hostTable(profileRow.key, playersRow.currentIndex + 4)
     }
 
     TextBlock {

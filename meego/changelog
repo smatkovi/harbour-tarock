@@ -1,3 +1,11 @@
+harbour-tarock (0.4.1) unstable; urgency=low
+
+  * Am Tisch mit anderen Geräten sind jetzt auch die Regeln zu wählen --
+    Königrufen oder ungarisches Tarokk --, nicht nur die Spielerzahl. Den
+    fünften Platz gibt es weiterhin nur beim Königrufen.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 16:30:00 +0200
+
 harbour-tarock (0.4.0) unstable; urgency=low
 
   * Echte Kartenbilder: das historische Blatt "Industrie und Glück" von
