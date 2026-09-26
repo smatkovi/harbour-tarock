@@ -1,3 +1,16 @@
+harbour-tarock (0.5.1) unstable; urgency=low
+
+  * Zu dritt sagt der Computer jetzt auch Spiele an. In 0.5.0 kannte die
+    Lizit-Heuristik die Tapp-Stufen nicht und passte immer -- damit wurde
+    jede Hand trischakt, und das Dreierspiel war praktisch nicht zu
+    spielen. Die Blattbewertung folgt jetzt tapptarock.md §10.2/§10.3;
+    "Unterer" und "Oberer" sagt er nur als Überbot an, nie als Eröffnung.
+  * Die sieben durchgerechneten Beispiele aus tapptarock.md §7.4 stehen
+    als Prüfung im Baum -- damit ist der Tarif des Dreierspiels belegt und
+    nicht nur die Nullsumme.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 22:10:00 +0200
+
 harbour-tarock (0.5.0) unstable; urgency=low
 
   * Tarock zu dritt: Tapp-Tarock nach den Wiener Regeln -- Dreier, Unterer,

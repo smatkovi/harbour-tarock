@@ -288,6 +288,23 @@ bool probablyMine(const View& v, int other)
 // How far a hand exceeds what a contract asks for. Negative means too weak;
 // the bidder takes the highest contract that is not. The thresholds are the
 // table of §10.2, read before the talon.
+// Die Blattbewertung des Dreierspiels (docs/tapptarock.md §10.2), in
+// Zehnteln gerechnet, damit es ohne Kommazahlen geht. Die "Mittelstecher"
+// (X bis XV) stehen nicht in den HandFacts; sie ergeben sich als die Tarock,
+// die weder Stecher (>= XVI) noch niedrig (<= VI) sind.
+int tappScore(const HandFacts& f)
+{
+    const int highs = f.stechers - (f.skues ? 1 : 0) - (f.mond ? 1 : 0);
+    const int middles = std::max(0, f.tarocks - f.stechers - f.lowCards);
+    return 16 * (f.tarocks - 7)
+            + (f.skues ? 30 : 0) + (f.mond ? 22 : 0) + (f.pagat ? 10 : 0)
+            + 9 * std::max(0, highs)
+            + 4 * middles
+            + 11 * f.kings
+            + 8 * f.voidSuits
+            - 7 * f.bareFigures;
+}
+
 int contractMargin(ContractId id, const HandFacts& f)
 {
     switch (id) {
@@ -366,6 +383,24 @@ int contractMargin(ContractId id, const HandFacts& f)
         if (f.tarocks < 9 || f.stechers < 4)
             return -100;
         return f.bidPoints - 16;
+    // --- Tapp-Tarock zu dritt (tapptarock.md §10.3) -----------------------
+    case ContractId::TappDreier:
+        // Ab Score 2,0, und nur mit sieben Tarock oder zwei Trullstücken.
+        if (f.tarocks < 7 && f.trull < 2)
+            return -100;
+        return (tappScore(f) - 20) / 10;
+    case ContractId::TappUnterer:
+    case ContractId::TappOberer:
+        // Ab Score 4,0 -- aber nie als Eröffnung: die beiden sind nicht
+        // stärker als der Dreier, nur teurer (§3.1). Das entscheidet
+        // scoreBid(), hier steht nur die Blattstärke.
+        return (tappScore(f) - 40) / 10;
+    case ContractId::TappSolo:
+        // Ab Score 8,5, und nur mit elf Tarock samt Sküs oder zehn mit Sküs
+        // und XXI: der ganze Talon geht an die Gegner.
+        if (!((f.tarocks >= 11 && f.skues) || (f.tarocks >= 10 && f.skues && f.mond)))
+            return -100;
+        return (tappScore(f) - 85) / 10;
     default:
         return -100;      // the Hungarian contracts have their own profile
     }
@@ -464,6 +499,14 @@ Scored scoreBid(const View& v, const Action& action)
         return out;
     }
     out.score = 100 + def.rank * 6 + margin * 4;
+    if ((id == ContractId::TappUnterer || id == ContractId::TappOberer)
+        && core.bidHolder() < 0) {
+        // Als Eröffnung nie: wer ein Blatt für den Oberen hat, sagt den
+        // billigeren Dreier an (tapptarock.md §10.3).
+        out.score = 60;
+        out.reason = HintReason::ContractEconomy;
+        return out;
+    }
     if (id == ContractId::Sechserdreier) {
         // Only the opening word can be a Sechserdreier; the Dreier is still
         // open later, so speak it now only when the Dreier is out of reach.

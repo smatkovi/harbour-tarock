@@ -288,6 +288,7 @@ int main()
         AiPlayer ai(Difficulty::Club);
         int hands = 0;
         int byAi = 0;
+        int chosen[5] = {0, 0, 0, 0, 0};
         for (int round = 0; round < 12; ++round) {
             TarockCore core(ProfileId::AtTappKlassik, 3, 900 + round);
             Inference view[3];
@@ -316,9 +317,22 @@ int main()
                 break;
             const Ledger ledger = settle(core.handResult());
             CHECK(ledger.zeroSum());
+            switch (core.contract()) {
+            case ContractId::Trischaken:  ++chosen[0]; break;
+            case ContractId::TappDreier:  ++chosen[1]; break;
+            case ContractId::TappUnterer: ++chosen[2]; break;
+            case ContractId::TappOberer:  ++chosen[3]; break;
+            case ContractId::TappSolo:    ++chosen[4]; break;
+            default: break;
+            }
             ++hands;
         }
-        std::printf("%d Hände ganz von Computerspielern, %d Züge\n", hands, byAi);
+        std::printf("%d Hände ganz von Computerspielern, %d Züge: %d Trischaken, "
+                    "%d Dreier, %d Unterer, %d Oberer, %d Solo\n",
+                    hands, byAi, chosen[0], chosen[1], chosen[2], chosen[3], chosen[4]);
+        // Sagt der Computer nie ein Spiel an, ist "zu dritt spielbar" nur die
+        // halbe Wahrheit: dann wird jede Hand trischakt.
+        CHECK(chosen[0] < hands);
         CHECK(hands == 12);
     }
 
