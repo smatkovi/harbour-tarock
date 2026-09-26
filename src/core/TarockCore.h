@@ -38,9 +38,12 @@ struct Declaration {
 class TarockCore {
 public:
     static constexpr int MaxSeats = 5;
-    // Die längste Hand aller Profile: Tapp-Tarock zu dritt hat sechzehn
-    // Stiche (tapptarock.md §1.5), Königrufen zwölf, das ungarische neun.
-    static constexpr int MaxTricks = 16;
+    // Die längste Hand aller Profile: Strohmandeln zu zweit hat
+    // siebenundzwanzig Stiche (strohmandeln.md §1.5), Tapp-Tarock sechzehn,
+    // Königrufen zwölf, das ungarische neun.
+    static constexpr int MaxTricks = 27;
+    // Und die meisten Strohmänner je Spieler: drei Päckchen (§2.4).
+    static constexpr int MaxStrawmen = 3;
 
     TarockCore() = default;
     TarockCore(ProfileId profile, int players, std::uint32_t seed, const FlagSet& flags = {});
@@ -75,6 +78,24 @@ public:
     // that led it. Public knowledge: everybody watched it happen.
     const CardList& trickCards(int trick) const;
     int trickLeader(int trick) const;                        // -1 if not played yet
+
+    // --- Strohmandeln (strohmandeln.md §4) -------------------------------
+    // Die verdeckten Karten eines Päckchens, unterste zuerst; die letzte im
+    // Vektor ist die, die als nächste umgedreht wird.
+    const CardList& strawman(int seat, int packet) const;
+    // Das offen liegende Deckblatt, ungültig, wenn gerade keines liegt. Es
+    // gehört zugleich zur Hand: gespielt wird es wie eine Handkarte (§4.4).
+    Card strawmanTop(int seat, int packet) const;
+    // Wie viele Karten noch verdeckt unter dem Deckblatt liegen -- auch in
+    // einem zensierten Zustand, in dem der Gast sie nicht sehen darf.
+    int strawmanSize(int seat, int packet) const;
+    // Alle offen liegenden Deckblätter eines Sitzes.
+    CardSet strawmanTops(int seat) const;
+    // Was dieser Sitz bei der letzten Aufdeckung offen umgedreht und ins
+    // Blatt genommen hat. Der Gegner muss das sehen (§4.2), es ist also
+    // öffentlich; die verdeckt aufgenommene letzte Karte eines Päckchens
+    // steht nicht darin (§4.5).
+    const CardList& lastTaken(int seat) const;
 
     const CardSet& talonHalf(int half) const { return m_talonHalf[static_cast<std::size_t>(half)]; }
     const CardSet& talonToDefenders() const { return m_talonToDefenders; }
@@ -147,6 +168,9 @@ private:
         std::array<int, MaxSeats> discards{};
         std::array<int, 2> talonHalf{};
         int talonToDefenders = 0;
+        // Die verdeckten Karten unter den Deckblättern; das Deckblatt selbst
+        // liegt offen und bleibt auch im zensierten Zustand sichtbar.
+        std::array<std::array<int, MaxStrawmen>, MaxSeats> straw{};
     };
 
     // Blanks everything this seat may not know and remembers how much was
@@ -155,6 +179,10 @@ private:
 
     void startHand();
     void beginBidding();
+    // Was dieser Sitz im Lizit sagen dürfte -- ohne zu fragen, ob er an der
+    // Reihe ist. legalActions() nimmt das für den Spieler am Zug, das Ende
+    // des Lizits fragt damit die anderen ab.
+    std::vector<Action> biddingActions(int seat) const;
     void finishBidding();
     void beginAllPassedGame();
     void beginCall();
@@ -166,6 +194,14 @@ private:
     bool announcedQualifyingBird() const;
     bool canAnnounceQualifyingBird() const;
     void beginPlay();
+    // Verteilt die Karten, die kein Handblatt geworden sind, als Päckchen auf
+    // die Spieler: abwechselnd, die Vorhand zuerst (§2.4).
+    void dealStrawmen(const CardList& cards);
+    // Die Schleife aus §4.2 auf genau einem Päckchen: Tarock und König gehen
+    // auf die Hand, die erste kleinere Farbkarte bleibt als Deckblatt liegen.
+    void revealStrawman(int seat, int packet);
+    // Alle Päckchen aller Sitze, beim Stichgewinner beginnend (§4.3).
+    void revealAllStrawmen(int firstSeat);
     void finishTrick();
     void finishHand();
     void setPhase(Phase phase);
@@ -188,6 +224,13 @@ private:
     // What the declarer left lying belongs to the defenders as a party, not
     // to one seat, so that a rotated copy of the hand stays identical.
     CardSet m_talonToDefenders{};
+    // Strohmandeln: je Sitz drei Päckchen. m_straw hält die verdeckten Karten
+    // (hinten liegt oben), m_strawTop das offen liegende Deckblatt. Das
+    // Deckblatt steht zugleich in m_hands, weil es wie eine Handkarte gespielt
+    // wird (§4.4) -- die Anzeige zieht es dort wieder ab.
+    std::array<std::array<CardList, MaxStrawmen>, MaxSeats> m_straw{};
+    std::array<std::array<Card, MaxStrawmen>, MaxSeats> m_strawTop{};
+    std::array<CardList, MaxSeats> m_lastTaken{};
     bool m_talonOpen = false;
     bool m_talonTaken = false;
 

@@ -75,6 +75,7 @@ harbour-tarock/
 │  │  │  ├─ AtKrOoe2023.cpp           # Tabellen AT-KR-OOE-2023-04
 │  │  │  ├─ HuIlluItvb2019.cpp        # Tabellen HU-ILLU-ITVB-2019
 │  │  │  ├─ AtTappKlassik.cpp        # Tabellen AT-TAPP-KLASSIK (Tapp-Tarock zu dritt)
+│  │  │  ├─ AtStrohMsErw.cpp         # Tabellen AT-STROH-MS-ERW (Strohmandeln zu zweit)
 │  │  │  └─ HuPaskievics.cpp          # Flag-Overlay (§12 hungarian.md)
 │  │  ├─ TarockRules.h/.cpp           # abstrakte Basis + gemeinsame Stichlogik
 │  │  ├─ KoenigrufenRules.h/.cpp
@@ -168,6 +169,7 @@ set(TAROCK_CORE_SOURCES
     src/core/Deck.cpp src/core/RuleProfile.cpp
     src/core/profiles/AtKrOoe2023.cpp src/core/profiles/HuIlluItvb2019.cpp
     src/core/profiles/AtTappKlassik.cpp
+    src/core/profiles/AtStrohMsErw.cpp
     src/core/profiles/HuPaskievics.cpp
     src/core/TarockRules.cpp src/core/KoenigrufenRules.cpp src/core/HungarianRules.cpp
     src/core/TarockCore.cpp src/core/Scoring.cpp
@@ -1747,7 +1749,7 @@ nicht, LAN zwischen Sailfish und Android gemischt, Vordergrunddienst überlebt B
 | **M9** | **Zweites Regelprofil:** `HungarianRules`, Profiltabellen, ⚙-Flags, ungarische Ansage-UI, Lektionen L0–L7 und drei Übungspartien | `test_profile_hu`, `hu_*`-Tests und `test_lessons` (HU) grün |
 | **M10** | Android-Feinschliff, Übersetzungen (de/hu/en), Portrait-Prüfliste, Icons, Release-Notizen, RPM + APK | Abnahme nach §11.7; Version 1.0 |
 | **M11** | **Tapp-Tarock zu dritt** (`tapptarock.md`, Profil `AT-TAPP-KLASSIK`): drei Sitze im Kern, festgelegte Talonhälfte für Unterer/Oberer, Lizitleiter Dreier/Unterer/Oberer/Solo, Pagat ultimo und Valat, Dreiertisch in der Oberfläche | `test_profile_tapp` und `test_scoring_tapp` (die sieben Beispiele aus `tapptarock.md` §7.4) grün; zu dritt gegen Computerspieler durchspielbar. **Nicht enthalten:** die Handprämien Trull/Königstrull/Köpfe (§5.3 -- sie gehen nicht an die Partei, sondern von jedem an einen Spieler und brauchen einen eigenen Posten), Regelkapitel und Lektionen für das Profil |
-| **M12** | **Strohmandeln zu zweit** (`strohmandeln.md`, Profil `AT-STROH-MS-ERW`): zwei Sitze, die drei Strohmänner als eigener Kartenort mit offener oberster Karte und Nachrücken, Zweiertisch in der Oberfläche | `test_profile_stroh` grün; zu zweit gegen den Computer durchspielbar |
+| **M12** | **Strohmandeln zu zweit** (`strohmandeln.md`, Profil `AT-STROH-MS-ERW`): zwei Sitze, 15 Handkarten und je drei Strohmänner zu vier Karten statt eines Talons, die offene oberste Karte als Teil des Blattes samt Nachdecken nach dem Stich, Erklärung statt Lizit, 27 Stiche, Abrechnung mit Unentschieden, Grammel-Punkt und den Vögeln in beide Richtungen, Zweiertisch in der Oberfläche | `test_profile_stroh` und `test_scoring_stroh` (die vier Beispiele aus `strohmandeln.md` §7.4) grün; zu zweit gegen den Computer durchspielbar. Der Gast am Netztisch bekommt die Deckblätter und die Zahl der verdeckten Karten, nie die Karten darunter -- dieselbe Trennung wie beim übrigen Zustand (§8.3). **Nicht enthalten:** Rostopschin (an Rufworte gebunden), Mondfang, die Rundenverdopplung nach einem Unentschieden (§8.3), die Profile Tirol/Beck/Furr, Regelkapitel und Lektionen für das Profil |
 
 **Reihenfolgebegründung.** Königrufen zuerst, weil es das reichere Regelwerk ist (13 Spiele, Negativspiele,
 Farbenspiele) – wer damit fertig ist, hat die Profil-Abstraktion bewiesen, und das ungarische Profil in M9

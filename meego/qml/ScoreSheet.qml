@@ -141,6 +141,10 @@ Item {
                         var name = sheet.engine === null ? "" : sheet.engine.contractName
                         if (!ledger || ledger.declarerWon === undefined)
                             return name
+                        // Im Strohmandeln kann das einfache Spiel unentschieden
+                        // ausgehen -- dann hat niemand verloren (§1.7.1).
+                        if (ledger.gameDrawn === true)
+                            return qsTr("%1 drawn").arg(name)
                         return ledger.declarerWon ? qsTr("%1 won").arg(name)
                                                   : qsTr("%1 lost").arg(name)
                     }

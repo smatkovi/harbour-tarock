@@ -62,7 +62,21 @@ Item {
     property int players: engine.players
     // Der Platz rechts: zu dritt der zweite, zu viert der dritte, zu fünft
     // der vierte.
-    property int lastSeat: table.players === 5 ? 4 : (table.players === 3 ? 2 : 3)
+    property int lastSeat: table.players === 5 ? 4
+            : (table.players === 4 ? 3 : (table.players === 3 ? 2 : 1))
+    // Die Strohmänner des Strohmandelns, je Sitz eine Liste von Päckchen
+    // (strohmandeln.md §4). In jedem anderen Profil ist die Liste leer und
+    // die beiden Reihen sind null hoch.
+    property variant strawmen: engine.strawmen
+    property variant strawmenTaken: engine.strawmenTaken
+    property bool hasStrawmen: strawmen && strawmen.length > 0
+    function strawmenOf(seat) {
+        return table.hasStrawmen && seat < table.strawmen.length ? table.strawmen[seat] : []
+    }
+    function strawmenTakenOf(seat) {
+        return table.strawmenTaken && seat < table.strawmenTaken.length
+                ? table.strawmenTaken[seat] : []
+    }
     property variant seatList: engine.seats
     property variant me: seatList.length > 0 ? seatList[0] : ({})
     property bool meSittingOut: me.isSittingOut === true
@@ -186,6 +200,9 @@ Item {
 
     // Seat 0 sits at the bottom; the others go clockwise around the table.
     function seatPanelOf(seat) {
+        // Zu zweit (Strohmandeln) sitzt der Gegner gegenüber.
+        if (table.players === 2)
+            return topSeat
         // Zu dritt (Tapp-Tarock) sitzt niemand gegenüber: links und rechts.
         if (table.players === 3)
             return seat === 1 ? leftSeat : rightSeat
@@ -611,15 +628,17 @@ Item {
 
     SeatPanel {
         id: topSeat
-        visible: table.players === 4
+        // Zu viert sitzt der dritte gegenüber, zu zweit der einzige Gegner.
+        property int acrossSeat: table.players === 2 ? 1 : 2
+        visible: table.players === 4 || table.players === 2
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: learnPanel.bottom
         anchors.topMargin: Style.paddingSmall
         width: parent.width * 0.34
         engine: table.engine
-        seat: 2
-        info: table.seatInfo(2)
-        said: table.saidBySeat[2]
+        seat: topSeat.acrossSeat
+        info: table.seatInfo(topSeat.acrossSeat)
+        said: table.saidBySeat[topSeat.acrossSeat]
         deck: table.engine.deck
         cardRatio: table.cardRatio
         partnerColor: table.partnerColor
@@ -664,6 +683,7 @@ Item {
 
     SeatPanel {
         id: leftSeat
+        visible: table.players >= 3
         anchors.left: parent.left
         anchors.leftMargin: Style.paddingSmall
         anchors.top: learnPanel.bottom
@@ -681,6 +701,7 @@ Item {
 
     SeatPanel {
         id: rightSeat
+        visible: table.players >= 3
         anchors.right: parent.right
         anchors.rightMargin: Style.paddingSmall
         anchors.top: leftSeat.top
@@ -698,14 +719,52 @@ Item {
         opponentColor: table.opponentColor
     }
 
+    // --- Strohmänner (strohmandeln.md §4) ------------------------------------------
+
+    StrawmanRow {
+        id: opponentStrawmen
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: table.players === 2 ? topSeat.bottom : leftSeat.bottom
+        anchors.topMargin: Style.paddingSmall
+        width: parent.width * 0.86
+        engine: table.engine
+        packets: table.strawmenOf(1)
+        taken: table.strawmenTakenOf(1)
+        own: false
+        deck: table.engine.deck
+        cardRatio: table.cardRatio
+        maxCardHeight: table.height * 0.11
+        panelColor: table.panelColor
+    }
+
+    StrawmanRow {
+        id: myStrawmen
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: statusLabel.top
+        anchors.bottomMargin: Style.paddingSmall
+        width: parent.width * 0.86
+        engine: table.engine
+        packets: table.strawmenOf(0)
+        // Die eigenen aufgenommenen Karten stehen schon im Fächer; noch einmal
+        // hier wären sie nur doppelt und nähmen dem Stich den Platz weg.
+        own: true
+        interactive: !table.meSittingOut
+        deck: table.engine.deck
+        cardRatio: table.cardRatio
+        maxCardHeight: table.height * 0.11
+        panelColor: table.panelColor
+        onExplain: table.showReason(a1)
+    }
+
     // --- trick --------------------------------------------------------------------
 
     TrickArea {
         id: trickArea
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: leftSeat.bottom
+        anchors.top: table.hasStrawmen ? opponentStrawmen.bottom
+                                       : (table.players === 2 ? topSeat.bottom : leftSeat.bottom)
         anchors.topMargin: Style.paddingMedium
-        anchors.bottom: statusLabel.top
+        anchors.bottom: table.hasStrawmen ? myStrawmen.top : statusLabel.top
         anchors.bottomMargin: Style.paddingSmall
         width: parent.width * 0.88
         engine: table.engine

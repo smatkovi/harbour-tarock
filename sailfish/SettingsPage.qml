@@ -86,7 +86,7 @@ Page {
                 label: qsTr("Players")
                 // Wie viele mitspielen können, sagt das Regelprofil:
                 // Königrufen vier oder fünf, das ungarische Blatt vier,
-                // Tapp-Tarock drei.
+                // Tapp-Tarock drei, Strohmandeln zwei.
                 property var seats: page.engine.seatOptionsFor(Prefs.profileKey)
                 description: seats.length === 1
                              ? qsTr("These rules are played by %1").arg(seats[0])

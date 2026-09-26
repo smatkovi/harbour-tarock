@@ -104,6 +104,10 @@ struct Ledger {
     std::array<CountResult, kMaxSeats> seatCards{};   // Trischaken
     bool declarerWon = false;   // the declarer's party reached the card threshold
     bool gameWon = false;       // the declarer made his contract (§7.4, §7.5)
+    // Unentschieden: niemand hat die Schwelle erreicht und das Spiel selbst
+    // erzeugt keinen Posten. Nur das einfache Spiel im Strohmandeln kann das
+    // (strohmandeln.md §1.7.1); überall sonst bleibt es falsch.
+    bool gameDrawn = false;
 
     bool zeroSum() const;            // test invariant, both accounts
 };

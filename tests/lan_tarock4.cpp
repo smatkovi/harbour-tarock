@@ -81,6 +81,25 @@ bool playSomething(TarockEngine& engine)
         if (engine.actConfirmed(discarding ? QStringLiteral("discard") : QStringLiteral("play"), id))
             return true;
     }
+    // Im Strohmandeln liegt ein Teil des Blattes offen auf den Strohmännern
+    // und steht deshalb nicht im Fächer; gespielt wird es genauso
+    // (strohmandeln.md §4.4). Wer nur den Fächer ansieht, bleibt stecken,
+    // sobald die letzten spielbaren Karten Deckblätter sind.
+    const QVariantList strawmen = engine.strawmen();
+    if (!strawmen.isEmpty()) {
+        const QVariantList packets = strawmen.at(0).toList();
+        for (int i = 0; i < packets.size(); ++i) {
+            const QVariantMap packet = packets.at(i).toMap();
+            if (!packet.value(QStringLiteral("hasCard")).toBool())
+                continue;
+            const QVariantMap card = packet.value(QStringLiteral("card")).toMap();
+            if (!card.value(QStringLiteral("legal")).toBool())
+                continue;
+            if (engine.actConfirmed(QStringLiteral("play"),
+                                    card.value(QStringLiteral("id")).toInt()))
+                return true;
+        }
+    }
     return false;
 }
 
@@ -123,8 +142,11 @@ int main(int argc, char** argv)
     // anders). Ohne Angabe: österreichisch.
     const QString profileKey = argc > 1 ? QString::fromLocal8Bit(argv[1])
                                         : QStringLiteral("AT-KR-OOE-2023-04");
-    std::printf("Regeln: %s\n", profileKey.toLocal8Bit().constData());
-    check(host.hostTable(profileKey, 4), "der Tisch geht auf");
+    // Und wie viele am Tisch sitzen: vier im Königrufen, zwei im
+    // Strohmandeln. Der Gast bekommt immer den Platz nach dem Gastgeber.
+    const int seatCount = argc > 2 ? QString::fromLocal8Bit(argv[2]).toInt() : 4;
+    std::printf("Regeln: %s, %d Plätze\n", profileKey.toLocal8Bit().constData(), seatCount);
+    check(host.hostTable(profileKey, seatCount), "der Tisch geht auf");
     guest.joinTable(QStringLiteral("127.0.0.1"));
     check(waitFor(app, [&] { return guestTable->mySeat() >= 1; }), "der Gast bekommt einen Platz");
     std::printf("Gast sitzt auf Platz %d\n", guestTable->mySeat() + 1);
@@ -137,27 +159,51 @@ int main(int argc, char** argv)
     });
 
     host.startTableMatch();
-    check(host.active() && host.players() == 4, "die Partie läuft beim Gastgeber");
+    check(host.active() && host.players() == seatCount, "die Partie läuft beim Gastgeber");
     check(waitFor(app, [&] { return guest.active() && !guest.hand().isEmpty(); }),
           "der Gast sieht seine Karten");
 
     // Die Sicht des Gastes: eigene Hand vollständig, fremde Hände nur als
     // Anzahl, und er selbst sitzt auf Platz 0.
     const QVariantList seats = guest.seats();
-    check(seats.size() == 4, "vier Plätze am Tisch des Gastes");
-    const int handCards = tarock::RuleProfile::get(
-                              profileKey == QLatin1String("HU-ILLU-ITVB-2019")
-                                  ? tarock::ProfileId::HuIlluItvb2019
-                                  : tarock::ProfileId::AtKrOoe2023).handCards();
+    check(seats.size() == seatCount, "alle Plätze am Tisch des Gastes");
+    const tarock::ProfileId profileId =
+            profileKey == QLatin1String("HU-ILLU-ITVB-2019") ? tarock::ProfileId::HuIlluItvb2019
+            : profileKey == QLatin1String("AT-TAPP-KLASSIK") ? tarock::ProfileId::AtTappKlassik
+            : profileKey == QLatin1String("AT-STROH-MS-ERW") ? tarock::ProfileId::AtStrohMsErw
+                                                             : tarock::ProfileId::AtKrOoe2023;
+    const tarock::RuleProfile& profile = tarock::RuleProfile::get(profileId);
+    const int handCards = profile.handCards();
     int shown = 0;
     for (int i = 0; i < seats.size(); ++i)
         shown += seats.at(i).toMap().value(QStringLiteral("cardCount")).toInt();
     std::printf("Handkarten laut Regeln: %d, gezählt: %d, eigene Hand: %d\n",
                 handCards, shown, guest.hand().size());
-    check(shown == 4 * handCards, "alle Handkarten sind gezählt, auch die verdeckten");
+    check(shown == seatCount * handCards, "alle Handkarten sind gezählt, auch die verdeckten");
     check(guest.hand().size() == handCards, "die eigene Hand ist vollständig");
     check(seats.at(0).toMap().value(QStringLiteral("isMe")).toBool(),
           "der Gast sitzt in seiner Sicht auf Platz 0");
+
+    // Strohmandeln: die Strohmänner müssen beim Gast ankommen -- die Päckchen
+    // mit ihrer Kartenzahl, gedreht auf seine eigene Sicht. Was darunter
+    // liegt, darf er nicht sehen; das prüft test_profile_stroh am Kern, hier
+    // zählt, dass die Zahlen über das Netz stimmen (strohmandeln.md §4.4).
+    if (profile.strawmen() > 0) {
+        const QVariantList mine = guest.strawmen();
+        check(mine.size() == seatCount, "der Gast bekommt für jeden Platz die Strohmänner");
+        int packetCards = 0;
+        for (int seat = 0; seat < mine.size(); ++seat) {
+            const QVariantList packets = mine.at(seat).toList();
+            check(packets.size() == profile.strawmen(), "drei Päckchen je Platz");
+            for (int p = 0; p < packets.size(); ++p)
+                packetCards += packets.at(p).toMap().value(QStringLiteral("count")).toInt();
+        }
+        std::printf("Karten in den Päckchen beim Gast: %d\n", packetCards);
+        check(packetCards == seatCount * profile.strawmen() * profile.strawmanSize(),
+              "alle Päckchenkarten sind gezählt");
+        check(shown + packetCards == profile.deck().size(),
+              "Hand und Päckchen sind zusammen das ganze Blatt");
+    }
 
     // Und jetzt eine ganze Hand über beide Geräte.
     int actions = 0;

@@ -139,6 +139,8 @@ ProfileId profileIdFor(const QString& key)
         return ProfileId::HuIlluItvb2019;
     if (key == QLatin1String("AT-TAPP-KLASSIK"))
         return ProfileId::AtTappKlassik;
+    if (key == QLatin1String("AT-STROH-MS-ERW"))
+        return ProfileId::AtStrohMsErw;
     return ProfileId::AtKrOoe2023;
 }
 
@@ -339,6 +341,7 @@ QStringList TarockEngine::profileKeys() const
     keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::AtKrOoe2023).key()));
     keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::HuIlluItvb2019).key()));
     keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::AtTappKlassik).key()));
+    keys.append(QString::fromLatin1(RuleProfile::get(ProfileId::AtStrohMsErw).key()));
     return keys;
 }
 
@@ -347,6 +350,7 @@ QString TarockEngine::profileNameFor(const QString& key) const
     switch (profileIdFor(key)) {
     case ProfileId::HuIlluItvb2019: return tr("Illusztrált tarokk");
     case ProfileId::AtTappKlassik:  return tr("Tapp-Tarock zu dritt");
+    case ProfileId::AtStrohMsErw:   return tr("Strohmandeln zu zweit");
     default:                        return tr("Königrufen");
     }
 }
@@ -1082,6 +1086,54 @@ QVariantMap TarockEngine::cardMap(Card card, bool legal) const
     return entry;
 }
 
+// Je Sitz eine Liste der Päckchen: { count, hasCard, card }. Das Deckblatt
+// liegt auf dem Tisch und nicht im Blatt -- die Hand unten lässt es deshalb
+// weg und dieses Modell zeigt es (strohmandeln.md §4.4).
+QVariantList TarockEngine::strawmen() const
+{
+    QVariantList result;
+    if (!m_active || m_core.profile().strawmen() <= 0)
+        return result;
+    const bool idle = m_visualPhase == Idle;
+    const CardSet playable = m_core.playableCards(0);
+    for (int seat = 0; seat < m_core.players(); ++seat) {
+        QVariantList packets;
+        for (int packet = 0; packet < m_core.profile().strawmen(); ++packet) {
+            QVariantMap entry;
+            const Card top = m_core.strawmanTop(seat, packet);
+            entry.insert(QStringLiteral("count"), m_core.strawmanSize(seat, packet));
+            entry.insert(QStringLiteral("hasCard"), top.valid());
+            if (top.valid()) {
+                // Nur die eigenen Deckblätter lassen sich anklicken.
+                const bool legal = seat == 0 && idle && tarock::contains(playable, top);
+                QVariantMap card = cardMap(top, legal);
+                const Reason reason = m_core.cardReason(0, top);
+                if (seat == 0)
+                    card.insert(QStringLiteral("dimReason"),
+                                QString::fromLatin1(tarock::reasonKey(reason.code)));
+                entry.insert(QStringLiteral("card"), card);
+            }
+            packets.append(entry);
+        }
+        result.append(QVariant(packets));
+    }
+    return result;
+}
+
+QVariantList TarockEngine::strawmenTaken() const
+{
+    QVariantList result;
+    if (!m_active || m_core.profile().strawmen() <= 0)
+        return result;
+    for (int seat = 0; seat < m_core.players(); ++seat) {
+        QVariantList cards;
+        for (Card card : m_core.lastTaken(seat))
+            cards.append(cardMap(card, false));
+        result.append(QVariant(cards));
+    }
+    return result;
+}
+
 QVariantList TarockEngine::hand() const
 {
     QVariantList result;
@@ -1092,7 +1144,13 @@ QVariantList TarockEngine::hand() const
     const CardSet playable = m_core.playableCards(0);
     const CardSet& tray = m_core.discardTray(0);
     const bool trayFull = static_cast<int>(tray.count()) >= discardTarget();
+    // Die offen liegenden Deckblätter gehören regeltechnisch zum Blatt, aber
+    // sie liegen auf dem Tisch: gezeigt werden sie beim Strohmann, nicht im
+    // Fächer (strohmandeln.md §4.4).
+    const CardSet tops = m_core.strawmanTops(0);
     for (Card card : tarock::toList(m_core.hand(0))) {
+        if (tarock::contains(tops, card))
+            continue;
         const Reason reason = m_core.cardReason(0, card);
         bool legal = false;
         if (discarding) {
@@ -1295,7 +1353,11 @@ QVariantList TarockEngine::options() const
             break;
         case ActionType::Pass:
             group = QStringLiteral("bid");
-            label = tr("gut");
+            // "Gut" sagt man im Königrufen; im Tapp-Tarock (§3.5) und im
+            // Strohmandeln (§3.2) heißt das Wort "Weiter".
+            label = m_core.profile().id() == ProfileId::AtTappKlassik
+                            || m_core.profile().id() == ProfileId::AtStrohMsErw
+                    ? tr("Weiter") : tr("gut");
             break;
         case ActionType::Hold:
             group = QStringLiteral("bid");
@@ -1458,6 +1520,7 @@ QVariantMap TarockEngine::ledger() const
     result.insert(QStringLiteral("matchGeld"), matchGeld);
     result.insert(QStringLiteral("declarerWon"), ledger.declarerWon);
     result.insert(QStringLiteral("gameWon"), ledger.gameWon);
+    result.insert(QStringLiteral("gameDrawn"), ledger.gameDrawn);
     result.insert(QStringLiteral("declarerCards"), ledger.declarerCards.cards);
     result.insert(QStringLiteral("defenderCards"), ledger.defenderCards.cards);
     result.insert(QStringLiteral("declarerUnits"), ledger.declarerCards.units);
@@ -1624,6 +1687,15 @@ QString TarockEngine::contractLabel(int contractId) const
     case ContractId::Ketto: return tr("Kettő");
     case ContractId::Egy: return tr("Egy");
     case ContractId::Szolo: return tr("Szóló");
+    // Tapp-Tarock (tapptarock.md §3.1): Unterer und Oberer heißen nach der
+    // Talonhälfte, nicht nach einer Kartenzahl.
+    case ContractId::TappDreier: return tr("Dreier");
+    case ContractId::TappUnterer: return tr("Unterer");
+    case ContractId::TappOberer: return tr("Oberer");
+    case ContractId::TappSolo: return tr("Solo");
+    // Strohmandeln (strohmandeln.md §3.2).
+    case ContractId::StrohEinfach: return tr("Einfaches Spiel");
+    case ContractId::StrohAufgenommen: return tr("Aufgenommen");
     }
     return QString();
 }
@@ -1653,6 +1725,7 @@ QString TarockEngine::bonusLabel(int bonusId) const
     case BonusId::Tarokk8: return tr("tarokk 8");
     case BonusId::Tarokk9: return tr("tarokk 9");
     case BonusId::Pagatfogas: return tr("pagát-fogás");
+    case BonusId::Grammel: return tr("Grammel-Punkt");
     }
     return QString();
 }

@@ -73,7 +73,7 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_cards test_hands test_learn test_legality test_lessons test_profile_tapp test_qmlbridge test_scoring test_scoring_tapp test_selfplay test_settings test_skeleton lan_tarock4 lan_tarock5)
+    foreach(t test_cards test_hands test_learn test_legality test_lessons test_profile_stroh test_profile_tapp test_qmlbridge test_scoring test_scoring_stroh test_scoring_tapp test_selfplay test_settings test_skeleton lan_tarock4 lan_tarock5)
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/${t}.cpp)
             add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
             target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -87,6 +87,10 @@ if(TAROCK_BUILD_TESTS)
             # für die österreichischen Regeln geprüft wird, ist nicht geprüft.
             if(t STREQUAL "lan_tarock4")
                 add_test(NAME lan_tarock4_hu COMMAND lan_tarock4 HU-ILLU-ITVB-2019)
+                # Und derselbe Netztisch zu zweit mit den Strohmännern: dort
+                # muss der Gast die Deckblätter sehen, aber nichts darunter
+                # (strohmandeln.md §4.4, design.md §8.3).
+                add_test(NAME lan_tarock2 COMMAND lan_tarock4 AT-STROH-MS-ERW 2)
             endif()
         else()
             message(STATUS "harbour-tarock: tests/${t}.cpp is not there yet, skipping it")

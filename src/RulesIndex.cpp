@@ -422,6 +422,7 @@ const char* profileStem(ProfileId profile)
     switch (profile) {
     case ProfileId::HuIlluItvb2019: return "hu-illu";
     case ProfileId::AtTappKlassik:  return "at-tapp";
+    case ProfileId::AtStrohMsErw:   return "at-stroh";
     default:                        return "at-kr-ooe";
     }
 }
@@ -601,10 +602,11 @@ QVariantList RulesIndex::chapters(ProfileId profile)
 {
     QVariantList list;
     // Die Kapitelliste ist die des Königrufens (und, in denselben Nummern,
-    // die des ungarischen Blattes). Für das Tapp-Tarock steht das Regelwerk
-    // bisher nur in docs/tapptarock.md; lieber keine Kapitel zeigen als
-    // fremde (docs/design.md §12, M11).
-    if (profile == ProfileId::AtTappKlassik)
+    // die des ungarischen Blattes). Für das Tapp-Tarock und das Strohmandeln
+    // stehen die Regelwerke bisher nur in docs/tapptarock.md und
+    // docs/strohmandeln.md; lieber keine Kapitel zeigen als fremde
+    // (docs/design.md §12, M11 und M12).
+    if (profile == ProfileId::AtTappKlassik || profile == ProfileId::AtStrohMsErw)
         return list;
     for (const ChapterRow& row : kChaptersKr) {
         QVariantMap entry;

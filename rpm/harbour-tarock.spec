@@ -1,5 +1,5 @@
 Name: harbour-tarock
-Version: 0.5.1
+Version: 0.6.0
 Release: 1
 Summary: Königrufen and Hungarian Tarokk with a learning mode
 License: GPL-3.0-or-later

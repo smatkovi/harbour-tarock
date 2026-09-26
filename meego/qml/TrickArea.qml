@@ -56,6 +56,10 @@ Item {
         var cy = height / 2
         var dx = width * 0.28
         var dy = height * 0.26
+        if (players === 2) {
+            // Zu zweit: unten und gegenüber (strohmandeln.md §2.1).
+            return seat === 0 ? Qt.point(cx, cy + dy) : Qt.point(cx, cy - dy)
+        }
         if (players === 3) {
             // Zu dritt: unten, links, rechts (tapptarock.md §2.1).
             if (seat === 0)

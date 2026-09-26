@@ -34,6 +34,7 @@ LessonOverlay 1.0 LessonOverlay.qml
 ScoreSheet 1.0 ScoreSheet.qml
 SeatPanel 1.0 SeatPanel.qml
 StandingPanel 1.0 StandingPanel.qml
+StrawmanRow 1.0 StrawmanRow.qml
 TalonPanel 1.0 TalonPanel.qml
 TarockTable 1.0 TarockTable.qml
 TourOverlay 1.0 TourOverlay.qml

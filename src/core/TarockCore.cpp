@@ -102,6 +102,14 @@ void TarockCore::startHand()
     m_talonHalf[0].reset();
     m_talonHalf[1].reset();
     m_talonToDefenders.reset();
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        m_lastTaken[static_cast<std::size_t>(seat)].clear();
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)].clear();
+            m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)] = Card();
+        }
+    }
+    m_hidden = Hidden();
     m_talonOpen = false;
     m_talonTaken = false;
     m_trick.clear();
@@ -134,8 +142,14 @@ void TarockCore::startHand()
                 ? (forehand() + i + 1) % m_players : (forehand() + i) % m_players;
         m_hands[static_cast<std::size_t>(seat)] = toSet(dealt.hands[static_cast<std::size_t>(index++)]);
     }
-    for (std::size_t i = 0; i < dealt.talon.size(); ++i)
-        m_talonHalf[i < 3 ? 0 : 1].set(dealt.talon[i].id);
+    if (profile().strawmen() > 0) {
+        // Im Strohmandeln gibt es keinen Talon: die restlichen Karten werden
+        // zu Päckchen vor die Spieler gelegt (strohmandeln.md §2.4).
+        dealStrawmen(dealt.talon);
+    } else {
+        for (std::size_t i = 0; i < dealt.talon.size(); ++i)
+            m_talonHalf[i < 3 ? 0 : 1].set(dealt.talon[i].id);
+    }
 
     beginBidding();
 }
@@ -153,6 +167,125 @@ void TarockCore::dealFixed(const std::vector<CardList>& hands, const CardList& t
     for (std::size_t i = 0; i < talon.size(); ++i)
         m_talonHalf[i < 3 ? 0 : 1].set(talon[i].id);
     beginBidding();
+}
+
+// --- Strohmänner (strohmandeln.md §4) ---------------------------------------------
+
+void TarockCore::dealStrawmen(const CardList& cards)
+{
+    const int packets = profile().strawmen();
+    const int size = profile().strawmanSize();
+    std::size_t index = 0;
+    // Abwechselnd, die Vorhand zuerst: V, G, V, G, V, G (§2.4).
+    for (int packet = 0; packet < packets; ++packet) {
+        for (int i = 0; i < activePlayers(); ++i) {
+            const int seat = (forehand() + i) % m_players;
+            CardList& target = m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+            for (int k = 0; k < size && index < cards.size(); ++k)
+                target.push_back(cards[index++]);
+        }
+    }
+}
+
+void TarockCore::revealStrawman(int seat, int packet)
+{
+    if (seat < 0 || seat >= MaxSeats || packet < 0 || packet >= MaxStrawmen)
+        return;
+    CardList& rest = m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+    Card& top = m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+    if (top.valid())
+        return;   // das Deckblatt liegt noch, es wird erst nachgedeckt, wenn es weg ist
+    while (true) {
+        if (rest.empty())
+            return;   // das Päckchen ist verbraucht
+        if (rest.size() == 1) {
+            // Die letzte Karte geht verdeckt auf die Hand, was immer sie ist
+            // (§4.5). Nur sie weiß der Gegner nicht.
+            add(m_hands[static_cast<std::size_t>(seat)], rest.back());
+            rest.clear();
+            return;
+        }
+        const Card card = rest.back();
+        rest.pop_back();
+        // Umgedreht wird sie in jedem Fall offen, der Gegner sieht sie; ob sie
+        // liegen bleibt, entscheidet erst die nächste Zeile.
+        add(m_hands[static_cast<std::size_t>(seat)], card);
+        if (card.tarock() || card.king()) {
+            // Aufgenommen -- und für den Gegner gemerkt, damit er sie auch
+            // dann noch sieht, wenn sie längst im Blatt steckt (§4.2).
+            m_lastTaken[static_cast<std::size_t>(seat)].push_back(card);
+            continue;   // die nächste wird umgedreht
+        }
+        top = card;      // Farbkarte unter dem König: sie bleibt als Deckblatt liegen
+        return;
+    }
+}
+
+void TarockCore::revealAllStrawmen(int firstSeat)
+{
+    if (profile().strawmen() <= 0)
+        return;
+    for (int i = 0; i < m_players; ++i) {
+        const int seat = (firstSeat + i) % m_players;
+        if (!active(seat))
+            continue;
+        // Was beim letzten Mal umgedreht wurde, ist gesehen; jetzt zählt nur,
+        // was dieses Mal kommt.
+        bool pending = false;
+        for (int packet = 0; packet < profile().strawmen(); ++packet) {
+            if (!m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)].valid()
+                && !m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)].empty())
+                pending = true;
+        }
+        if (pending)
+            m_lastTaken[static_cast<std::size_t>(seat)].clear();
+        for (int packet = 0; packet < profile().strawmen(); ++packet)
+            revealStrawman(seat, packet);
+    }
+}
+
+const CardList& TarockCore::strawman(int seat, int packet) const
+{
+    static const CardList empty;
+    if (seat < 0 || seat >= MaxSeats || packet < 0 || packet >= MaxStrawmen)
+        return empty;
+    return m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+}
+
+Card TarockCore::strawmanTop(int seat, int packet) const
+{
+    if (seat < 0 || seat >= MaxSeats || packet < 0 || packet >= MaxStrawmen)
+        return Card();
+    return m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+}
+
+int TarockCore::strawmanSize(int seat, int packet) const
+{
+    if (seat < 0 || seat >= MaxSeats || packet < 0 || packet >= MaxStrawmen)
+        return 0;
+    return static_cast<int>(m_straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)].size())
+           + m_hidden.straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+}
+
+const CardList& TarockCore::lastTaken(int seat) const
+{
+    static const CardList empty;
+    if (seat < 0 || seat >= MaxSeats)
+        return empty;
+    return m_lastTaken[static_cast<std::size_t>(seat)];
+}
+
+CardSet TarockCore::strawmanTops(int seat) const
+{
+    CardSet tops;
+    if (seat < 0 || seat >= MaxSeats)
+        return tops;
+    for (int packet = 0; packet < MaxStrawmen; ++packet) {
+        const Card top = m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+        if (top.valid())
+            add(tops, top);
+    }
+    return tops;
 }
 
 void TarockCore::setPhase(Phase phase)
@@ -192,7 +325,66 @@ bool handAllowsContract(const RuleProfile& profile, const CardSet& hand, Contrac
     return true;
 }
 
+// Behält das Profil der Vorhand überhaupt Spiele vor? Nur dann hat das Wort
+// "Vorhand!" einen Sinn: es hält ihr die Spiele offen, die sie allein und erst
+// zuletzt ansagen darf (koenigrufen.md §3.3.2). Im Tapp-Tarock und im
+// Strohmandeln gibt es die nicht -- dort sagt sie ihr Spiel an oder "Weiter".
+bool hasForehandGames(const RuleProfile& profile)
+{
+    for (const ContractDef& def : profile.contracts()) {
+        if (def.bidFlags & ForehandOnly)
+            return true;
+    }
+    return false;
+}
+
 } // namespace
+
+// Was dieser Sitz im Lizit sagen dürfte. Ohne Frage nach dem Zug, damit das
+// Ende des Lizits die anderen Sitze abfragen kann (strohmandeln.md §3.2:
+// das Lizit endet sofort mit der ersten Aufnahme).
+std::vector<Action> TarockCore::biddingActions(int seat) const
+{
+    std::vector<Action> actions;
+    if (!active(seat) || m_phase != Phase::Bidding || hasPassed(seat))
+        return actions;
+    const bool isForehand = seat == forehand();
+    const int currentRank = m_bid == ContractId::None ? 0 : profile().contract(m_bid).rank;
+    for (const ContractDef& def : profile().contracts()) {
+        if (def.bidFlags & WhenAllPass)
+            continue;   // das wird das Spiel von selbst, niemand sagt es an
+        if (def.bidFlags & ForehandOnly) {
+            if (!isForehand)
+                continue;
+            // "vorneweg" only as the opening bid, "hintennach" only when
+            // everybody else has passed after the forehand spoke.
+            if ((def.bidFlags & ForehandFirstOnly) && m_forehandSpoke)
+                continue;
+            if ((def.bidFlags & ForehandLastOnly)
+                && !(m_forehandSpoke && m_bid == ContractId::None))
+                continue;
+        } else if ((def.bidFlags & ForehandFirstOnly) || (def.bidFlags & ForehandLastOnly)) {
+            continue;
+        }
+        if (!(def.bidFlags & ForehandOnly) && def.rank <= currentRank)
+            continue;
+        if (!handAllowsContract(profile(), hand(seat), def.id))
+            continue;
+        actions.push_back(Action(ActionType::Bid, static_cast<std::int16_t>(def.id)));
+    }
+    if (isForehand && hasForehandGames(profile()) && !m_forehandSpoke
+        && m_bid == ContractId::None)
+        actions.push_back(Action(ActionType::OpenForehand));
+    if (isForehand && m_bid != ContractId::None && m_bidHolder != seat)
+        actions.push_back(Action(ActionType::Hold));
+    // Im Königrufen darf die Vorhand nicht passen, solange kein Spiel
+    // angesagt ist -- weder zuerst noch nachdem alle anderen "weiter"
+    // gesagt haben (docs/koenigrufen.md §3.3.1 und §3.3.3, Ende B). Im
+    // Tapp-Tarock darf sie: dann wird trischakt (tapptarock.md §3.5).
+    if (!(isForehand && m_bid == ContractId::None && profile().forehandMustBid()))
+        actions.push_back(Action(ActionType::Pass));
+    return actions;
+}
 
 std::vector<Action> TarockCore::legalActions(int seat) const
 {
@@ -201,45 +393,10 @@ std::vector<Action> TarockCore::legalActions(int seat) const
         return actions;
 
     switch (m_phase) {
-    case Phase::Bidding: {
-        if (seat != m_turn)
-            break;
-        const bool isForehand = seat == forehand();
-        const int currentRank = m_bid == ContractId::None ? 0 : profile().contract(m_bid).rank;
-        for (const ContractDef& def : profile().contracts()) {
-            if (def.bidFlags & WhenAllPass)
-                continue;   // das wird das Spiel von selbst, niemand sagt es an
-            if (def.bidFlags & ForehandOnly) {
-                if (!isForehand)
-                    continue;
-                // "vorneweg" only as the opening bid, "hintennach" only when
-                // everybody else has passed after the forehand spoke.
-                if ((def.bidFlags & ForehandFirstOnly) && m_forehandSpoke)
-                    continue;
-                if ((def.bidFlags & ForehandLastOnly)
-                    && !(m_forehandSpoke && m_bid == ContractId::None))
-                    continue;
-            } else if ((def.bidFlags & ForehandFirstOnly) || (def.bidFlags & ForehandLastOnly)) {
-                continue;
-            }
-            if (!(def.bidFlags & ForehandOnly) && def.rank <= currentRank)
-                continue;
-            if (!handAllowsContract(profile(), hand(seat), def.id))
-                continue;
-            actions.push_back(Action(ActionType::Bid, static_cast<std::int16_t>(def.id)));
-        }
-        if (isForehand && !m_forehandSpoke && m_bid == ContractId::None)
-            actions.push_back(Action(ActionType::OpenForehand));
-        if (isForehand && m_bid != ContractId::None && m_bidHolder != seat)
-            actions.push_back(Action(ActionType::Hold));
-        // Im Königrufen darf die Vorhand nicht passen, solange kein Spiel
-        // angesagt ist -- weder zuerst noch nachdem alle anderen "weiter"
-        // gesagt haben (docs/koenigrufen.md §3.3.1 und §3.3.3, Ende B). Im
-        // Tapp-Tarock darf sie: dann wird trischakt (tapptarock.md §3.5).
-        if (!(isForehand && m_bid == ContractId::None && profile().forehandMustBid()))
-            actions.push_back(Action(ActionType::Pass));
+    case Phase::Bidding:
+        if (seat == m_turn)
+            actions = biddingActions(seat);
         break;
-    }
     case Phase::Call: {
         if (seat != m_turn)
             break;
@@ -510,6 +667,8 @@ Reason TarockCore::check(int seat, const Action& action) const
         if (action.type == ActionType::Pass && seat == forehand() && m_bid == ContractId::None
             && profile().forehandMustBid())
             return refuse(ReasonCode::ForehandMustSpeak);
+        if (action.type == ActionType::OpenForehand && !hasForehandGames(profile()))
+            return refuse(ReasonCode::ForehandGameOnlyLast);
         if (action.type == ActionType::Hold) {
             if (seat != forehand())
                 return refuse(ReasonCode::HoldOnlyForehand);
@@ -792,6 +951,13 @@ bool TarockCore::apply(int seat, const Action& action, Reason* out)
     case ActionType::PlayCard: {
         const Card card(static_cast<std::uint8_t>(action.a));
         remove(m_hands[static_cast<std::size_t>(seat)], card);
+        // War es ein Deckblatt, ist der Strohmann jetzt offen -- nachgedeckt
+        // wird aber erst, wenn der Stich umgelegt ist (§4.3, Regel 1).
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            Card& top = m_strawTop[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)];
+            if (top == card)
+                top = Card();
+        }
         m_trick.push_back(card);
         if (m_calledSuit >= 0 && card == calledKing())
             m_partnerKnown = true;
@@ -813,7 +979,20 @@ bool TarockCore::apply(int seat, const Action& action, Reason* out)
             if (active(s) && !hasPassed(s))
                 ++activeBidders;
         }
-        if (m_bid != ContractId::None && (activeBidders <= 1 || m_turn == m_bidHolder))
+        // Das Lizit ist auch dann aus, wenn zwar noch jemand am Zug wäre,
+        // aber niemand mehr überbieten oder halten kann. Zu zweit endet es
+        // damit sofort mit der ersten Aufnahme (strohmandeln.md §3.2), statt
+        // den Gegner noch nach einem sinnlosen "Weiter" zu fragen.
+        bool anyoneLeft = false;
+        for (int s = 0; s < m_players && !anyoneLeft; ++s) {
+            if (s == m_bidHolder || !active(s) || hasPassed(s))
+                continue;
+            for (const Action& option : biddingActions(s))
+                anyoneLeft = anyoneLeft || option.type == ActionType::Bid
+                             || option.type == ActionType::Hold;
+        }
+        if (m_bid != ContractId::None
+            && (activeBidders <= 1 || m_turn == m_bidHolder || !anyoneLeft))
             finishBidding();
         else if (m_bid == ContractId::None && activeBidders == 0 && !profile().forehandMustBid())
             beginAllPassedGame();
@@ -922,6 +1101,12 @@ bool TarockCore::takeTalonHalf(int half)
 
 void TarockCore::beginAnnounce()
 {
+    // Kennt das Profil keine Ansagen, wird gleich gespielt: im Strohmandeln
+    // sind alle Prämien still und es gibt kein Kontra (strohmandeln.md §5.1).
+    if (!profile().announcements()) {
+        beginPlay();
+        return;
+    }
     setPhase(Phase::Announce);
     m_announceReady = 0;
     m_turn = forehand();
@@ -999,6 +1184,9 @@ bool TarockCore::announcedQualifyingBird() const
 void TarockCore::beginPlay()
 {
     setPhase(Phase::Play);
+    // Erst nach der Erklärung decken beide ihre Strohmänner auf, jeder für
+    // sich, von links nach rechts (strohmandeln.md §4.2).
+    revealAllStrawmen(forehand());
     m_trickNumber = 1;
     m_leader = contractDef().firstLead == LeadRule::Declarer ? m_declarer : forehand();
     m_turn = m_leader;
@@ -1024,6 +1212,9 @@ void TarockCore::finishTrick()
     m_trick.clear();
     m_leader = winnerSeat;
     m_turn = winnerSeat;
+    // Jetzt, und keinen Zug früher, werden die verbrauchten Deckblätter
+    // nachgedeckt -- erst der Stichgewinner, dann der Verlierer (§4.3).
+    revealAllStrawmen(winnerSeat);
     if (m_trickNumber >= profile().tricks()) {
         dealTalonToWinner();
         finishHand();
@@ -1216,6 +1407,13 @@ void TarockCore::rotateSeats(int offset)
     rotate(m_won);
     rotate(m_tray);
     rotate(m_discards);
+    rotate(m_straw);
+    rotate(m_strawTop);
+    rotate(m_lastTaken);
+    rotate(m_hidden.straw);
+    rotate(m_hidden.hand);
+    rotate(m_hidden.tray);
+    rotate(m_hidden.discards);
 
     int passed = 0, ready = 0;
     for (int seat = 0; seat < n; ++seat) {
@@ -1278,6 +1476,29 @@ std::string TarockCore::serialize() const
     writeSet(body, m_talonHalf[1]);
     writeSet(body, m_talonToDefenders);
     body << (m_talonOpen ? 1 : 0) << ' ' << (m_talonTaken ? 1 : 0) << '\n';
+    // Version 4: die Strohmänner. Je Sitz und Päckchen das offen liegende
+    // Deckblatt (255 = keines), die Zahl der Karten, die der Betrachter nicht
+    // sehen darf, und die verdeckten Karten selbst, unterste zuerst.
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            const std::size_t s = static_cast<std::size_t>(seat);
+            const std::size_t p = static_cast<std::size_t>(packet);
+            body << static_cast<int>(m_strawTop[s][p].id) << ' ' << m_hidden.straw[s][p] << ' '
+                 << m_straw[s][p].size();
+            for (Card card : m_straw[s][p])
+                body << ' ' << static_cast<int>(card.id);
+            body << '\n';
+        }
+    }
+    // Und was zuletzt offen umgedreht wurde -- öffentlich, der Gegner hat es
+    // gesehen (§4.2).
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        const std::size_t s = static_cast<std::size_t>(seat);
+        body << m_lastTaken[s].size();
+        for (Card card : m_lastTaken[s])
+            body << ' ' << static_cast<int>(card.id);
+        body << '\n';
+    }
     body << m_trick.size();
     for (Card card : m_trick)
         body << ' ' << static_cast<int>(card.id);
@@ -1324,7 +1545,7 @@ std::string TarockCore::serialize() const
 
     const std::string payload = body.str();
     std::ostringstream out;
-    out << "TAROCK_STATE_V3\n" << std::hex << checksum(payload) << '\n' << payload;
+    out << "TAROCK_STATE_V4\n" << std::hex << checksum(payload) << '\n' << payload;
     return out.str();
 }
 
@@ -1334,6 +1555,10 @@ bool TarockCore::redacted() const
         const std::size_t index = static_cast<std::size_t>(seat);
         if (m_hidden.hand[index] || m_hidden.tray[index] || m_hidden.discards[index])
             return true;
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            if (m_hidden.straw[index][static_cast<std::size_t>(packet)])
+                return true;
+        }
     }
     return m_hidden.talonHalf[0] || m_hidden.talonHalf[1] || m_hidden.talonToDefenders;
 }
@@ -1394,7 +1619,18 @@ void TarockCore::redactFor(int viewer)
         const std::size_t index = static_cast<std::size_t>(seat);
         if (seat == viewer)
             continue;
+        // Das Deckblatt eines Strohmanns liegt offen und bleibt sichtbar --
+        // es steht im Blatt, zählt aber zum öffentlichen Teil davon (§4.4).
+        const CardSet tops = strawmanTops(seat);
+        m_hands[index] &= ~tops;
         hide(m_hands[index], m_hidden.hand[index]);
+        m_hands[index] |= tops;
+        // Was verdeckt unter den Deckblättern liegt, weiß niemand.
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            const std::size_t pi = static_cast<std::size_t>(packet);
+            m_hidden.straw[index][pi] += static_cast<int>(m_straw[index][pi].size());
+            m_straw[index][pi].clear();
+        }
         // What a seat has picked for discarding is his own business until he
         // confirms it, and a covered discard stays his until the settlement.
         hide(m_tray[index], m_hidden.tray[index]);
@@ -1439,10 +1675,12 @@ bool TarockCore::restore(const std::string& data)
     // V2 is what the app wrote before the LAN game existed; saved matches on
     // the device are still in it and must keep loading.
     if (!std::getline(envelope, magic)
-        || (magic != "TAROCK_STATE_V2" && magic != "TAROCK_STATE_V3")
+        || (magic != "TAROCK_STATE_V2" && magic != "TAROCK_STATE_V3"
+            && magic != "TAROCK_STATE_V4")
         || !std::getline(envelope, checksumText))
         return false;
-    const bool hasHiddenCounts = magic == "TAROCK_STATE_V3";
+    const bool hasHiddenCounts = magic != "TAROCK_STATE_V2";
+    const bool hasStrawmen = magic == "TAROCK_STATE_V4";
     std::uint64_t expected = 0;
     std::istringstream checkStream(checksumText);
     if (!(checkStream >> std::hex >> expected))
@@ -1455,8 +1693,8 @@ bool TarockCore::restore(const std::string& data)
     std::istringstream in(payload);
     int profileId = 0, phase = 0;
     if (!(in >> profileId >> r.m_players >> r.m_dealer >> r.m_hand >> phase >> r.m_turn)
-        || profileId < 0 || profileId > 1 || phase < 0 || phase > 8
-        || (r.m_players != 4 && r.m_players != 5))
+        || profileId < 0 || profileId > 3 || phase < 0 || phase > 8
+        || r.m_players < 2 || r.m_players > MaxSeats)
         return false;
     r.m_profile = &RuleProfile::get(static_cast<ProfileId>(profileId));
     r.m_phase = static_cast<Phase>(phase);
@@ -1475,6 +1713,39 @@ bool TarockCore::restore(const std::string& data)
         return false;
     r.m_talonOpen = talonOpen != 0;
     r.m_talonTaken = talonTaken != 0;
+    if (hasStrawmen) {
+        for (int seat = 0; seat < MaxSeats; ++seat) {
+            for (int packet = 0; packet < MaxStrawmen; ++packet) {
+                const std::size_t si = static_cast<std::size_t>(seat);
+                const std::size_t pi = static_cast<std::size_t>(packet);
+                int top = 0;
+                std::size_t size = 0;
+                if (!(in >> top >> r.m_hidden.straw[si][pi] >> size)
+                    || (top > 53 && top != 255) || top < 0 || r.m_hidden.straw[si][pi] < 0
+                    || size > 54)
+                    return false;
+                r.m_strawTop[si][pi] = Card(static_cast<std::uint8_t>(top));
+                for (std::size_t i = 0; i < size; ++i) {
+                    int id = 0;
+                    if (!(in >> id) || id < 0 || id > 53)
+                        return false;
+                    r.m_straw[si][pi].push_back(Card(static_cast<std::uint8_t>(id)));
+                }
+            }
+        }
+        for (int seat = 0; seat < MaxSeats; ++seat) {
+            std::size_t size = 0;
+            if (!(in >> size) || size > 54)
+                return false;
+            for (std::size_t i = 0; i < size; ++i) {
+                int id = 0;
+                if (!(in >> id) || id < 0 || id > 53)
+                    return false;
+                r.m_lastTaken[static_cast<std::size_t>(seat)].push_back(
+                        Card(static_cast<std::uint8_t>(id)));
+            }
+        }
+    }
     std::size_t trickSize = 0;
     if (!(in >> trickSize) || trickSize > 5)
         return false;
@@ -1571,7 +1842,7 @@ bool TarockCore::validate(std::string* error) const
             *error = message;
         return false;
     };
-    if (m_players != 4 && m_players != 5)
+    if (m_players < 2 || m_players > MaxSeats || !profile().playableWith(m_players))
         return fail("wrong number of players");
     auto seatOk = [this](int seat) { return seat >= -1 && seat < m_players; };
     if (!seatOk(m_turn) || !seatOk(m_leader) || !seatOk(m_declarer) || !seatOk(m_partner)
@@ -1598,6 +1869,22 @@ bool TarockCore::validate(std::string* error) const
     }
     if (!collect(m_talonHalf[0]) || !collect(m_talonHalf[1]) || !collect(m_talonToDefenders))
         return fail("a talon card is in two places");
+    // Die verdeckten Karten der Strohmänner. Das Deckblatt selbst zählt nicht
+    // mit: es steht schon im Blatt seines Spielers (§4.4).
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        for (int packet = 0; packet < MaxStrawmen; ++packet) {
+            const std::size_t si = static_cast<std::size_t>(seat);
+            const std::size_t pi = static_cast<std::size_t>(packet);
+            if (!collect(toSet(m_straw[si][pi]))
+                || toSet(m_straw[si][pi]).count() != m_straw[si][pi].size())
+                return fail("a strawman card is in two places");
+            const Card top = m_strawTop[si][pi];
+            if (top.valid() && !contains(m_hands[si], top) && m_hidden.hand[si] == 0)
+                return fail("a face-up strawman card is not in its hand");
+            if (top.valid() && m_straw[si][pi].empty() && m_hidden.straw[si][pi] == 0)
+                return fail("a face-up strawman has nothing under it");
+        }
+    }
     CardSet inTrick;
     for (Card card : m_trick) {
         if (contains(seen, card) || contains(inTrick, card))
@@ -1616,6 +1903,11 @@ bool TarockCore::validate(std::string* error) const
     }
     total += static_cast<std::size_t>(m_hidden.talonHalf[0] + m_hidden.talonHalf[1]
                                       + m_hidden.talonToDefenders);
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        for (int packet = 0; packet < MaxStrawmen; ++packet)
+            total += static_cast<std::size_t>(
+                    m_hidden.straw[static_cast<std::size_t>(seat)][static_cast<std::size_t>(packet)]);
+    }
     if (static_cast<int>(total) != profile().deck().size())
         return fail("cards are missing");
     if ((seen & ~profile().deck().cards()).any())

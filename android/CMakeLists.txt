@@ -2,7 +2,7 @@
 # the CMakeLists.txt one directory up; both compile the same sources from
 # src/ and the same shared QML from qml-common/.
 cmake_minimum_required(VERSION 3.21)
-project(tarock VERSION 0.2.3 LANGUAGES CXX)
+project(tarock VERSION 0.6.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

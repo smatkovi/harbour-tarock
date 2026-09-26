@@ -15,7 +15,8 @@ namespace tarock {
 enum class ProfileId : std::uint8_t {
     AtKrOoe2023 = 0,    // Königrufen, Oberösterreich 4/2023
     HuIlluItvb2019 = 1, // ungarisches Illusztrált tarokk, ITVB 2019
-    AtTappKlassik = 2   // Tapp-Tarock zu dritt, docs/tapptarock.md
+    AtTappKlassik = 2,  // Tapp-Tarock zu dritt, docs/tapptarock.md
+    AtStrohMsErw = 3    // Strohmandeln zu zweit, docs/strohmandeln.md
 };
 
 enum class ContractId : std::uint8_t {
@@ -28,7 +29,11 @@ enum class ContractId : std::uint8_t {
     // Tapp-Tarock: the ladder Dreier < Unterer < Oberer < Solo. The names
     // Unterer and Oberer mean the half of the talon the declarer commits to
     // before it is turned up (tapptarock.md §4.2), not a number of cards.
-    TappDreier, TappUnterer, TappOberer, TappSolo
+    TappDreier, TappUnterer, TappOberer, TappSolo,
+    // Strohmandeln: es gibt keine Leiter, nur die Erklärung "Ich nehme auf!".
+    // Sagen beide "Weiter!", wird das einfache Spiel gespielt
+    // (strohmandeln.md §3.2).
+    StrohEinfach, StrohAufgenommen
 };
 
 // Shared ids where the two games mean the same thing: Trull = tulétroá,
@@ -38,7 +43,10 @@ enum class BonusId : std::uint8_t {
     None = 0,
     Trull, AllKings, KingUltimo, Pagat, Uhu, Kakadu, Quapil, Valat,
     Duplajatek, SasUltimo, XXIFogas, Centrum, Kismadar, Nagymadar,
-    PagatUhu, SasUhu, KiralyUhu, Tarokk8, Tarokk9, Pagatfogas
+    PagatUhu, SasUhu, KiralyUhu, Tarokk8, Tarokk9, Pagatfogas,
+    // Angehängt, damit die gespeicherten Nummern der älteren Stände gleich
+    // bleiben: der Grammel-Punkt für eigene 45 Punkte (strohmandeln.md §7.3).
+    Grammel
 };
 
 enum class BonusKind : std::uint8_t {
@@ -48,7 +56,12 @@ enum class BonusKind : std::uint8_t {
     PointTarget,    // a card-point target (duplajáték)
     AllTricks,      // Valat / volát
     Capture,        // the Skíz catches the opponents' XXI
-    TarockCount     // exactly n tarocks after discarding
+    TarockCount,    // exactly n tarocks after discarding
+    // Ein Vogel in seinem Zielstich: er zahlt so oder so -- gelingt er, an
+    // seinen Spieler, misslingt er, an den Fänger (strohmandeln.md §7.3
+    // Zeilen 8-12). Wurde die Karte in dem Stich gar nicht gespielt, zahlt
+    // sie niemandem.
+    TrickCapture
 };
 
 enum class TalonMode : std::uint8_t {
@@ -103,6 +116,11 @@ struct ContractDef {
     // Which half of the talon the declarer has to take: -1 = his choice,
     // 0 = the lower, 1 = the upper one (tapptarock.md §4.2, Lesart A).
     std::int8_t talonHalf = -1;
+    // Erreicht niemand die Gewinnschwelle, ist das Spiel unentschieden und
+    // niemand schreibt an; sonst gewinnt es die Gegenpartei des Spielers.
+    // Das einfache Spiel im Strohmandeln ist der einzige solche Vertrag
+    // (strohmandeln.md §1.7.1, §7.2 Schritt 3).
+    bool drawIfNobodyWins = false;
 };
 
 struct BonusDef {
@@ -157,6 +175,15 @@ public:
     bool forehandMustBid() const { return m_forehandMustBid; }
     TrischakenStyle trischakenStyle() const { return m_trischakenStyle; }
     int trischakenValue() const { return m_trischakenValue; }
+    // Strohmandeln: wie viele Strohmänner jeder Spieler bekommt und wie viele
+    // Karten in einem Päckchen liegen (strohmandeln.md §2.4). Null Päckchen
+    // heißt: dieses Profil kennt die Strohmänner nicht.
+    int strawmen() const { return m_strawmen; }
+    int strawmanSize() const { return m_strawmanSize; }
+    // Kennt das Profil überhaupt eine Ansagerunde? Im Strohmandeln sind alle
+    // Prämien still und es gibt kein Kontra, also wird gleich gespielt
+    // (strohmandeln.md §5.1).
+    bool announcements() const { return m_announcements; }
 
     int cardValue(Card card) const;
     CountResult count(const CardSet& cards) const;
@@ -185,6 +212,9 @@ private:
     bool m_forehandMustBid = true;
     TrischakenStyle m_trischakenStyle = TrischakenStyle::KoenigrufenPot;
     int m_trischakenValue = 0;    // per opponent, PerOpponent style only
+    int m_strawmen = 0;
+    int m_strawmanSize = 0;
+    bool m_announcements = true;
     std::vector<ContractDef> m_contracts;
     std::vector<BonusDef> m_bonuses;
 };
@@ -205,6 +235,9 @@ struct RuleProfileBuilder {
     bool forehandMustBid = true;
     TrischakenStyle trischakenStyle = TrischakenStyle::KoenigrufenPot;
     int trischakenValue = 0;
+    int strawmen = 0;
+    int strawmanSize = 0;
+    bool announcements = true;
     std::vector<ContractDef> contracts;
     std::vector<BonusDef> bonuses;
 

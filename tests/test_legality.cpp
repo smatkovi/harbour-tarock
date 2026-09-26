@@ -83,6 +83,26 @@ int main()
                                 action = option;
                         }
                     }
+                    // Beim Legen führt reiner Zufall nicht ans Ziel: eine Karte
+                    // in den Stoß zu legen und wieder herauszunehmen ist gleich
+                    // wahrscheinlich, und je voller der Stoß wird, desto
+                    // stärker zieht es zurück. Beim Sechserdreier mit genau
+                    // sechs erlaubten Karten irrt der Zufall deshalb hunderte
+                    // Züge lang herum. Also wird meistens vorwärts gelegt --
+                    // jeder vierte Zug bleibt zufällig, damit auch das
+                    // Herausnehmen geprüft wird.
+                    if (core.phase() == Phase::Discard && rng() % 4 != 0) {
+                        for (const Action& option : legal) {
+                            if (option.type == ActionType::ConfirmDiscard) {
+                                action = option;
+                                break;
+                            }
+                            if (option.type == ActionType::Discard
+                                && !contains(core.discardTray(actor),
+                                             Card(static_cast<std::uint8_t>(option.a))))
+                                action = option;
+                        }
+                    }
                     Reason reason;
                     CHECK(core.apply(actor, action, &reason));
                 }

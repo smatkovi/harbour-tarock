@@ -377,6 +377,28 @@ bool bonusAchievedBy(const HandResult& hand, BonusId bonus, Party party)
         return def.boundCard.valid() && trick.winningCard == def.boundCard
                && partyOfSeat(hand, trick.winner) == party;
     }
+    case BonusKind::TrickCapture: {
+        // Ein Vogel, der in beide Richtungen zahlt: er muss in seinem Stich
+        // gelegen haben, und wer diesen Stich nimmt, bekommt ihn -- sein
+        // Spieler, wenn er durchkommt, sonst der Fänger (strohmandeln.md
+        // §7.3, Zeilen 8 bis 12).
+        const int index = def.targetTrick - 1;
+        if (index < 0 || index >= static_cast<int>(hand.tricks.size()))
+            return false;
+        const TrickResult& trick = hand.tricks[static_cast<std::size_t>(index)];
+        return def.boundCard.valid() && contains(trick.cards, def.boundCard)
+               && partyOfSeat(hand, trick.winner) == party;
+    }
+    case BonusKind::PointTarget: {
+        if (def.count <= 0)
+            return false;
+        // Der Grammel-Punkt für "45 Punkte" meint die gerundeten Punkte, also
+        // 134 Drittel und nicht erst 135 (strohmandeln.md §7.2, Schritt 4).
+        const int units = profile.count(cardsOf(hand, party)).units;
+        return profile.countMode() == CountMode::ThirdsAustrian
+                       ? units >= 3 * def.count - 1
+                       : units >= def.count;
+    }
     case BonusKind::AllTricks:
         return valatParty(hand, profile) == party;
     default:
@@ -424,8 +446,13 @@ std::vector<Posten> buildPosten(const HandResult& hand)
     const int lostFactor =
         contract.baseValue > 0 ? contract.lostValue / contract.baseValue : 1;
 
-    const Announcement* valat = findAnnouncement(hand, BonusId::Valat);
-    const Party allTricks = valatParty(hand, profile);
+    // Ersetzt der Valat den Spielwert (Königrufen §7.4, Tapp-Tarock §7.3) oder
+    // kommt er als Prämie dazu (Strohmandeln §7.4, Beispiel 4)? Das steht im
+    // Profil: ein Vervielfacher ersetzt, ein fester Wert kommt dazu.
+    const bool valatReplacesGame = (contract.bonusMask & bonusBit(BonusId::Valat)) != 0
+            && profile.bonus(BonusId::Valat).multiplier;
+    const Announcement* valat = valatReplacesGame ? findAnnouncement(hand, BonusId::Valat) : nullptr;
+    const Party allTricks = valatReplacesGame ? valatParty(hand, profile) : Party::Neutral;
     bool valatCounts = false;
 
     if (valat != nullptr) {
@@ -455,14 +482,24 @@ std::vector<Posten> buildPosten(const HandResult& hand)
         valatCounts = true;
     } else {
         const bool won = profile.count(hand.declarerCards).units >= profile.winThreshold();
-        Posten posten = makePosten(PostenType::Game, won ? Party::Declarer : Party::Defenders,
-                                   won ? contract.baseValue : contract.lostValue, gameKontra);
-        posten.achieved = won;
-        items.push_back(posten);
+        const bool defendersWon =
+                profile.count(hand.defenderCards).units >= profile.winThreshold();
+        // Das einfache Spiel im Strohmandeln kann unentschieden ausgehen:
+        // erreicht keiner der beiden die Schwelle, schreibt niemand an
+        // (strohmandeln.md §1.7.1, §7.2 Schritt 3).
+        if (!won && !defendersWon && contract.drawIfNobodyWins) {
+            // kein Spielposten
+        } else {
+            Posten posten = makePosten(PostenType::Game, won ? Party::Declarer : Party::Defenders,
+                                       won ? contract.baseValue : contract.lostValue, gameKontra);
+            posten.achieved = won;
+            items.push_back(posten);
+        }
     }
 
     for (const BonusDef& def : profile.bonuses()) {
-        if (def.id == BonusId::Valat || (contract.bonusMask & bonusBit(def.id)) == 0)
+        if ((def.id == BonusId::Valat && valatReplacesGame)
+            || (contract.bonusMask & bonusBit(def.id)) == 0)
             continue;
         const Announcement* announcement = findAnnouncement(hand, def.id);
         if (announcement != nullptr) {
@@ -568,12 +605,22 @@ Ledger book(const HandResult& hand, std::vector<Posten> items)
     // negative games are won by taking no trick, the Piccolo by taking exactly
     // one, and an announced Valat replaces the game posten outright.
     ledger.gameWon = ledger.declarerWon;
+    bool gamePosten = false;
     for (const Posten& posten : items) {
         if (posten.type == PostenType::Game || posten.type == PostenType::Valat
             || posten.type == PostenType::Concede) {
             ledger.gameWon = posten.winner == Party::Declarer;
+            gamePosten = true;
             break;
         }
+    }
+    // Kein Spielposten, obwohl gespielt wurde: das ist das Unentschieden des
+    // einfachen Spiels (strohmandeln.md §1.7.1). Ohne diese Zeile stünde am
+    // Ende "verloren", und genau das ist es nicht.
+    if (!gamePosten && hand.contract != ContractId::None
+        && profile.contract(hand.contract).drawIfNobodyWins) {
+        ledger.gameDrawn = true;
+        ledger.gameWon = false;
     }
     ledger.items = std::move(items);
     return ledger;

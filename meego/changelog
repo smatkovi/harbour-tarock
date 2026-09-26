@@ -1,3 +1,28 @@
+harbour-tarock (0.6.0) unstable; urgency=low
+
+  * Tarock zu zweit: Strohmandeln. Statt eines Talons bekommt jeder drei
+    "Strohmänner" zu vier Karten. Auf jedem liegt die oberste Karte offen
+    und wird mitgespielt wie eine Handkarte; ist sie weg, deckt der Stapel
+    nach, sobald der Stich umgelegt ist. Tarock und Könige wandern dabei
+    offen ins Blatt, die letzte Karte eines Päckchens verdeckt -- sie ist
+    das Einzige, was der Gegner nicht weiß.
+  * Geboten wird nicht, sondern erklärt: die Vorhand nimmt auf oder sagt
+    "Weiter", dann der Geber. Sagen beide "Weiter", wird das einfache Spiel
+    gespielt, und das kann unentschieden ausgehen. 27 Stiche.
+  * Abgerechnet wird nach Mayer & Schiffner: einfaches Spiel 1, aufgenommen
+    gewonnen 3, verloren 4 für den Gegner, Grammel-Punkt ab 45 eigenen
+    Punkten, Trull und vier Könige in den Stichen, Valat 12. Pagat, Uhu und
+    Kakadu zahlen in ihrem Stich in beide Richtungen: wer den Vogel fängt,
+    schreibt ihn selbst an. Die vier durchgerechneten Beispiele aus
+    strohmandeln.md §7.4 stehen als Prüfung im Baum.
+  * Zu dritt fehlten die Namen der Spiele: seit 0.5.0 stand auf den
+    Ansagetasten nur "(3)" statt "Dreier (3)". Behoben -- und "Weiter"
+    heißt zu dritt und zu zweit jetzt auch "Weiter" und nicht "gut".
+  * Eine gespeicherte Partie zu dritt ließ sich nicht wieder laden: das
+    Ladeprogramm kannte nur Tische zu viert und zu fünft.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 23:40:00 +0200
+
 harbour-tarock (0.5.1) unstable; urgency=low
 
   * Zu dritt sagt der Computer jetzt auch Spiele an. In 0.5.0 kannte die

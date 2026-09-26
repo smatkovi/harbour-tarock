@@ -7,6 +7,7 @@ namespace tarock {
 const RuleProfile& makeKoenigrufen();
 const RuleProfile& makeHungarian();
 const RuleProfile& makeTappTarock();
+const RuleProfile& makeStrohmandeln();
 }
 
 namespace tarock {
@@ -90,6 +91,9 @@ RuleProfile RuleProfileBuilder::build() const
     profile.m_forehandMustBid = forehandMustBid;
     profile.m_trischakenStyle = trischakenStyle;
     profile.m_trischakenValue = trischakenValue;
+    profile.m_strawmen = strawmen;
+    profile.m_strawmanSize = strawmanSize;
+    profile.m_announcements = announcements;
     profile.m_contracts = contracts;
     profile.m_bonuses = bonuses;
     return profile;
@@ -101,6 +105,7 @@ const RuleProfile& RuleProfile::get(ProfileId id)
     case ProfileId::AtKrOoe2023: return makeKoenigrufen();
     case ProfileId::HuIlluItvb2019: return makeHungarian();
     case ProfileId::AtTappKlassik: return makeTappTarock();
+    case ProfileId::AtStrohMsErw: return makeStrohmandeln();
     }
     return makeKoenigrufen();
 }

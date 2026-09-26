@@ -245,6 +245,12 @@ QString ReasonText::contractName(int contract)
     case ContractId::Ketto: return tr("Kettő");
     case ContractId::Egy: return tr("Egy");
     case ContractId::Szolo: return tr("Szóló");
+    case ContractId::TappDreier: return tr("Dreier");
+    case ContractId::TappUnterer: return tr("Unterer");
+    case ContractId::TappOberer: return tr("Oberer");
+    case ContractId::TappSolo: return tr("Solo");
+    case ContractId::StrohEinfach: return tr("einfaches Spiel");
+    case ContractId::StrohAufgenommen: return tr("aufgenommenes Spiel");
     case ContractId::None: break;
     }
     return tr("dieses Spiel");
@@ -273,6 +279,7 @@ QString ReasonText::bonusName(int bonus)
     case BonusId::Tarokk8: return tr("Tarokk 8");
     case BonusId::Tarokk9: return tr("Tarokk 9");
     case BonusId::Pagatfogas: return tr("Pagát-fogás");
+    case BonusId::Grammel: return tr("Grammel-Punkt");
     case BonusId::None: break;
     }
     return tr("diese Prämie");

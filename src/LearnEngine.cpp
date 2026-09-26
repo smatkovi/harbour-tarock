@@ -151,12 +151,14 @@ const char* const kProfileStemHu = "hu-illu";
 // Für das Tapp-Tarock gibt es noch keine Lektionen; der eigene Stamm sorgt
 // dafür, dass dort auch keine fremden auftauchen (docs/design.md §12, M11).
 const char* const kProfileStemTapp = "at-tapp";
+const char* const kProfileStemStroh = "at-stroh";
 
 const char* profileStemOf(ProfileId profile)
 {
     switch (profile) {
     case ProfileId::HuIlluItvb2019: return kProfileStemHu;
     case ProfileId::AtTappKlassik:  return kProfileStemTapp;
+    case ProfileId::AtStrohMsErw:   return kProfileStemStroh;
     default:                        return kProfileStemAt;
     }
 }

@@ -80,7 +80,8 @@ SubPage {
         x: Theme.horizontalPageMargin
         width: parent.width - 2 * Theme.horizontalPageMargin
         // Wie viele mitspielen können, sagt das Regelprofil: Königrufen vier
-        // oder fünf, das ungarische Blatt vier, Tapp-Tarock drei.
+        // oder fünf, das ungarische Blatt vier, Tapp-Tarock drei,
+        // Strohmandeln zwei.
         property var seats: page.engine.seatOptionsFor(Prefs.profileKey)
         model: seatNames()
         function seatNames() {

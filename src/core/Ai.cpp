@@ -305,6 +305,35 @@ int tappScore(const HandFacts& f)
             - 7 * f.bareFigures;
 }
 
+// Strohmandeln (strohmandeln.md §10.2): gezählt wird der Wert der "sicheren
+// Stecher" in Dritteln -- Trullstück und König 4 1/3, eine gedeckte Dame
+// 3 1/3, ein gedeckter Cavall 2 1/3. Mayer & Schiffner nennen 20 bis 25 Punkte
+// als den Bereich, in dem sich die Aufnahme lohnt, und mindestens sechs bis
+// sieben Tarock als Bedingung. Nachgerechnet gibt die Funktion für die beiden
+// Blätter des Originals 19 2/3 und 24 Punkte.
+int strohScore(const HandFacts& f)
+{
+    int thirds = 0;
+    if (f.skues)
+        thirds += 13;
+    if (f.mond)
+        thirds += 13;
+    // Der Pagat ist im Strohmandeln "meist heimzubringen" und zählt mit.
+    if (f.pagat)
+        thirds += 13;
+    for (int suit = 0; suit < 4; ++suit) {
+        if (f.king[suit])
+            thirds += 13;
+        // Eine Dame zählt, wenn der eigene König dabei ist oder sie mehrfach
+        // besetzt ist; ein Cavall erst hinter König und Dame.
+        if (f.queen[suit] && (f.king[suit] || f.suitLen[suit] >= 3))
+            thirds += 10;
+        if (f.knight[suit] && f.king[suit] && f.queen[suit])
+            thirds += 7;
+    }
+    return thirds;
+}
+
 int contractMargin(ContractId id, const HandFacts& f)
 {
     switch (id) {
@@ -401,6 +430,23 @@ int contractMargin(ContractId id, const HandFacts& f)
         if (!((f.tarocks >= 11 && f.skues) || (f.tarocks >= 10 && f.skues && f.mond)))
             return -100;
         return (tappScore(f) - 85) / 10;
+    // --- Strohmandeln zu zweit (strohmandeln.md §10.2) --------------------
+    case ContractId::StrohAufgenommen: {
+        // Ohne sechs Tarock wird nicht aufgenommen, was immer das Blatt sonst
+        // hergibt; darüber entscheidet der Stecherwert. Die Schwelle sind die
+        // 20 Punkte aus §10.2. Sie ist absichtlich hoch: gewonnen zählt das
+        // aufgenommene Spiel 3, verloren 4 für den Gegner (§3.3), es lohnt
+        // sich also erst ab gut 57 von hundert Aussichten.
+        if (f.tarocks < 6)
+            return -100;
+        const int over = strohScore(f) - 60;
+        // Abgerundet, damit die 19 2/3 des ersten Beispiels aus §10.2 knapp
+        // darunter bleiben -- aus dem letzten Sitz heraus reicht es dann doch,
+        // und genau das nennt die Quelle "risikofreudig".
+        return over >= 0 ? over / 3 : (over - 2) / 3;
+    }
+    case ContractId::StrohEinfach:
+        return -100;      // das sagt niemand an, es wird das Spiel von selbst
     default:
         return -100;      // the Hungarian contracts have their own profile
     }

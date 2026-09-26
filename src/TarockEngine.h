@@ -72,6 +72,13 @@ class TarockEngine : public QObject
     Q_PROPERTY(QVariantList hand READ hand NOTIFY stateChanged)
     Q_PROPERTY(QVariantList trick READ trick NOTIFY stateChanged)
     Q_PROPERTY(QVariantList talonHalves READ talonHalves NOTIFY stateChanged)
+    // Strohmandeln: je Sitz die drei Päckchen, jedes mit der Zahl der
+    // verdeckten Karten und dem offen liegenden Deckblatt (strohmandeln.md
+    // §4). Leer in jedem anderen Profil.
+    Q_PROPERTY(QVariantList strawmen READ strawmen NOTIFY stateChanged)
+    // Was jeder Sitz zuletzt aus seinen Strohmännern offen ins Blatt genommen
+    // hat -- der Gegner muss es sehen (§4.2), also steht es am Tisch.
+    Q_PROPERTY(QVariantList strawmenTaken READ strawmenTaken NOTIFY stateChanged)
     Q_PROPERTY(QVariantList discardTray READ discardTray NOTIFY stateChanged)
     Q_PROPERTY(int discardTarget READ discardTarget NOTIFY stateChanged)
     Q_PROPERTY(QVariantList openDiscards READ openDiscards NOTIFY stateChanged)
@@ -175,6 +182,8 @@ public:
     QVariantList hand() const;
     QVariantList trick() const;
     QVariantList talonHalves() const;
+    QVariantList strawmen() const;
+    QVariantList strawmenTaken() const;
     QVariantList discardTray() const;
     int discardTarget() const;
     QVariantList openDiscards() const;
