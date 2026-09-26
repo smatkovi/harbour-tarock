@@ -46,6 +46,11 @@ Page {
     }
 
     Flickable {
+        // Ohne diese Bremse nimmt die MouseArea die Berührung
+        // sofort an, und die kleinste Fingerbewegung reißt sie an die
+        // Flickable -- der Tipp geht dann verloren (MainPage.qml macht
+        // es seit jeher so).
+        pressDelay: 150
         anchors {
             left: parent.left; right: parent.right
             top: bar.bottom; bottom: parent.bottom
