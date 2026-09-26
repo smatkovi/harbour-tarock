@@ -41,17 +41,21 @@ for FILE in "$@"; do
     fi
 done
 
+# Was in dieser Fassung steckt, steht im Änderungsbuch -- der oberste Eintrag,
+# sofern er zu dieser Version gehört. So sagt jede Veröffentlichung, was sie
+# wirklich bringt, statt immer denselben Text zu wiederholen.
 NOTES=$(mktemp)
-cat > "$NOTES" <<NOTE
-Tarock $VERSION
-
-Ein Tisch mit anderen Geräten: über WLAN oder über Bluetooth, ohne Konto und
-ohne Internet. Freie Plätze spielt der Computer, und jeder Gast sieht nur, was
-sein Platz sehen darf.
-
-Pakete für Sailfish OS (\`.rpm\`, aarch64 und armv7hl) und für MeeGo Harmattan
-auf dem Nokia N9/N950 (\`.deb\`, armel).
-NOTE
+{
+    echo "Tarock $VERSION"
+    echo
+    awk -v want="harbour-tarock ($VERSION)" '
+        $0 ~ /^harbour-tarock \(/ { if (seen) exit; if (index($0, want) == 1) seen = 1; next }
+        seen && $0 !~ /^ -- / { print }
+    ' meego/changelog | sed -e 's/^  \* /* /' -e 's/^    //'
+    echo
+    echo "Pakete für Sailfish OS (\`.rpm\`, aarch64 und armv7hl) und für MeeGo Harmattan"
+    echo "auf dem Nokia N9/N950 (\`.deb\`, armel)."
+} > "$NOTES"
 
 ssh "$HOST" "rm -rf $WORK && mkdir -p $WORK"
 scp "$@" "$NOTES" "$HOST:$WORK/"
