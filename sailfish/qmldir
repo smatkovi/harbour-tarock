@@ -13,6 +13,7 @@ GlossaryPage 1.0 GlossaryPage.qml
 LearnPage 1.0 LearnPage.qml
 LessonPage 1.0 LessonPage.qml
 MainPage 1.0 MainPage.qml
+NetPage 1.0 NetPage.qml
 RulesPage 1.0 RulesPage.qml
 ScorePage 1.0 ScorePage.qml
 SettingsPage 1.0 SettingsPage.qml

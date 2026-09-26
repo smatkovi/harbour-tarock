@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Core LinguistTools Network Qml Quick)
+find_package(Qt5 REQUIRED COMPONENTS Core DBus LinguistTools Network Qml Quick)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(SAILFISHAPP REQUIRED sailfishapp)
 
@@ -29,6 +29,10 @@ list(SORT TAROCK_CORE_SOURCES)
 # Everything in src/ except main.cpp: the facade, the learning mode and its
 # texts. Globbed for the same reason as the core, so a new file is picked up.
 file(GLOB TAROCK_ENGINE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
+# Der Tisch über Netz und Bluetooth (docs/design.md §8), aus harbour-snapszer
+# übernommener Transport plus das Protokoll darüber.
+file(GLOB TAROCK_NET_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/net/*.cpp)
+list(APPEND TAROCK_ENGINE_SOURCES ${TAROCK_NET_SOURCES})
 list(REMOVE_ITEM TAROCK_ENGINE_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 list(SORT TAROCK_ENGINE_SOURCES)
 
@@ -44,7 +48,7 @@ target_include_directories(harbour-tarock PRIVATE
 )
 
 target_link_libraries(harbour-tarock
-    Qt5::Core Qt5::Network Qt5::Qml Qt5::Quick ${SAILFISHAPP_LIBRARIES}
+    Qt5::Core Qt5::DBus Qt5::Network Qt5::Qml Qt5::Quick ${SAILFISHAPP_LIBRARIES}
 )
 
 # The QML itself is not compiled in: rpm/harbour-tarock.spec copies sailfish/*.qml,
@@ -69,14 +73,14 @@ add_dependencies(harbour-tarock harbour-tarock-translations)
 option(TAROCK_BUILD_TESTS "Build rule, lesson and LAN tests" OFF)
 if(TAROCK_BUILD_TESTS)
     enable_testing()
-    foreach(t test_cards test_hands test_learn test_legality test_lessons test_qmlbridge test_scoring test_selfplay test_skeleton)
+    foreach(t test_cards test_hands test_learn test_legality test_lessons test_qmlbridge test_scoring test_selfplay test_skeleton lan_tarock4 lan_tarock5)
         if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/tests/${t}.cpp)
             add_executable(${t} tests/${t}.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
             target_include_directories(${t} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
             target_compile_definitions(${t} PRIVATE TAROCK_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
             # Qt5::Qml for test_qmlbridge, which evaluates the QML side of the
             # engine contract; the others do not use it and do not mind.
-            target_link_libraries(${t} Qt5::Core Qt5::Qml)
+            target_link_libraries(${t} Qt5::Core Qt5::DBus Qt5::Gui Qt5::Network Qt5::Qml)
             add_test(NAME ${t} COMMAND ${t})
         else()
             message(STATUS "harbour-tarock: tests/${t}.cpp is not there yet, skipping it")

@@ -155,6 +155,13 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
+                text: page.engine.table.role !== 0 ? qsTr("Zurück zum Tisch der anderen")
+                                                   : qsTr("Mit anderen Geräten")
+                onClicked: page.StackView.view.push(Qt.resolvedUrl("NetPage.qml"))
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
                 text: qsTr("Learn")
                 onClicked: page.StackView.view.push(Qt.resolvedUrl("LearnPage.qml"))
             }

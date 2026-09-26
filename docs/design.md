@@ -1459,6 +1459,24 @@ Das Muster **„Aktion samt Vorzustand“** (`pre`) aus `MultiEngine` bleibt: De
 `pre`, wendet die Aktion an und ist damit garantiert synchron; scheitert das, trennt er mit „aus dem Takt
 geraten“ und der Host schickt `sync`.
 
+### 8.2a Abweichung in der Umsetzung: ganze Zustände statt `act` + `pre`
+
+Gebaut ist es anders als oben beschrieben, und zwar einfacher: der Gastgeber
+schickt nach **jeder** Änderung den ganzen sichtgefilterten Zustand
+(`TarockCore::serializeFor`, `LanTable::sendView`), nicht die einzelne Aktion
+samt Vorzustand. Ein Zustand ist knapp ein Kilobyte; bei höchstens einer
+Aktion pro Sekunde ist das auch über RFCOMM reichlich schnell. Dafür braucht
+der Gast **keinen** Kern, der fremde Aktionen auf verdeckte Hände anwenden
+könnte -- er hält den gefilterten Zustand, zeigt ihn und schickt Wünsche
+(`req`). Was er nicht sehen darf, verlässt das Gerät des Gastgebers nie, auch
+nicht in einer veränderten App. Animationen gibt es beim Gast dafür nicht: der
+Tisch steht nach jeder Änderung einfach neu.
+
+Nachrichten heute: `hello`/`welcome` (Platzvergabe), `names`, `start`, `view`,
+`req`, `nack`, `busy`, `version`, `bye`. Geprüft von `tests/lan_tarock4.cpp`
+(ganze Hand über zwei Engines) und `tests/lan_tarock5.cpp` (Fünfertisch, was
+der Aussetzer nicht sieht).
+
 ### 8.3 Neu: sichtgefilterte Zustände (L4)
 
 Tarock hat verdeckte Information, die ein Client nie sehen darf (`koenigrufen.md` §2.7 und §8.4,

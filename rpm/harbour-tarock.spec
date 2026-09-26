@@ -1,5 +1,5 @@
 Name: harbour-tarock
-Version: 0.2.3
+Version: 0.3.0
 Release: 1
 Summary: Königrufen and Hungarian Tarokk with a learning mode
 License: GPL-3.0-or-later
@@ -10,6 +10,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires:       sailfishsilica-qt5
 BuildRequires:  pkgconfig(sailfishapp)
 BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)

@@ -24,6 +24,7 @@
 #include "LearnEngine.h"
 #include "core/Ai.h"
 #include "core/TarockCore.h"
+#include "net/LanTable.h"
 
 #include <QObject>
 #include <QString>
@@ -52,6 +53,7 @@ class TarockEngine : public QObject
     Q_OBJECT
 
     // --- match and phase ----------------------------------------------------
+    Q_PROPERTY(QObject* table READ tableObject CONSTANT)
     Q_PROPERTY(bool active READ active NOTIFY stateChanged)
     Q_PROPERTY(bool canResume READ canResume NOTIFY stateChanged)
     Q_PROPERTY(QString profileKey READ profileKey NOTIFY settingsChanged)
@@ -116,6 +118,16 @@ public:
     ~TarockEngine() override;
 
     // --- commands -----------------------------------------------------------
+    // --- Tisch über Netz oder Bluetooth (docs/design.md §8) ---------------
+    // Der Gastgeber eröffnet, die Gäste treten bei, dann startet er die
+    // Partie; freie Plätze spielt der Computer. Ein Gast schickt Wünsche und
+    // bekommt nach jeder Änderung den Zustand, den sein Platz sehen darf.
+    Q_INVOKABLE bool hostTable(const QString& profileKey, int players);
+    Q_INVOKABLE void startTableMatch();
+    Q_INVOKABLE void joinTable(const QString& address);
+    Q_INVOKABLE void joinTableBluetooth(const QString& address);
+    Q_INVOKABLE void leaveTable();
+
     Q_INVOKABLE void startMatch(const QString& profileKey, int players);
     Q_INVOKABLE void resume();
     Q_INVOKABLE void newMatch();
@@ -139,6 +151,8 @@ public:
     Q_INVOKABLE QString profileNameFor(const QString& key) const;
 
     // --- properties ---------------------------------------------------------
+    // Der Tisch über Netz oder Bluetooth; die QML-Seite liest ihn direkt.
+    QObject* tableObject() { return &m_table; }
     bool active() const { return m_active; }
     bool canResume() const { return m_hasSaved && !m_active; }
     QString profileKey() const;
@@ -225,6 +239,8 @@ private:
     QString seatName(int seat) const;
     QString speechFor(const tarock::Action& action) const;
     bool seatIsComputer(int seat) const;
+    // Schickt jedem Gast den Zustand, den sein Platz sehen darf.
+    void publishViews();
 
     bool attempt(const QString& type, int a, int b, bool confirmed);
     bool perform(int seat, const tarock::Action& action);
@@ -234,6 +250,12 @@ private:
     void scheduleComputer();
 
 private slots:
+    // Der Tisch über Netz oder Bluetooth.
+    void onTableRequest(int seat, const QString& type, int a, int b);
+    void onTableView(const QString& state, const QVariantList& schrift, const QVariantList& geld);
+    void onTableMatchStarted(const QString& profileKey, int players, int seat);
+    void onTableRefused(const QString& reason);
+    void onTableClosed(const QString& reason);
     // Qt 4.7 connects by signature, so these cannot be lambdas or plain
     // methods. Qt 5 still connects to them by pointer.
     void runComputer();
@@ -247,6 +269,7 @@ private:
     void clearSaved();
 
     tarock::TarockCore m_core;
+    LanTable m_table;
     tarock::AiPlayer m_ai;
     LearnEngine* m_learn = nullptr;
     tarock::ProfileId m_profileId = tarock::ProfileId::AtKrOoe2023;
@@ -255,6 +278,10 @@ private:
     bool m_active = false;
     bool m_hasSaved = false;
     bool m_paused = false;
+    // Gast: ein Wunsch ist unterwegs, der nächste Zustand steht noch aus.
+    // Ohne das schickt ein hängengebliebener Finger denselben Wunsch hundert
+    // Mal, und am Tisch käme er hundert Mal an.
+    bool m_awaitingView = false;
     bool m_animationsEnabled = true;
     int m_animationSpeed = 100;
     int m_handsPerMatch = 4;         // one Radl at a table of four

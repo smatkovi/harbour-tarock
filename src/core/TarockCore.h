@@ -115,8 +115,40 @@ public:
     bool restore(const std::string& data);
     bool validate(std::string* error = nullptr) const;
 
+    // The state as one seat may see it (docs/design.md §8.3): everything he
+    // must not know is replaced by a count, so the table still shows the
+    // right number of cards on every hand, in the talon and in the discards.
+    // This is what a LAN or Bluetooth guest gets; he can hold it, read it and
+    // show it, but he cannot deduce a card from it.
+    std::string serializeFor(int viewer) const;
+    // True for a state that came out of serializeFor(): it is complete enough
+    // to show, but not to play the other seats.
+    bool redacted() const;
+
+    // Sizes that count the hidden cards as well. A full state answers exactly
+    // like the sets themselves; a redacted one still gives the true number.
+    int handSize(int seat) const;
+    int trayCount(int seat) const;
+    int discardCount(int seat) const;
+    int talonHalfSize(int half) const;
+    int talonToDefendersSize() const;
+
 private:
     friend struct CoreAccess;
+
+    // How many cards of a set the viewer is not allowed to see. Zero
+    // everywhere in a normal state; filled in by serializeFor().
+    struct Hidden {
+        std::array<int, MaxSeats> hand{};
+        std::array<int, MaxSeats> tray{};
+        std::array<int, MaxSeats> discards{};
+        std::array<int, 2> talonHalf{};
+        int talonToDefenders = 0;
+    };
+
+    // Blanks everything this seat may not know and remembers how much was
+    // taken away.
+    void redactFor(int viewer);
 
     void startHand();
     void beginBidding();
@@ -185,6 +217,7 @@ private:
     CardSet m_qualifyingBirds{};
 
     std::mt19937 m_rng{1};
+    Hidden m_hidden;
 };
 
 } // namespace tarock

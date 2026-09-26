@@ -131,6 +131,14 @@ Page {
                 }
             }
 
+            // Ein Tisch mit anderen Geräten (docs/design.md §8).
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: page.engine.table.role !== 0 ? qsTr("Zurück zum Tisch der anderen")
+                                                   : qsTr("Mit anderen Geräten")
+                onClicked: pageStack.push(Qt.resolvedUrl("NetPage.qml"))
+            }
+
             // The way into the tutorial of docs/design.md §7.9 and, behind it,
             // the learning mode of §7.
             Button {

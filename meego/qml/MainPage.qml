@@ -146,6 +146,13 @@ Page {
             // the learning mode of §7.
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
+                text: page.engine.table.role !== 0 ? qsTr("Zurück zum Tisch der anderen")
+                                                   : qsTr("Mit anderen Geräten")
+                onClicked: page.pageStack.push(Qt.resolvedUrl("NetPage.qml"))
+            }
+
+            Button {
+                anchors.horizontalCenter: parent.horizontalCenter
                 visible: !page.offerTutorial
                 text: qsTr("Learn to play")
                 onClicked: page.pageStack.push(Qt.resolvedUrl("TutorialPage.qml"))

@@ -1,3 +1,20 @@
+harbour-tarock (0.3.0) unstable; urgency=low
+
+  * Ein Tisch mit anderen Geräten: über WLAN oder über Bluetooth. Ein Gerät
+    eröffnet und ist über beide Wege zugleich erreichbar, die anderen treten
+    bei, freie Plätze spielt der Computer. Jeder Gast bekommt nur den
+    Zustand, den sein Platz sehen darf -- fremde Hände, der verdeckte Talon
+    und die Ablage bleiben verdeckt.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Sat, 26 Sep 2026 15:30:00 +0200
+
+harbour-tarock (0.2.8) unstable; urgency=low
+
+  * Launcher icon cut to the exact squircle of the stock Harmattan apps,
+    so it sits flush in the home screen grid.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Mon, 21 Sep 2026 20:30:00 +0200
+
 harbour-tarock (0.2.3) unstable; urgency=low
 
   * First MeeGo Harmattan edition, for the Nokia N9 and N950.

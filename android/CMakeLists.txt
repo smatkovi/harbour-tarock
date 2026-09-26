@@ -26,6 +26,11 @@ list(SORT TAROCK_CORE_SOURCES)
 # its texts. Android has its own main.cpp next to this file.
 file(GLOB TAROCK_ENGINE_SOURCES ${TAROCK_ROOT}/src/*.cpp)
 list(REMOVE_ITEM TAROCK_ENGINE_SOURCES ${TAROCK_ROOT}/src/main.cpp)
+# Der Tisch über das Netz (docs/design.md §8). BtLink.cpp kompiliert auf
+# Android zur Absage -- eine App bekommt dort keine RFCOMM-Sockets --, der
+# LAN-Weg funktioniert aber genauso wie auf den anderen Plattformen.
+file(GLOB TAROCK_NET_SOURCES ${TAROCK_ROOT}/src/net/*.cpp)
+list(APPEND TAROCK_ENGINE_SOURCES ${TAROCK_NET_SOURCES})
 list(SORT TAROCK_ENGINE_SOURCES)
 
 qt_add_executable(tarock
@@ -73,6 +78,7 @@ qt_add_qml_module(tarock
         qml/SectionLabel.qml
         qml/TextBlock.qml
         qml/MainPage.qml
+        qml/NetPage.qml
         qml/TablePage.qml
         qml/ScorePage.qml
         qml/SettingsPage.qml

@@ -1279,20 +1279,138 @@ std::string TarockCore::serialize() const
     body << m_flags.silentBonusesCountNegative << ' ' << m_flags.valatTakesTalon << ' '
          << m_flags.hardBirdReservation << ' ' << m_flags.handsPerRound << '\n';
     body << m_rng << '\n';
+    // Version 3: how many cards the viewer may not see, per hand, per tray,
+    // per discard pile, per talon half and for the half left lying. All zero
+    // in a state that hides nothing, which is every state a single device
+    // keeps for itself.
+    for (int seat = 0; seat < MaxSeats; ++seat)
+        body << m_hidden.hand[static_cast<std::size_t>(seat)] << ' '
+             << m_hidden.tray[static_cast<std::size_t>(seat)] << ' '
+             << m_hidden.discards[static_cast<std::size_t>(seat)] << ' ';
+    body << m_hidden.talonHalf[0] << ' ' << m_hidden.talonHalf[1] << ' '
+         << m_hidden.talonToDefenders << '\n';
 
     const std::string payload = body.str();
     std::ostringstream out;
-    out << "TAROCK_STATE_V2\n" << std::hex << checksum(payload) << '\n' << payload;
+    out << "TAROCK_STATE_V3\n" << std::hex << checksum(payload) << '\n' << payload;
     return out.str();
+}
+
+bool TarockCore::redacted() const
+{
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        const std::size_t index = static_cast<std::size_t>(seat);
+        if (m_hidden.hand[index] || m_hidden.tray[index] || m_hidden.discards[index])
+            return true;
+    }
+    return m_hidden.talonHalf[0] || m_hidden.talonHalf[1] || m_hidden.talonToDefenders;
+}
+
+int TarockCore::handSize(int seat) const
+{
+    if (seat < 0 || seat >= MaxSeats)
+        return 0;
+    const std::size_t index = static_cast<std::size_t>(seat);
+    return static_cast<int>(m_hands[index].count()) + m_hidden.hand[index];
+}
+
+int TarockCore::trayCount(int seat) const
+{
+    if (seat < 0 || seat >= MaxSeats)
+        return 0;
+    const std::size_t index = static_cast<std::size_t>(seat);
+    return static_cast<int>(m_tray[index].count()) + m_hidden.tray[index];
+}
+
+int TarockCore::discardCount(int seat) const
+{
+    if (seat < 0 || seat >= MaxSeats)
+        return 0;
+    const std::size_t index = static_cast<std::size_t>(seat);
+    return static_cast<int>(m_discards[index].count()) + m_hidden.discards[index];
+}
+
+int TarockCore::talonHalfSize(int half) const
+{
+    if (half < 0 || half > 1)
+        return 0;
+    const std::size_t index = static_cast<std::size_t>(half);
+    return static_cast<int>(m_talonHalf[index].count()) + m_hidden.talonHalf[index];
+}
+
+int TarockCore::talonToDefendersSize() const
+{
+    return static_cast<int>(m_talonToDefenders.count()) + m_hidden.talonToDefenders;
+}
+
+void TarockCore::redactFor(int viewer)
+{
+    // Once the hand is over nothing is secret any more: the settlement shows
+    // every card, and the learning mode lives off exactly that.
+    if (m_phase == Phase::Scoring || m_phase == Phase::HandOver)
+        return;
+
+    auto hide = [](CardSet& set, int& counter) {
+        counter += static_cast<int>(set.count());
+        set.reset();
+    };
+
+    // A fifth player who sits out sees no cards at all beyond what is played.
+    const bool viewerActive = active(viewer);
+
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        const std::size_t index = static_cast<std::size_t>(seat);
+        if (seat == viewer)
+            continue;
+        hide(m_hands[index], m_hidden.hand[index]);
+        // What a seat has picked for discarding is his own business until he
+        // confirms it, and a covered discard stays his until the settlement.
+        hide(m_tray[index], m_hidden.tray[index]);
+        hide(m_discards[index], m_hidden.discards[index]);
+    }
+
+    // The open talon halves belong to the four active players; the fifth
+    // never sees them, and neither does anybody before they are turned up.
+    for (int half = 0; half < 2; ++half) {
+        const std::size_t index = static_cast<std::size_t>(half);
+        if (!m_talonOpen || !viewerActive)
+            hide(m_talonHalf[index], m_hidden.talonHalf[index]);
+    }
+    // The half the declarer left lying is open to the active players until
+    // the first trick is complete, then it is covered again.
+    if (!viewerActive || m_trickNumber > 1)
+        hide(m_talonToDefenders, m_hidden.talonToDefenders);
+
+    // The birds the declarer held before the talon are his knowledge alone.
+    if (viewer != m_declarer)
+        m_qualifyingBirds.reset();
+    // The partner is known to himself and to the declarer; to the table only
+    // once the called king has fallen or an announcement has given it away.
+    if (!m_partnerKnown && viewer != m_partner && viewer != m_declarer)
+        m_partner = -1;
+    // The dealing machine stays at home: with its state a guest could work
+    // out the hands of the next deal.
+    m_rng = std::mt19937{1};
+}
+
+std::string TarockCore::serializeFor(int viewer) const
+{
+    TarockCore view = *this;
+    view.redactFor(viewer);
+    return view.serialize();
 }
 
 bool TarockCore::restore(const std::string& data)
 {
     std::istringstream envelope(data);
     std::string magic, checksumText;
-    if (!std::getline(envelope, magic) || magic != "TAROCK_STATE_V2"
+    // V2 is what the app wrote before the LAN game existed; saved matches on
+    // the device are still in it and must keep loading.
+    if (!std::getline(envelope, magic)
+        || (magic != "TAROCK_STATE_V2" && magic != "TAROCK_STATE_V3")
         || !std::getline(envelope, checksumText))
         return false;
+    const bool hasHiddenCounts = magic == "TAROCK_STATE_V3";
     std::uint64_t expected = 0;
     std::istringstream checkStream(checksumText);
     if (!(checkStream >> std::hex >> expected))
@@ -1393,6 +1511,21 @@ bool TarockCore::restore(const std::string& data)
     r.m_flags.hardBirdReservation = hardBirds != 0;
     if (!(in >> r.m_rng))
         return false;
+    if (hasHiddenCounts) {
+        for (int seat = 0; seat < MaxSeats; ++seat) {
+            const std::size_t index = static_cast<std::size_t>(seat);
+            if (!(in >> r.m_hidden.hand[index] >> r.m_hidden.tray[index]
+                     >> r.m_hidden.discards[index])
+                || r.m_hidden.hand[index] < 0 || r.m_hidden.tray[index] < 0
+                || r.m_hidden.discards[index] < 0)
+                return false;
+        }
+        if (!(in >> r.m_hidden.talonHalf[0] >> r.m_hidden.talonHalf[1]
+                 >> r.m_hidden.talonToDefenders)
+            || r.m_hidden.talonHalf[0] < 0 || r.m_hidden.talonHalf[1] < 0
+            || r.m_hidden.talonToDefenders < 0)
+            return false;
+    }
     if (!r.validate())
         return false;
     *this = std::move(r);
@@ -1441,6 +1574,16 @@ bool TarockCore::validate(std::string* error) const
         ++total;
     }
     seen |= inTrick;
+    // A redacted state (serializeFor) holds the cards it may not show as a
+    // count; they are missing from the sets but not from the deck.
+    for (int seat = 0; seat < MaxSeats; ++seat) {
+        const std::size_t index = static_cast<std::size_t>(seat);
+        // The tray holds cards that are still in the hand, so it must not be
+        // counted a second time -- validate() does not collect it either.
+        total += static_cast<std::size_t>(m_hidden.hand[index] + m_hidden.discards[index]);
+    }
+    total += static_cast<std::size_t>(m_hidden.talonHalf[0] + m_hidden.talonHalf[1]
+                                      + m_hidden.talonToDefenders);
     if (static_cast<int>(total) != profile().deck().size())
         return fail("cards are missing");
     if ((seen & ~profile().deck().cards()).any())

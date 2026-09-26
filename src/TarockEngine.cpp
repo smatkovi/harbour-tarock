@@ -183,6 +183,17 @@ TarockEngine::TarockEngine(QObject* parent)
     connect(&m_trickPauseTimer, &QTimer::timeout, this, &TarockEngine::onTrickPauseTimeout);
     connect(&m_watchdog, &QTimer::timeout, this, &TarockEngine::onWatchdogTimeout);
 #endif
+    // Der Tisch über Netz oder Bluetooth. Nach Signatur verbunden, damit
+    // dieselben Zeilen unter Qt 4.7 und Qt 5 gelten.
+    connect(&m_table, SIGNAL(requestArrived(int,QString,int,int)),
+            this, SLOT(onTableRequest(int,QString,int,int)));
+    connect(&m_table, SIGNAL(viewArrived(QString,QVariantList,QVariantList)),
+            this, SLOT(onTableView(QString,QVariantList,QVariantList)));
+    connect(&m_table, SIGNAL(matchStarted(QString,int,int)),
+            this, SLOT(onTableMatchStarted(QString,int,int)));
+    connect(&m_table, SIGNAL(tableClosed(QString)), this, SLOT(onTableClosed(QString)));
+    connect(&m_table, SIGNAL(refused(QString)), this, SLOT(onTableRefused(QString)));
+    connect(&m_table, SIGNAL(seatsChanged()), this, SIGNAL(stateChanged()));
 
     loadSettings();
 
@@ -249,6 +260,12 @@ void TarockEngine::saveSettings()
 void TarockEngine::persist()
 {
     if (!m_active)
+        return;
+    // Nach jeder Änderung bekommt jeder Gast seinen eigenen Sichtzustand.
+    publishViews();
+    // Der Gast speichert nicht: sein Kern ist ein gefilterter Fremdzustand
+    // und hätte die eigene angefangene Partie überschrieben.
+    if (m_table.isGuest())
         return;
     if (matchOver()) {
         clearSaved();
@@ -320,6 +337,162 @@ void TarockEngine::setDifficulty(int value)
 }
 
 // --- starting and running a match ---------------------------------------------------
+
+void TarockEngine::publishViews()
+{
+    if (!m_table.hosting() || !m_active)
+        return;
+    QVariantList schrift;
+    QVariantList geld;
+    for (int seat = 0; seat < m_core.players(); ++seat) {
+        schrift.append(seat < m_matchSchrift.size() ? m_matchSchrift[seat] : 0);
+        geld.append(seat < m_matchGeld.size() ? m_matchGeld[seat] : 0);
+    }
+    for (int seat = 1; seat < m_core.players(); ++seat) {
+        if (!m_table.seatIsGuest(seat))
+            continue;
+        // Gedreht, damit der Gast wie jede Fassung der App auf Platz 0 sitzt,
+        // und gefiltert, damit er nur sieht, was ihm zusteht.
+        tarock::TarockCore view = m_core;
+        view.rotateSeats(seat);
+        const std::string state = view.serializeFor(0);
+        QVariantList rotatedSchrift;
+        QVariantList rotatedGeld;
+        for (int s = 0; s < m_core.players(); ++s) {
+            const int from = (s + seat) % m_core.players();
+            rotatedSchrift.append(schrift.at(from));
+            rotatedGeld.append(geld.at(from));
+        }
+        m_table.sendView(seat, QString::fromLatin1(state.data(), int(state.size())),
+                         rotatedSchrift, rotatedGeld);
+    }
+}
+
+bool TarockEngine::hostTable(const QString& profileKeyName, int players)
+{
+    QString error;
+    players = players == 5 ? 5 : 4;
+    if (!m_table.startHosting(seatName(0), profileKeyName, players, &error)) {
+        emit actionRejected(QVariantMap());
+        return false;
+    }
+    emit stateChanged();
+    return true;
+}
+
+void TarockEngine::startTableMatch()
+{
+    if (!m_table.hosting())
+        return;
+    m_table.closeTable();
+    startMatch(profileKey(), m_table.seatCount());
+    publishViews();
+}
+
+void TarockEngine::joinTable(const QString& address)
+{
+    m_table.join(LanSession::normalizeAddress(address), seatName(0));
+    emit stateChanged();
+}
+
+void TarockEngine::joinTableBluetooth(const QString& address)
+{
+    m_table.joinBluetooth(address, seatName(0));
+    emit stateChanged();
+}
+
+void TarockEngine::leaveTable()
+{
+    const bool wasGuest = m_table.isGuest();
+    m_table.leave(QString());
+    if (wasGuest) {
+        // Die eigene angefangene Partie ist noch da, der Gast landet wieder
+        // bei ihr statt vor einem leeren Tisch.
+        m_active = false;
+        if (canResume())
+            resume();
+    }
+    emit stateChanged();
+}
+
+void TarockEngine::onTableRequest(int seat, const QString& type, int a, int b)
+{
+    if (!m_table.hosting() || !m_active)
+        return;
+    if (m_visualPhase != Idle) {
+        // Die Tischanimation läuft noch. Der Gast bekommt sein Tippen zurück
+        // und den Zustand gleich danach mit publishViews().
+        m_table.sendNack(seat, tr("Noch einen Augenblick"));
+        return;
+    }
+    const tarock::Action action(actionTypeOf(type), static_cast<std::int16_t>(a),
+                                static_cast<std::int16_t>(b));
+    if (action.type == tarock::ActionType::None)
+        return;
+    const tarock::Reason reason = m_core.check(seat, action);
+    if (severityOf(reason) == tarock::Severity::Error) {
+        m_table.sendNack(seat, reasonMap(reason).value(QStringLiteral("key")).toString());
+        publishViews();   // damit der Gast wieder auf dem Stand des Tisches ist
+        return;
+    }
+    perform(seat, action);
+}
+
+void TarockEngine::onTableView(const QString& state, const QVariantList& schrift,
+                               const QVariantList& geld)
+{
+    const QByteArray raw = state.toLatin1();
+    tarock::TarockCore view;
+    if (!view.restore(std::string(raw.constData(), std::size_t(raw.size()))))
+        return;
+    m_core = view;
+    m_awaitingView = false;
+    m_matchSchrift.clear();
+    m_matchGeld.clear();
+    for (int i = 0; i < schrift.size(); ++i)
+        m_matchSchrift.append(schrift.at(i).toInt());
+    for (int i = 0; i < geld.size(); ++i)
+        m_matchGeld.append(geld.at(i).toInt());
+    m_active = true;
+    // Der Gast bekommt ganze Zustände, keine einzelnen Aktionen: es gibt
+    // nichts zu animieren, der Tisch steht einfach neu.
+    m_flyingTrick.clear();
+    m_flyingWinner = -1;
+    setVisualPhase(Idle);
+    emit stateChanged();
+}
+
+void TarockEngine::onTableMatchStarted(const QString& profileKeyName, int players, int seat)
+{
+    Q_UNUSED(seat);
+    Q_UNUSED(players);
+    m_profileId = profileIdFor(profileKeyName);
+    m_aiTimer.stop();
+    m_trickPauseTimer.stop();
+    m_watchdog.stop();
+    m_active = true;
+    emit resetVisuals();
+    emit matchStarted();
+    emit settingsChanged();
+    emit stateChanged();
+}
+
+void TarockEngine::onTableRefused(const QString& reason)
+{
+    Q_UNUSED(reason);
+    // Der Wunsch ist abgelehnt; der Gast darf wieder tippen.
+    m_awaitingView = false;
+    emit stateChanged();
+}
+
+void TarockEngine::onTableClosed(const QString& reason)
+{
+    Q_UNUSED(reason);
+    m_active = false;
+    if (canResume())
+        resume();
+    emit stateChanged();
+}
 
 void TarockEngine::startMatch(const QString& profileKeyName, int players)
 {
@@ -409,6 +582,15 @@ bool TarockEngine::attempt(const QString& type, int a, int b, bool confirmed)
 {
     if (!m_active || m_visualPhase != Idle)
         return false;
+    // Ein Gast führt den Kern nicht: er schickt den Wunsch und bekommt den
+    // neuen Zustand zurück. Der Gastgeber prüft ihn mit denselben Regeln.
+    if (m_table.isGuest()) {
+        if (m_awaitingView)
+            return false;
+        m_table.sendRequest(type, a, b);
+        m_awaitingView = true;
+        return true;
+    }
     const Action action(actionTypeOf(type), static_cast<std::int16_t>(a), static_cast<std::int16_t>(b));
     if (action.type == ActionType::None) {
         Reason unknown;
@@ -628,6 +810,8 @@ void TarockEngine::runComputer()
 {
     if (!m_active || m_paused || m_visualPhase != Idle || m_core.handOver())
         return;
+    if (m_table.isGuest())
+        return;   // dort führt der Gastgeber, auch die Computerplätze
     const int seat = m_core.actor();
     if (seat <= 0 || !seatIsComputer(seat))
         return;
@@ -673,7 +857,11 @@ void TarockEngine::lessonStateChanged()
 
 bool TarockEngine::seatIsComputer(int seat) const
 {
-    return seat > 0 && m_core.active(seat);
+    // Am Netztisch spielt der Computer nur die Plätze, auf denen kein Gast
+    // sitzt -- und beim Gast selbst niemanden: dort führt der Gastgeber.
+    if (m_table.isGuest())
+        return false;
+    return seat > 0 && m_core.active(seat) && !m_table.seatIsGuest(seat);
 }
 
 bool TarockEngine::myTurn() const
@@ -783,7 +971,9 @@ QVariantList TarockEngine::seats() const
         }
         entry.insert(QStringLiteral("partnerState"), party);
 
-        entry.insert(QStringLiteral("cardCount"), static_cast<int>(m_core.hand(seat).count()));
+        // handSize() statt hand().count(): am Netztisch sind fremde Hände
+        // verdeckt, ihre Kartenzahl steht aber fest.
+        entry.insert(QStringLiteral("cardCount"), m_core.handSize(seat));
         int tricks = 0;
         for (int number = 1; number <= m_core.trickNumber(); ++number)
             tricks += m_core.trickWinner(number) == seat ? 1 : 0;
@@ -890,10 +1080,11 @@ QVariantList TarockEngine::talonHalves() const
     const bool visible = m_core.talonOpen() && m_core.active(0);
     for (int half = 0; half < 2; ++half) {
         const CardSet& cards = m_core.talonHalf(half);
+        const int size = m_core.talonHalfSize(half);
         QVariantMap entry;
         entry.insert(QStringLiteral("half"), half);
-        entry.insert(QStringLiteral("count"), static_cast<int>(cards.count()));
-        entry.insert(QStringLiteral("taken"), cards.none());
+        entry.insert(QStringLiteral("count"), size);
+        entry.insert(QStringLiteral("taken"), size == 0);
         QVariantList list;
         int tarocks = 0;
         for (Card card : tarock::toList(cards)) {

@@ -23,13 +23,15 @@ ENGINE_SRC="src/TarockEngine.cpp src/LearnEngine.cpp src/Lesson.cpp src/ReasonTe
  src/RulesIndex.cpp \
  src/core/Action.cpp src/core/Ai.cpp src/core/Card.cpp src/core/Deck.cpp src/core/Reason.cpp \
  src/core/RuleProfile.cpp src/core/Scoring.cpp src/core/TarockCore.cpp \
- src/core/profiles/AtKrOoe2023.cpp src/core/profiles/HuIlluItvb2019.cpp"
-MOC_HEADERS="src/TarockEngine.h src/LearnEngine.h"
+ src/core/profiles/AtKrOoe2023.cpp src/core/profiles/HuIlluItvb2019.cpp \
+ src/net/BtLink.cpp src/net/LanSession.cpp src/net/LanTable.cpp"
+MOC_HEADERS="src/TarockEngine.h src/LearnEngine.h src/net/BtLink.h src/net/LanSession.h \
+ src/net/LanTable.h"
 
 QT4_FLAGS="-std=gnu++17 -O2 -Wall -Wno-register -Wno-deprecated-declarations -Wno-nonnull \
  -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DQT_NO_DEBUG \
  -I$HERE/meego/compat -include $HERE/meego/compat/qt4compat.h -I$HERE/src -I$HERE/src/core"
-QT4_MODULES="QtCore QtGui QtNetwork QtScript QtDeclarative"
+QT4_MODULES="QtCore QtDBus QtGui QtNetwork QtScript QtDeclarative"
 
 case "$MODE" in
 arm)
@@ -43,7 +45,7 @@ arm)
     # static libstdc++/libgcc private so Qt stays on its own GCC 4.4 runtime.
     LDFLAGS="--sysroot=$SYSROOT -static-libstdc++ -static-libgcc -Wl,-O1 -Wl,--as-needed \
  -Wl,--exclude-libs,ALL -Wl,--dynamic-linker=/lib/ld-linux.so.3"
-    LIBS="-lQtDeclarative -lQtScript -lQtNetwork -lQtGui -lQtCore -lpthread"
+    LIBS="-lQtDeclarative -lQtScript -lQtNetwork -lQtDBus -lQtGui -lQtCore -lpthread"
     ;;
 *)
     echo "usage: $0 arm" >&2; exit 2 ;;
