@@ -1,0 +1,706 @@
+# Erzeugt von tools/make-rules.py aus docs/koenigrufen.md -- nicht von Hand ändern.
+# Kapitel 1 bis 9 des Regelwerks; Format siehe assets/rules/README.md.
+@ 1 1 Kartensatz, Rangfolgen, Kartenwerte, Zählen
+<ul><li>1.1  Kartensatz</li><li>1.2  Rangfolge in den Farben</li><li>1.3  Tarock (Trümpfe)</li><li>1.4  Kartenwerte</li><li>1.5  Zählmethode (exakt implementieren)</li><li>1.6  Gewinnschwelle</li><li>1.7  Rechenbeispiele</li><li>1.8  Wem gehören welche Karten beim Zählen?</li></ul>
+@ 1.1 2 Kartensatz
+<p>54 Karten im Bild „Industrie und Glück“: <b>22 Tarock</b> und <b>32 Farbkarten</b>, je 8 in <b>♥ Herz, ♦ Karo</b> (rot) und <b>♠ Pik, ♣ Treff/Kreuz</b> (schwarz) [WIKI; LTA-GK1 Kap. 2]. Alle vier Farben sind gleichrangig; keine Farbe sticht eine andere.</p>
+@ 1.2 2 Rangfolge in den Farben
+<p><b>Rote und schwarze Farben sind verschieden geordnet</b> [LTA-GK1 Kap. 2; PAGAT; WIKI]:</p>
+<ul><li><b><b>rot</b> ♥ ♦</b> · 1: K · 2: D · 3: R · 4: B · 5: <b>1</b> (As) · 6: <b>2</b> · 7: <b>3</b> · 8: <b>4</b></li><li><b><b>schwarz</b> ♠ ♣</b> · 1: K · 2: D · 3: R · 4: B · 5: <b>10</b> · 6: <b>9</b> · 7: <b>8</b> · 8: <b>7</b></li></ul>
+<ul>
+<li>Die vier kleinen Karten jeder Farbe heißen <i>Skartins</i>, <i>Skartindeln</i>, <i>Blätter</i> oder <i>Glatzen</i>.</li>
+<li>In Rot sticht das <b>As die 2</b> und die <b>4 ist die niedrigste Karte</b>. In Schwarz ist die <b>7 die niedrigste</b>.</li>
+<li>Hintergrund: Beim Kürzen des 78er-Blatts fielen in Rot 10–5 weg, in Schwarz As–6. Die alte Umkehrung der roten Zahlenkarten blieb erhalten [WIKI].</li>
+</ul>
+@ 1.3 2 Tarock (Trümpfe)
+<ul>
+<li><b>Rangfolge:</b> Sk (Sküs, „Gstieß“, ohne Zahl, faktisch XXII) &gt; XXI &gt; XX &gt; … &gt; II &gt; I [LTA-GK1 Kap. 2; WIKI]. Jedes Tarock sticht jede Farbkarte, außer in den Farbenspielen (6.3).</li>
+<li><b>Namen:</b></li>
+</ul>
+<ul><li><b>Sk</b> · Name(n): Sküs, Gstieß · Rolle im OÖ-Profil: höchstes Tarock, Trullstück</li><li><b>XXI</b> · Name(n): Mond · Rolle im OÖ-Profil: Trullstück</li><li><b>I</b> · Name(n): Pagat (Spatz) · Rolle im OÖ-Profil: Trullstück, Vogel („Pagat ultimo“, letzter Stich)</li><li><b>II</b> · Name(n): Uhu · Rolle im OÖ-Profil: Vogel (vorletzter Stich)</li><li><b>III</b> · Name(n): Kakadu (Pelikan) · Rolle im OÖ-Profil: Vogel (drittletzter Stich)</li><li><b>IIII</b> · Name(n): Quapil (Vierer); in [LTA-GK1] auch „Wildsau“; anderswo „Marabu“ · Rolle im OÖ-Profil: Vogel (viertletzter Stich)</li></ul>
+<ul>
+<li><b>Trull</b> = Sk + XXI + I.</li>
+<li><b>Vögel („Vogerl“)</b> = I, II, III, IIII. [OÖ23 Ansagen] nennt sie <b>„Ansager“</b>. Vögel über IIII (V „Geier“ usw.) gibt es im OÖ-Profil nicht [OÖ23 Tarif].</li>
+<li><b>Stecher:</b> umgangssprachlich die hohen Tarock (XVI–Sk nach [MAIR-KURS]), kein Regelbegriff.</li>
+<li><b>Keine Sonderwirkungen:</b> Es gibt „weder Kaiserstich noch Fänge“ [OÖ23 Allg. 3]. Fallen Sk, XXI und I in einen Stich, gewinnt der Sküs. Mondfang, Sküsfang und Königfang werden nicht bewertet.</li>
+</ul>
+@ 1.4 2 Kartenwerte
+<ul><li><b>Könige, Sk, XXI, I</b> · Anzahl: 7 · Wert zum Zählen („aufgerundet“): 5 · exakter Wert: 4⅓ · Bezeichnung: 5er-Zähler</li><li><b>Damen</b> · Anzahl: 4 · Wert zum Zählen („aufgerundet“): 4 · exakter Wert: 3⅓ · Bezeichnung: 4er-Zähler</li><li><b>Reiter</b> · Anzahl: 4 · Wert zum Zählen („aufgerundet“): 3 · exakter Wert: 2⅓ · Bezeichnung: 3er-Zähler</li><li><b>Buben</b> · Anzahl: 4 · Wert zum Zählen („aufgerundet“): 2 · exakter Wert: 1⅓ · Bezeichnung: 2er-Zähler</li><li><b>alle übrigen (19 Tarock II–XX, 16 Skartins)</b> · Anzahl: 35 · Wert zum Zählen („aufgerundet“): 1 · exakter Wert: ⅓ · Bezeichnung: „Blatt“</li></ul>
+<p>Quellen: [LTA-GK1 Kap. 3; WIKI; PAGAT]. Summe über alle 54 Karten: 70 Punkte = 210 Drittel.</p>
+@ 1.5 2 Zählmethode (exakt implementieren)
+<p><b>Tischmethode (OÖ-Skriptum):</b> Man zählt immer drei Karten zusammen [LTA-GK1 Kap. 3]:</p>
+<ul>
+<li>ein Zähler + zwei Blätter → Wert des Zählers;</li>
+<li>zwei Zähler + ein Blatt → Summe der beiden Zähler − 1;</li>
+<li>drei Zähler → Summe − 2;</li>
+<li>drei Blätter → 1 Punkt;</li>
+<li>Restkarten legt man so, dass nur ein oder zwei <b>Blätter</b> übrig bleiben. Sie werden als „1 Blatt“ bzw. „2 Blatt“ angesagt.</li>
+</ul>
+<p>Gleichwertig: Summe der aufgerundeten Werte minus 2 je volles Dreierpaket. Eine übrige Karte zählt ⅔ weniger, zwei übrige 1⅓ weniger [WIKI: „Bleibt am Schluss eine Karte übrig, so wird von ihrem Wert ⅔ abgezogen; bleiben zwei Karten übrig, so werden von ihrem Wert 1⅓ Punkt abgezogen“]. [PAGAT] beschreibt denselben Vorgang gerundet („one or two odd cards left over … are worth one point less than their total value“); das ist die Tischnäherung, nicht die blattgenaue Rechnung. Für die Engine gilt die Drittelrechnung.</p>
+<p>drittel(Kartenmenge M) = 3 · Σ_{c∈M} wert(c)  −  2 · |M|<br/>Punkte = drittel div 3      Blatt = drittel mod 3</p>
+<p>Begründung: Jede Karte ist exakt (3·wert − 2)/3 Punkte wert. Ein Stich (4 Karten) ist also 3·Σwert − 8 Drittel wert. Damit lässt sich beim Mitzählen Stich für Stich addieren.</p>
+@ 1.6 2 Gewinnschwelle
+<ul>
+<li><b>Positive Spiele</b> (Rufer-, Dreier- und Farbenspiele): Die Spielerpartei gewinnt das Spiel mit <b>mindestens 35 Punkten und 2 Blatt (= 107 Drittel)</b>, in [OÖ23 Allg. 3] „36 Punkte (= 35 Punkte und 2 Blatt)“. <b>35/1 reicht nicht; 35:35 ist verloren</b>, ein Unentschieden gibt es nicht [WIKI].</li>
+<ul>
+<li>Warum 35/2 und nicht 35/1: Bei der alten Zählweise in Dreierlagen gibt es nur ganze Punkte. Die blattgenaue Zählung soll zum selben Ergebnis kommen, deshalb ist die Grenze 35/2 [MAIR-GRUND].</li>
+<li><b>[ABWEICHUNG]</b> „Lediglich regional genügen auch 35⅓ Punkte, um das Spiel zu gewinnen, etwa vielerorts in der Steiermark“ [WIKI]. Das betrifft private Runden: Das Regelwerk des Steirischen Tarockcups verlangt ausdrücklich „35 Punkte und 2 Blatt“ [STMK]. Für das OÖ-Profil ohnehin nicht relevant.</li>
+</ul>
+<li><b>Trischaken:</b> „blattgenau“ zählen [OÖ23 Trischaken 1]. Verglichen werden die exakten Drittel. „Das Spiel haben“ (Bürgermeister) heißt ≥ 107 Drittel [OÖ23 Trischaken 2].</li>
+<li><b>Piccolo, Bettel, Ouvertspiele:</b> Es zählen nur Stiche, keine Punkte (3.2).</li>
+</ul>
+@ 1.7 2 Rechenbeispiele
+<p><b>Beispiel A – kleiner Stapel (8 Karten):</b> ♥K, ♠D, VII | Sk, ♦B, ♣10 | XV, ♥R</p>
+<ul><li><b>1</b> · Karten: ♥K (5), ♠D (4), VII (1) · Rechnung: zwei Zähler: 5 + 4 − 1 · Ergebnis: 8</li><li><b>2</b> · Karten: Sk (5), ♦B (2), ♣10 (1) · Rechnung: zwei Zähler: 5 + 2 − 1 · Ergebnis: 6</li><li><b>Rest</b> · Karten: XV (1), ♥R (3) · Rechnung: zwei Restkarten: 1 + 3 − 1⅓ · Ergebnis: 2⅔</li><li>Rechnung: <b>Summe</b> · Ergebnis: <b>16 Punkte 2 Blatt</b></li></ul>
+<ul>
+<li>Nach Tischmethode umgelegt: {♥K, ♠D, ♥R} = 5 + 4 + 3 − 2 = 10 und {Sk, ♦B, VII} = 5 + 2 − 1 = 6. Rest ♣10 und XV = „2 Blatt“, zusammen 16/2.</li>
+</ul>
+<p><b>Beispiel B – Endabrechnung eines ganzen Spiels</b> (Übungsspiel 1 in 11.7):</p>
+<ul>
+<li><b>Spielerpartei (Du + Carl):</b> 35 Karten, nämlich 8 Stiche (32 Karten) + 3 Karten Ablage.</li>
+<ul>
+<li>Zähler: ♠K ♣K ♥K ♦K (4 × 5), ♣D ♦D (2 × 4), ♣R ♥R (2 × 3), ♠B ♣B ♥B ♦B (4 × 2) → 42.</li>
+<li>Dazu 23 Blätter → Σwert = 65.</li>
+<li>35 Karten = 11 Dreierpakete + 2 Restkarten: 65 − 22 − 1⅓ = <b>41⅔ = 41/2</b>.</li>
+</ul>
+<li><b>Gegenpartei:</b> 19 Karten (4 Stiche + liegen gelassene Talonhälfte).</li>
+<ul>
+<li>Zähler: I, Sk, XXI (3 × 5), ♠D ♥D (2 × 4), ♠R ♦R (2 × 3) → 29.</li>
+<li>Dazu 12 Blätter → Σwert = 41.</li>
+<li>19 Karten = 6 Pakete + 1 Rest: 41 − 12 − ⅔ = <b>28⅓ = 28/1</b>.</li>
+</ul>
+<li><b>Kontrolle:</b> 125 + 85 = 210 Drittel = 70 Punkte. 125 ≥ 107 → Spiel gewonnen.</li>
+</ul>
+@ 1.8 2 Wem gehören welche Karten beim Zählen?
+<ul><li><b>Rufer, Besserrufer, Dreier, Farbendreier</b> · Ablage (verlegte Karten): zählt zu den Stichen des Spielers · nicht gewählte Talonhälfte / Talon: zu den Stichen der Gegner [LTA-GK1 Kap. 7: „Bestand der Talon aus 3 Karten, zählt die verbleibende Talonhälfte zu den Stichen der Gegner“; WIKI]</li><li><b>Sechserdreier</b> · Ablage (verlegte Karten): 6 verlegte Karten zum Spieler [LTA-GK1 Kap. 7; STMK] · nicht gewählte Talonhälfte / Talon: — (ganzer Talon aufgenommen)</li><li><b>Solorufer, Solodreier, Farbensolo</b> · Ablage (verlegte Karten): — · nicht gewählte Talonhälfte / Talon: ganzer Talon zu den Gegnern [OÖ23 Farben 3; LTA-GK1 Kap. 9/10]. Ausnahme: Liegt beim Solorufer der gerufene König im Talon, gehört die Hälfte <b>mit dem König</b> dem Spieler [OÖ23 Allg. 7].</li><li><b>Piccolo, Bettel, Piccolo/Bettel ouvert</b> · Ablage (verlegte Karten): — · nicht gewählte Talonhälfte / Talon: Talon bleibt verdeckt und zählt nicht (Stichziel) [LTA-GK1 Kap. 11]</li><li><b>Trischaken</b> · Ablage (verlegte Karten): — · nicht gewählte Talonhälfte / Talon: Talon zum Gewinner des letzten Stichs [OÖ23 Trischaken 1]</li></ul>
+<ul>
+<li>Die Karten des Talons gelten als „in den Stichen“ der jeweiligen Partei, auch für Trull und Alle Könige. Das gilt auch, wenn diese Partei keinen Stich hat [MAIR-AUSL: „Der Talon gehört in Solospielen zu den Stichen der Gegner (auch wenn diese keinen Stich haben). Das gilt auch für die liegengelassenen Talonkarten in Spielen mit Talon. Für die Besitzprämien (vier Könige, Trull) ist es egal, ob sich die entsprechenden Karten im Talon oder in den Stichen befinden“]; OÖ-konform, weil der Talon „zu den Stichen der Gegner zählt“ [LTA-GK1 Kap. 7].</li>
+<li>Sonderfall Valat: siehe 9, Punkt V-3.</li>
+</ul>
+<p>---</p>
+@ 2 1 Tisch, Geben, Talon, Vierer- und Fünfertisch
+<ul><li>2.1  Rollen</li><li>2.2  Erster Geber</li><li>2.3  Mischen und Abheben</li><li>2.4  Austeilen</li><li>2.5  Jedes Blatt wird gespielt</li><li>2.6  Geberwechsel, Radl</li><li>2.7  Fünfertisch</li><li>2.8  Sichtbarkeit während des Spiels (alle Spieler)</li></ul>
+@ 2.1 2 Rollen
+<ul><li><b><b>Geber</b></b> · Definition: mischt und teilt aus. Am Vierertisch spielt er mit, am Fünfertisch setzt er aus.</li><li><b><b>Vorhand</b></b> · Definition: sitzt rechts vom Geber, spricht zuerst, spielt in positiven Spielen zum ersten Stich aus [LTA-GK1 Kap. 6]. Wird im nächsten Spiel Geber [WIKI].</li><li><b><b>Spieler</b> (Spielersteher)</b> · Definition: hat die Lizitation gewonnen.</li><li><b><b>Partner</b></b> · Definition: Inhaber des gerufenen Königs (nur Ruferspiele).</li><li><b><b>Gegner</b></b> · Definition: alle anderen aktiven Spieler.</li><li><b><b>Fünfter / Kiebitz</b></b> · Definition: am Fünfertisch der aussetzende Geber.</li><li><b><b>Hintermann / Abheber</b></b> · Definition: sitzt links vom Geber.</li></ul>
+@ 2.2 2 Erster Geber
+<p>„Wer die höchste Karte hebt, ist erster Geber.“ [OÖ23 Allg. 1] Eine Rangfolge der Karten beim Heben ist nicht festgelegt. <b>[EMPFEHLUNG]</b> Die App lost den ersten Geber zufällig aus. Die Animation „Karte heben“ ist optional: Tarock schlägt Farbe, sonst Stichkraft, Gleichstand wird neu gehoben.</p>
+@ 2.3 2 Mischen und Abheben
+<ul>
+<li>Gründlich mischen. Der Hintermann (links vom Geber) hebt ab, „Klopfen“ ist verboten [OÖ23 Allg. 1].</li>
+<li>Die Taroquette verlangt: mindestens zweimal abheben, je mindestens 3 Blatt, beim Austeilen keine Karte zeigen [OÖT26 1].</li>
+<li>Der Geber darf „weder das Deckblatt noch seine ersten sechs Karten anschauen“ [OÖ23 Allg. 1].</li>
+</ul>
+<p><b>[EMPFEHLUNG]</b></p>
+<ul>
+<li>Die Engine mischt mit einem kryptographisch geseedeten Zufallsgenerator.</li>
+<li>Im LAN mischt ausschließlich der Server. Abheben ist reine Animation.</li>
+<li>Für Übungsspiele und Replays gibt es einen deterministischen Seed bzw. vorgegebene Blätter.</li>
+</ul>
+@ 2.4 2 Austeilen
+<p>[OÖ23 Allg. 1] „Der Talon wird in der Mitte gegeben.“ Präzisiert in [LTA-GK1 Kap. 5] und [KTC Allgemeines]:</p>
+<ol>
+<li>Beginnend bei der Vorhand, gegen den Uhrzeigersinn, erhält jeder <b>aktive</b> Spieler <b>6 Karten</b>. Empfohlen in zwei Päckchen zu je 3.</li>
+<li>Dann kommen <b>6 Karten als Talon</b> in die Tischmitte, als <b>zwei Hälften zu je 3 Karten</b> [KTC; WIKI].</li>
+<li>Dann erhält jeder aktive Spieler, wieder ab der Vorhand, <b>nochmals 6 Karten</b>.</li>
+</ol>
+<p>Jeder Spieler hat 12 Karten, der Talon 6 in zwei festen Hälften. Die Hälften bleiben bis zum Spielende getrennt, weil sie getrennt aufgenommen, liegen gelassen oder zugeordnet werden (4.3, 4.4).</p>
+@ 2.5 2 Jedes Blatt wird gespielt
+<p>„Jedes Blatt muss gespielt werden (auch ohne Tarock und Könige).“ [OÖ23 Allg. 1] Es gibt <b>kein Zusammenwerfen</b> und kein Neugeben wegen schlechter Karten. Falsch gegebene Karten werden neu gegeben, wenn der Fehler vor Beginn der Lizitation bemerkt wird [OÖ23 Renonce 6]; in der App kann das nicht vorkommen.</p>
+@ 2.6 2 Geberwechsel, Radl
+<ul>
+<li>Nach jedem Spiel wechselt der Geber gegen den Uhrzeigersinn: <b>Der bisherige Vorhandspieler wird Geber</b> [LTA-GK1 Kap. 5: „Das nächste Spiel gibt der rechts vom letzten Geber sitzende Spieler“; WIKI].</li>
+<li><b>Ein Radl</b> ist ein voller Umlauf, bei dem jeder einmal gibt: <b>4 Spiele am Vierertisch</b> [WIKI: „Vier Spiele bilden eine Runde oder ein Radl, wobei jeder Spieler einmal Kartengeber ist“]. <b>[EMPFEHLUNG]</b> Am Fünfertisch entsprechend <b>5 Spiele</b>; das ist die logische Fortschreibung (jeder gibt und setzt genau einmal aus), in den Quellen aber nicht ausdrücklich belegt.</li>
+<li>„Doppelradl“ oder Sonderrunden gibt es im OÖ-Turnierprofil nicht; private Optionen siehe 8.3.</li>
+</ul>
+@ 2.7 2 Fünfertisch
+<ul>
+<li><b>Wer aussetzt:</b> Am Fünfertisch spielen nur vier; <b>der Geber setzt aus</b> [PAGAT; WIKI; LTA-GK1 Kap. 5]. Er teilt nur an die vier anderen aus [PAGAT] und erhält in diesem Spiel 0 Punkte.</li>
+<li><b>Rotation:</b> unverändert. Neuer Geber ist der bisherige Vorhandspieler, also setzt jeder Spieler genau einmal pro Radl (5 Spiele) aus.</li>
+<li><b>Geheimhaltung:</b> „Für den Geber bei Fünfertischen ist der Talon tabu. Er darf sich nicht ins Spiel einmischen („Kiebitz halt's Maul“).“ [OÖ23 Allg. 8] „Der Talon ist auch für den 5. Spieler tabu!“ [OÖT26 2]. Über das laufende Spiel darf „weder durch Reden oder sonstige Äußerungen noch durch Mimik, Gestik oder sonst wie etwa durch extra ‚deutliches‘ Spielen einer Karte“ etwas verraten werden [OÖT26 6]; „Kiebitze dürfen sich nicht ins Spiel einmischen; jegliche Äußerungen zum Spiel sind strikt untersagt (das gilt auch für den ‚Fünften‘)“ [OÖT26 7].</li>
+<li><b>Renonce des Fünften:</b> Er müsste die vier Spieler schadlos halten [OÖR25 B.4]. In der App ausgeschlossen (siehe unten).</li>
+</ul>
+<p><b>[EMPFEHLUNG] Informationsmodell für Zuschauer</b> (serverseitig gefiltert, gilt auch für Kiebitze im LAN):</p>
+<ul><li><b>eigene Handkarten</b> · aktiver Spieler: ja · Fünfter / Zuschauer während des Spiels: hat keine</li><li><b>fremde Handkarten</b> · aktiver Spieler: nein (Ausnahme: Ouvertspiele ab dem 2. Ausspiel) · Fünfter / Zuschauer während des Spiels: nein (Ouvert-Hände: ja, sie liegen offen am Tisch)</li><li><b>offen aufgedeckter Talon (Rufer, Besserrufer, Dreier, Farbendreier)</b> · aktiver Spieler: ja während der Talonphase; die liegen gelassene Hälfte bis zum Ende des 1. Stichs, danach wird sie umgedreht [OÖT26 3] · Fünfter / Zuschauer während des Spiels: <b>nein</b>, der Talon ist tabu</li><li><b>Solo-, Sechser- und Negativ-Talon</b> · aktiver Spieler: nein · Fünfter / Zuschauer während des Spiels: nein</li><li><b>offen verlegte Karten (Tarock bzw. Farbkarten beim Farbendreier)</b> · aktiver Spieler: ja · Fünfter / Zuschauer während des Spiels: nein (Ablage gehört zum Talonvorgang)</li><li><b>gerufener König (Farbe), Ansagen, Kontras, gespielte Karten, letzter Stich</b> · aktiver Spieler: ja · Fünfter / Zuschauer während des Spiels: ja</li><li><b>Wer ist Partner?</b> · aktiver Spieler: nur der Partner selbst · Fünfter / Zuschauer während des Spiels: nein</li><li><b>Chat / Emotes</b> · aktiver Spieler: nein während des Spiels (ausgenommen die Beratung der Gegner im Ouvertspiel, 6.4) · Fünfter / Zuschauer während des Spiels: nein</li><li><b>nach Spielende: alle Karten, Talon, Ablage</b> · aktiver Spieler: ja (Rückschau) · Fünfter / Zuschauer während des Spiels: ja</li></ul>
+<p>Der Fünfte sieht damit nichts, was ein am Tisch schweigender Kiebitz nicht auch sehen dürfte.</p>
+@ 2.8 2 Sichtbarkeit während des Spiels (alle Spieler)
+<ul>
+<li><b>Letzter Stich:</b> Jeder darf den letzten Stich ansehen [ÖF21 Allg.; OÖT26 3].</li>
+<li><b>Eigene Stiche:</b></li>
+<ul>
+<li><b>[ABWEICHUNG]</b> [LTA-GK1 Kap. 8]: „Jeder Spieler darf sich seine eigenen Stiche und die seines Partners immer anschauen.“ [MAIR-CUPS] vermerkt für OÖ „Stiche anschauen erlaubt (nachwassern): ja“. [ÖF21]: „Die Stiche der anderen Spieler dürfen nicht angesehen werden.“ (Das verbietet nur fremde Stiche.)</li>
+<li><b>[EMPFEHLUNG]</b> Eigene Stiche jederzeit einsehbar; fremde nur der jeweils letzte Stich.</li>
+<li>Partnerstiche nur, wenn die Partnerschaft für den Betrachter feststeht, also für den Partner selbst (er kennt die Partnerschaft von Beginn an) und für den Spieler, sobald der gerufene König gefallen ist.</li>
+</ul>
+<li><b>Nicht gewählte Talonhälfte:</b> „Liegengebliebene Talonkarten werden nach dem ersten Stich zur Gänze umgedreht.“ [OÖT26 3]. Bis zum Ende des 1. Stichs offen, danach verdeckt. <b>[EMPFEHLUNG]</b> Im Lernmodus als Einblendung „Erinnerung“ abrufbar.</li>
+<li><b>Eigene Ablage:</b> Der Spieler darf seine Ablage einsehen (er kennt sie ohnehin). Offen verlegte Tarock bzw. Farbkarten bleiben für alle sichtbar vermerkt.</li>
+</ul>
+<p>---</p>
+@ 3 1 Lizitation
+<ul><li>3.1  Die Spiele in Lizitationsreihenfolge</li><li>3.2  Kurzbeschreibung der Spielziele</li><li>3.3  Rechte und Pflichten der Vorhand</li><li>3.4  Die übrigen Spieler</li><li>3.5  Lizitation als Zustandsautomat</li><li>3.6  Beispiele (OÖ-Reihenfolge)</li><li>3.7  Blattbedingungen für Gebote (von der App erzwungen)</li><li>3.8  Sprechformeln (UI-Texte)</li></ul>
+@ 3.1 2 Die Spiele in Lizitationsreihenfolge
+<p>Die OÖ-Spiele sind „streng hierarchisch gereiht“. Die Reihenfolge der Tariftabelle in [OÖ23 Tarif] <b>ist</b> die Lizitationsreihenfolge [LTA-GK1 Kap. 4; MAIR-LIZ, Spalte OÖ]. Aufsteigend:</p>
+<ul><li><b>1</b> · Spiel (Synonyme): <b>Trischaken</b> (Fahren) · Wert (Schrift): 1 (Sonderwertung 7.6) · Art: negativ, jeder gegen jeden · Partner: – · Talon: bleibt verdeckt, am Ende an den Gewinner des letzten Stichs · Wer darf bieten: nur Vorhand, nur <i>hintennach</i> · 1. Ausspiel: Vorhand · Prämien: keine · Kontra: keines</li><li><b>2</b> · Spiel (Synonyme): <b>Rufer</b> (Vorhand-Rufer) · Wert (Schrift): 1 · Art: positiv, Ruferspiel · Partner: gerufener König · Talon: Hälfte aus offenem Talon · Wer darf bieten: nur Vorhand, nur <i>hintennach</i> · 1. Ausspiel: Vorhand · Prämien: alle · Kontra: gilt für alle</li><li><b>3</b> · Spiel (Synonyme): <b>Piccolo</b> · Wert (Schrift): 2 · Art: negativ · Partner: allein · Talon: nicht verwendet · Wer darf bieten: alle · 1. Ausspiel: Spieler · Prämien: keine · Kontra: einzeln</li><li><b>4</b> · Spiel (Synonyme): <b>Bettel</b> (Bettler) · Wert (Schrift): 2 · Art: negativ · Partner: allein · Talon: nicht verwendet · Wer darf bieten: alle · 1. Ausspiel: Spieler · Prämien: keine · Kontra: einzeln</li><li><b>5</b> · Spiel (Synonyme): <b>Solorufer</b> · Wert (Schrift): 2 · Art: positiv, Ruferspiel, Solo · Partner: gerufener König · Talon: kein Talon (an Gegner) · Wer darf bieten: alle · 1. Ausspiel: Vorhand · Prämien: alle, <b>doppelt</b> · Kontra: gilt für alle</li><li><b>6</b> · Spiel (Synonyme): <b>Besserrufer</b> (A-Rufer) · Wert (Schrift): 1 + Vogel · Art: positiv, Ruferspiel · Partner: gerufener König · Talon: Hälfte aus offenem Talon · Wer darf bieten: alle (Vogel im Blatt nötig) · 1. Ausspiel: Vorhand · Prämien: alle; ursprünglicher Vogel ist Pflicht · Kontra: gilt für alle</li><li><b>7</b> · Spiel (Synonyme): <b>Farbendreier</b> · Wert (Schrift): 3 · Art: positiv, Farbenspiel · Partner: allein · Talon: Hälfte aus offenem Talon · Wer darf bieten: alle · 1. Ausspiel: Vorhand · Prämien: nur Alle Könige, Valat · Kontra: gilt für alle</li><li><b>8</b> · Spiel (Synonyme): <b>Sechserdreier</b> (Sechser) · Wert (Schrift): 4, verloren 8 · Art: positiv, Dreierspiel · Partner: allein · Talon: alle 6 verdeckt · Wer darf bieten: nur Vorhand, nur <i>vorneweg</i> · 1. Ausspiel: Vorhand · Prämien: alle außer König ultimo · Kontra: gilt für alle</li><li><b>9</b> · Spiel (Synonyme): <b>Dreier</b> · Wert (Schrift): 4 · Art: positiv, Dreierspiel · Partner: allein · Talon: Hälfte aus offenem Talon · Wer darf bieten: alle · 1. Ausspiel: Vorhand · Prämien: alle außer König ultimo · Kontra: gilt für alle</li><li><b>10</b> · Spiel (Synonyme): <b>Farbensolo</b> · Wert (Schrift): 6 · Art: positiv, Farbenspiel, Solo · Partner: allein · Talon: kein Talon (an Gegner) · Wer darf bieten: alle · 1. Ausspiel: Vorhand · Prämien: nur Alle Könige (doppelt), Valat · Kontra: gilt für alle</li><li><b>11</b> · Spiel (Synonyme): <b>Piccolo ouvert</b> · Wert (Schrift): 6 · Art: negativ, offen · Partner: allein · Talon: nicht verwendet · Wer darf bieten: alle · 1. Ausspiel: Spieler · Prämien: keine · Kontra: einzeln</li><li><b>12</b> · Spiel (Synonyme): <b>Bettel ouvert</b> · Wert (Schrift): 7 · Art: negativ, offen · Partner: allein · Talon: nicht verwendet · Wer darf bieten: alle · 1. Ausspiel: Spieler · Prämien: keine · Kontra: einzeln</li><li><b>13</b> · Spiel (Synonyme): <b>Solodreier</b> · Wert (Schrift): 8 · Art: positiv, Dreierspiel, Solo · Partner: allein · Talon: kein Talon (an Gegner) · Wer darf bieten: alle · 1. Ausspiel: Vorhand · Prämien: alle außer König ultimo, <b>doppelt</b>, sofort ansagen · Kontra: gilt für alle</li></ul>
+<p><b>Belege:</b></p>
+<ul>
+<li>Tarif: [OÖ23 Tarif; LTA-GK1 Kap. 4; ÖF21].</li>
+<li>Wer bieten darf: [OÖ23 Vorhand 1].</li>
+<li>Erstes Ausspiel: [OÖ23 Negativ 1; Farben 1; LTA-GK1 Kap. 9].</li>
+<li>Prämien je Spiel: [LTA-GK1 Kap. 10/11; LTA-F1; ÖF21 Ansagen].</li>
+<li>Kontra: [OÖ23 Allg. 5].</li>
+<li>Doppelte Prämien in Solospielen: [OÖ23 Ansagen 1].</li>
+</ul>
+<p><b>Anmerkungen:</b></p>
+<ul>
+<li><b>Rang 1 und 2:</b> Trischaken und Rufer kommen nur ohne andere Gebote zustande. Ihre Reihenfolge ist daher bedeutungslos.</li>
+<li><b>Besserrufer:</b> [OÖ23 Tarif] schreibt „A-Rufer“, der Text „Besserrufer“, [LTA-GK1] „Besser-Rufer (A-Rufer)“ („A“ steht für <i>Ansager</i>).</li>
+<ul>
+<li>Im OÖ-Profil gibt es <b>ein einziges</b> Besserrufer-Gebot, gleich welcher Vogel [MAIR-CUPS: „Besserrufer nicht aufgeteilt – OÖ: ja“]. Es gibt also keine Einzelgebote Pagatrufer, Uhurufer usw.</li>
+<li>Ein Besserrufer mit Quapil steht in der Lizitation genauso unter dem Farbendreier wie einer mit Pagat.</li>
+<li>Gewertet werden Spiel (1) und Vogel (als angesagte Prämie) getrennt (7.3).</li>
+</ul>
+<li><b>Nicht im OÖ-Profil:</b> Zwiccolo, Triccolo, „Bei“-Spiele, Einzel-Vogelrufer, Besserdreier, Farbensechser, Farbenrufer, Supra, Absolut/Säcke [OÖ23 Tarif; MAIR-CUPS; LTA-F1 „Es gibt keine sog. Bei-Spiele“]. Zwiccolo und Farben-Sechser nennt [LTA-S] als verbreitete private Ergänzungen, siehe 9.</li>
+</ul>
+@ 3.2 2 Kurzbeschreibung der Spielziele
+<ul>
+<li><b>Rufer:</b> Spieler ruft einen König als Partner und nimmt eine Talonhälfte. Die Partei braucht 35/2. Nur Vorhand, nur nach dreimal „weiter“ [OÖ23 Vorhand 1; LTA-GK1 Kap. 10].</li>
+<li><b>Solorufer:</b> wie Rufer, aber ohne Talon; der Talon zählt zu den Gegnern. Alle Prämien zählen doppelt. Typisches Hauptziel ist ein vom Partner angesagter König ultimo (4 Punkte); das Spiel (2) ist Nebenziel [LTA-GK1 Kap. 10].</li>
+<li><b>Besserrufer:</b> wie Rufer, der Spieler muss aber den Vogel ansagen, den er schon vor der Talonaufnahme im Blatt hatte [OÖ23 Ansagen 4; LTA-GK1 Kap. 10]. Hauptziel ist der Vogel, das Spiel zählt nur 1.</li>
+<li><b>Dreier:</b> allein gegen drei, eine Talonhälfte, 35/2.</li>
+<li><b>Sechserdreier:</b> allein gegen drei. Der Spieler nimmt alle sechs Talonkarten verdeckt auf und verlegt sechs. Verloren zählt das Spiel doppelt [ÖF21 Vorhand; LTA-GK1 Kap. 10].</li>
+<li><b>Solodreier:</b> allein gegen drei ohne Talon, höchstes Spiel. Prämien doppelt, Ansagen unmittelbar mit dem Gebot [OÖ23 Ansagen 3].</li>
+<li><b>Farbendreier / Farbensolo:</b> allein gegen drei, mit Talonhälfte bzw. ohne Talon. <b>Tarock sticht keine Farbe</b>; Tarock darf erst ausgespielt werden, wenn man keine Farbkarte mehr hat [OÖ23 Farben 1–3].</li>
+<li><b>Piccolo:</b> allein, <b>genau ein</b> Stich. <b>Bettel:</b> allein, <b>kein</b> Stich. Stichzwang, der Spieler spielt aus [OÖ23 Negativ 1–2; LTA-GK1 Kap. 11].</li>
+<li><b>Piccolo ouvert / Bettel ouvert:</b> Nach dem ersten Stich und vor dem zweiten Ausspiel legen <b>alle</b> Spieler ihre Karten offen auf. Die drei Gegner dürfen sich beraten [OÖ23 Negativ 3].</li>
+<li><b>Trischaken:</b> jeder gegen jeden. Wer die meisten Punkte hat, verliert [OÖ23 Trischaken 1–3].</li>
+</ul>
+@ 3.3 2 Rechte und Pflichten der Vorhand
+<ol>
+<li><b>Eröffnung:</b> Die Vorhand beginnt mit „<b>Vorhand</b>“ oder mit einer Spielansage [OÖ23 Allg. 2].</li>
+<ul>
+<li>„Vorhand“ (auch „meine Vorhand“, „mein Spiel“) sagt noch kein Spiel an, sondern hält alle Möglichkeiten offen [WIKI; LTA-F1 Kap. 2].</li>
+<li><b>[EMPFEHLUNG]</b> Die Vorhand kann beim ersten Sprechen nicht passen; so ausdrücklich [KTC], in [OÖ23] durch „beginnt mit ‚Vorhand‘ oder einer Spielansage“ vorausgesetzt.</li>
+</ul>
+<li><b>Sechserdreier nur vorneweg:</b> Er kann nur als erstes Wort der Vorhand angesagt werden, später nicht mehr [OÖ23 Vorhand 1; LTA-F1 Kap. 2].</li>
+<li><b>Rufer und Trischaken nur hintennach:</b> Sie sind nur möglich, wenn die Vorhand „Vorhand“ gesagt hat und alle drei anderen „weiter“ gesagt haben.</li>
+<ul>
+<li>In diesem Fall darf die Vorhand <b>jedes Spiel außer dem Sechserdreier</b> wählen, also auch Rufer oder Trischaken [OÖ23 Vorhand 1; LTA-GK1 Kap. 10; LTA-F1 Kap. 2].</li>
+<li>Hat irgendwer ein Spiel angesagt, sind Rufer und Trischaken nicht mehr möglich [LTA-GK1 Kap. 11].</li>
+</ul>
+<li><b>Halten:</b> Die Vorhand darf das zuletzt lizitierte (höchste) Spiel „halten“, d. h. selbst spielen, ohne es überbieten zu müssen [OÖ23 Vorhand 2; LTA-GK1 Kap. 6; LTA-F1 Kap. 2].</li>
+<ul>
+<li>Das Halterecht hat <b>nur</b> die Vorhand [MAIR-CUPS: „Vorhand: Spiel halten (bei mir) – OÖ ja, Tirol –, Wien –“].</li>
+</ul>
+<li><b>Alle vier Könige:</b> Kein Ruferspiel (Rufer, Solorufer, Besserrufer). Die Vorhand darf trotzdem nicht „weitergeben“ [OÖ23 Vorhand 3]. Sagen alle „weiter“, muss sie ein anderes Spiel spielen (z. B. Trischaken, Dreier, Farbensolo) [LTA-GK1 Kap. 10].</li>
+<ul>
+<li><b>[ABWEICHUNG]</b> [ÖF10] erlaubte noch „Gebe die Vorhand weiter“, [OÖ23] nicht mehr.</li>
+</ul>
+<li>Die Vorhand darf <b>alle</b> Spiele bieten, nicht nur Vorhandspiele [MAIR-CUPS: „Vorhand darf nur Vorhandspiele ansagen – OÖ: –“].</li>
+<li>In <b>allen positiven Spielen</b> spielt die Vorhand zum ersten Stich aus, auch als Gegner.</li>
+</ol>
+@ 3.4 2 Die übrigen Spieler
+<ul>
+<li>Wer an der Reihe ist, sagt entweder ein <b>höheres</b> Spiel an oder passt. [OÖ23 Allg. 2] kennt dafür nur das Wort <b>„gut“</b> („Wer kein Spiel anmelden oder überbieten will, muss passen (‚gut‘)“); am Tisch und in den Lehrtexten ist <b>„weiter“</b> gleichbedeutend und mindestens ebenso üblich [LTA-GK1 Kap. 6: „akzeptieren das Spiel des Vorgängers mit ‚gut‘ bzw. ‚weiter‘“; WIKI: „Wer kein Spiel anmeldet, sagt Weiter!“; KTC: „dreimal Weiter!“]. Die App akzeptiert beides und beschriftet den Knopf mit „weiter“.</li>
+<li><b>Passen ist endgültig</b> [LTA-GK1 Kap. 6; WIKI].</li>
+<li>Alle Spiele außer den drei Vorhandspielen dürfen „vorneweg und hintennach“ angesagt werden [OÖ23 Vorhand 1]: beim ersten Sprechen oder später, solange man nicht gepasst hat.</li>
+<li>Gleich hoch bieten darf nur die Vorhand (Halten). Ein eigenes Gebot darf man nicht selbst überbieten [MAIR-KURS]; das ergibt sich im Automaten von selbst.</li>
+</ul>
+@ 3.5 2 Lizitation als Zustandsautomat
+<ul>
+<li><b>Terminierung:</b> Jedes Gebot ist streng höher, halten ist pro Gebotsstufe nur einmal möglich. Der Automat endet also spätestens nach 13 Stufen.</li>
+<li><b>Endebedingung C:</b> Siehe <b>[OFFEN] L-4</b> in 9. Die Vorhand kann einen Solodreier halten, solange sie noch aktiv ist.</li>
+</ul>
+@ 3.6 2 Beispiele (OÖ-Reihenfolge)
+<p>Spieler A (Vorhand), B, C, D (Geber) in Spielreihenfolge.</p>
+<ol>
+<li><b>Normalfall:</b> A „Vorhand“ · B „weiter“ · C „Bettel“ · D „Solorufer“ · A „weiter“ · C „Farbendreier“ · D „weiter“. → <b>C spielt Farbendreier</b>, A spielt zum ersten Stich aus.</li>
+<ul>
+<li>D hätte nach C's Bettel keinen Piccolo mehr sagen dürfen (Rang 3 &lt; 4).</li>
+<li>Anders als in manchen Wiener Tabellen liegt der Bettel in OÖ <b>unter</b> dem Solorufer.</li>
+</ul>
+<li><b>Halten:</b> A „Vorhand“ · B „Piccolo“ · C „weiter“ · D „Besserrufer“ · A „ich halte“ · B „weiter“ · D „weiter“. → <b>A spielt Besserrufer.</b> D hätte gegen A's Halten ein höheres Spiel ab Farbendreier bieten müssen.</li>
+<li><b>Sechserdreier überboten:</b> A „Sechserdreier“ · B „weiter“ · C „Dreier“ · D „weiter“ · A „ich halte“ · C „weiter“. → <b>A spielt einen (normalen) Dreier</b> mit einer Talonhälfte.</li>
+<ul>
+<li>Der Dreier überbietet den Sechserdreier (Rang 9 &gt; 8), der Farbendreier nicht [MAIR-GRUND: „In OÖ überbietet der Sechserdreier den Farbendreier“].</li>
+<li>Dass die Vorhand den Dreier nach eigenem Sechser halten darf, folgt aus [OÖ23 Vorhand 2]; es ist nirgends gesondert erwähnt.</li>
+</ul>
+<li><b>Nur die Vorhand:</b> A „Vorhand“ · B, C, D „weiter“. → A wählt Rufer, Trischaken oder jedes andere Spiel außer dem Sechserdreier.</li>
+<li><b>Vorhand mit Gebot:</b> A „Piccolo“ · B, C, D „weiter“ → <b>A spielt Piccolo.</b></li>
+<ul>
+<li>Ein einmal angesagtes Spiel wird gespielt. Auf Rufer oder Trischaken kann A nicht mehr zurück, denn beide gibt es nur nach „Vorhand“.</li>
+</ul>
+</ol>
+@ 3.7 2 Blattbedingungen für Gebote (von der App erzwungen)
+<ul>
+<li><b>Besserrufer:</b> Nur mit mindestens einem Vogel (I, II, III oder IIII) im Blatt <b>vor</b> der Talonaufnahme [OÖ23 Ansagen 4; LTA-GK1 Kap. 10: „Der Spieler muss das geplante Vogerl schon beim Rufen in der Karte haben“]. Am Tisch ist ein Verstoß Renonce (je 3 Punkte an die Mitspieler) [OÖ23 Ansagen 4; OÖR25].</li>
+<li><b>Ruferspiele:</b> nicht mit allen vier Königen [OÖ23 Vorhand 3; Allg. 6; MAIR-AUSL].</li>
+<li>Die App bietet unzulässige Gebote nicht an bzw. lehnt sie mit Erklärung ab (11.4). <b>Renonce kann in der App nicht entstehen.</b> Die Renonceregeln sind nur zur Vollständigkeit in 7.9 wiedergegeben.</li>
+</ul>
+@ 3.8 2 Sprechformeln (UI-Texte)
+<ul><li><b>Vorhand eröffnet ohne Spiel</b> · Formel: „Vorhand“ · Beleg: [OÖ23 Allg. 2]</li><li><b>Passen</b> · Formel: „gut“ (so [OÖ23 Allg. 2]); gleichbedeutend „weiter“ · Beleg: [OÖ23 Allg. 2; LTA-GK1 Kap. 6; WIKI]</li><li><b>Gebot</b> · Formel: Spielname, z. B. „Dreier“ · Beleg: [KTC Etikette]</li><li><b>Halten (nur Vorhand)</b> · Formel: „ich halte“ / „bei mir“ · Beleg: [OÖ23 Vorhand 2; MAIR-CUPS]</li><li><b>König rufen</b> · Formel: „Der Pik-König“ bzw. „der vierte König“ · Beleg: [OÖ23 Allg. 6]</li><li><b>Ansagen abschließen</b> · Formel: „Ich liege“ · Beleg: [OÖ23 Allg. 2]</li><li><b>Ansage zur Kenntnis nehmen</b> · Formel: „gut“ · Beleg: [OÖ23 Allg. 2]</li><li><b>Kontra / Rekontra / Subkontra</b> · Formel: „Kontra“ („gespritzt“, „Schuss“) / „Rekontra“ („retour“) / „Subkontra“ („nochmals gespritzt“) · Beleg: [OÖ23 Allg. 5; LTA-GK1 Kap. 8]</li></ul>
+<p>---</p>
+@ 4 1 Partner, Talon und Verlegen
+<ul><li>4.1  Königsruf (Rufer, Solorufer, Besserrufer)</li><li>4.2  Talonbehandlung je Spiel</li><li>4.3  Offener Talon (Rufer, Besserrufer, Dreier, Farbendreier)</li><li>4.4  Sechserdreier</li><li>4.5  Gerufener König im Talon</li><li>4.6  Verlegen (Ablage)</li><li>4.7  Was offengelegt wird</li><li>4.8  Übergang zu den Ansagen</li></ul>
+@ 4.1 2 Königsruf (Rufer, Solorufer, Besserrufer)
+<ol>
+<li><b>Zeitpunkt:</b> unmittelbar nach Ende der Lizitation, <b>vor</b> dem Aufdecken des Talons.</li>
+<ul>
+<li>Belege: [WIKI]: „ruft der Spielersteher einen Partner. Erst danach wählt er eine Hälfte des Talons“. [KTC Renonce]: vor Lizitationsende darf niemand „den Talon öffnen oder einen König rufen“.</li>
+<li>Ansageformel „Besser-Rufer mit Pagat, der Pik König hilft mir, ich liege“ [LTA-GK1 Kap. 6]. Die Farbe wird am Ende wiederholt [OÖT26 3].</li>
+</ul>
+<li><b>Wahl:</b> Der Spieler nennt eine Farbe (♥, ♦, ♠, ♣). Partner ist, wer den <b>König dieser Farbe</b> hält.</li>
+<ul>
+<li>Verboten: einen König rufen, der <b>im eigenen Blatt</b> ist [OÖ23 Allg. 6]; auch „Selbstrufen“ [ÖF21 Rufen].</li>
+</ul>
+<li><b>Drei Könige:</b> Wer genau drei Könige hält, darf „<b>den vierten König</b>“ rufen, ohne die Farbe zu nennen [OÖ23 Allg. 6].</li>
+<ul>
+<li><b>[EMPFEHLUNG]</b> Mit genau drei Königen darf der Spieler auch die Farbe des vierten Königs offen nennen; beides führt zum selben Partner.</li>
+</ul>
+<li><b>Vier Könige:</b> Ruferspiel unmöglich (3.7).</li>
+<li><b>Verdeckte Partnerschaft:</b> Nur der Partner weiß, dass er Partner ist. Öffentlich wird die Partnerschaft,</li>
+<ul>
+<li>sobald der gerufene König gespielt wird, oder</li>
+<li>sobald dessen Inhaber „König ultimo“ ansagt; nur er darf das (5.3).</li>
+</ul>
+</ol>
+<p>Andere Hinweise als durch Spielweise sind verboten [LTA-GK1 Kap. 10: „Andere Äußerungen sind nicht erlaubt“; OÖT26 6]. Engine: partnerSeat bleibt serverseitig. Das öffentliche Flag partnerBekannt wird gesetzt, wenn der König fällt oder KU vom Inhaber angesagt wird.</p>
+@ 4.2 2 Talonbehandlung je Spiel
+<ul><li><b>Rufer, Besserrufer, Dreier, Farbendreier</b> · Talon: beide Hälften offen aufdecken, eine Hälfte aufnehmen, 3 Karten verlegen</li><li><b>Sechserdreier</b> · Talon: alle 6 Karten verdeckt aufnehmen, 6 verlegen</li><li><b>Solorufer, Solodreier, Farbensolo</b> · Talon: Talon bleibt verdeckt, am Ende zu den Gegnern (Solorufer: siehe 4.5 b)</li><li><b>Piccolo, Bettel, Piccolo ouvert, Bettel ouvert</b> · Talon: Talon bleibt verdeckt, zählt nicht</li><li><b>Trischaken</b> · Talon: Talon bleibt verdeckt, am Ende an den Gewinner des letzten Stichs</li></ul>
+<p>Belege: [OÖ23 Allg. 7; Farben 1, 3; Trischaken 1; LTA-GK1 Kap. 7, 10, 11].</p>
+@ 4.3 2 Offener Talon (Rufer, Besserrufer, Dreier, Farbendreier)
+<ol>
+<li>Der Spieler deckt beide Hälften <b>für alle aktiven Spieler</b> auf [LTA-GK1 Kap. 7; WIKI; KTC Etikette]. Für den Fünften ist der Talon tabu (2.7).</li>
+<li>Nur bei Rufer oder Besserrufer: Liegt der gerufene König im Talon, gilt 4.5 a.</li>
+<li>Der Spieler wählt <b>eine</b> Hälfte und nimmt ihre 3 Karten auf (15 Karten in der Hand).</li>
+<li>Er verlegt genau 3 Karten nach 4.6. Die verlegten Karten zählen zu seinen Stichen.</li>
+<li>Die andere Hälfte gehört den Gegnern. Sie dürfen keine Karten austauschen [LTA-GK1 Kap. 7]. Sie bleibt bis zum Ende des ersten Stichs offen und wird dann umgedreht [OÖT26 3].</li>
+<li>Danach folgen die Ansagen (5.3) und „Ich liege“.</li>
+</ol>
+@ 4.4 2 Sechserdreier
+<ul>
+<li>Der Spieler nimmt <b>alle sechs Talonkarten verdeckt</b> auf; der Talon wird niemandem gezeigt [LTA-GK1 Kap. 7, 10]. Er hat 18 Karten und verlegt <b>sechs</b> nach 4.6.</li>
+<li>Verlegte Tarock sind auch hier offen zu zeigen [OÖ23 Renonce 2]. Die sechs verlegten Karten zählen zu seinen Stichen [STMK].</li>
+</ul>
+@ 4.5 2 Gerufener König im Talon
+<p><b>a) Rufer und Besserrufer.</b> Der König ist beim Aufdecken sichtbar. Der Spieler wählt, bevor er eine Hälfte aufnimmt [OÖ23 Allg. 7; ÖF21 Rufen; LTA-GK1 Kap. 10]:</p>
+<ul>
+<li><b>„Schleifen“ (aufgeben):</b> Das Spiel endet sofort.</li>
+<ul>
+<li>Wortlaut: „Es werden die Punkte von Spiel und Ansage als verloren gewertet“ [OÖ23 Allg. 7]; „er verliert Spiel plus Ansager (3, 5, 7 oder 9 Punkte)“ [ÖF21].</li>
+<li>Die Gegner können nicht kontrieren [LTA-GK1 Kap. 10: „Er kann das Spiel schleifen und das Spiel samt geplantem Vogerl zahlen. Die Gegner können nicht kontrieren“].</li>
+<li>Abrechnung in 7.7.</li>
+</ul>
+<li><b>Allein weiterspielen:</b> Der Spieler wählt <b>frei</b> eine Hälfte, mit oder ohne König [LTA-GK1 Kap. 10: „egal, ob jene mit dem König oder die andere“].</li>
+<ul>
+<li>Den gerufenen König liegen zu lassen, ist sanktionslos [OÖ23 Allg. 7]. „Der Verlust des gerufenen Königs wird nicht bewertet, es sei denn er wird ultimo angesagt“ [ÖF21].</li>
+<li>Er spielt <b>allein gegen drei</b>; die Abrechnung erfolgt wie beim Alleinspiel (7.1). Kontras sind möglich [OÖ23 Allg. 7].</li>
+<li>Beim Besserrufer bleibt die Pflichtansage des ursprünglichen Vogels bestehen [OÖ23 Ansagen 4].</li>
+<li><b>[EMPFEHLUNG]</b> Nimmt er die Hälfte mit dem König, darf er selbst „König ultimo“ ansagen. [OÖ23] regelt das nicht, erlaubt ist es in [MAIR-AUSL]; es verstößt nicht gegen [OÖ23 Ansagen 1], denn er hält den König selbst.</li>
+</ul>
+</ul>
+<p><b>b) Solorufer.</b> Der Talon bleibt verdeckt, niemand weiß von der Lage.</p>
+<ul>
+<li>Der Spieler spielt faktisch allein gegen drei.</li>
+<li>Am Spielende erhält er die <b>Talonhälfte mit dem König</b>, die andere geht an die Gegner.</li>
+<li><b>Jedes Kontra ist wirkungslos</b>, auch wenn der Spieler gewinnt [OÖ23 Allg. 7; LTA-F1 Kap. 3].</li>
+<li>Abrechnung als Alleinspieler gegen drei [LTA-GK1 Kap. 10: „so spielt der Spieler allein gegen drei“].</li>
+</ul>
+<p><b>Wahrscheinlichkeit:</b> Der gerufene König liegt mit 6/42 = 1/7 im Talon (42 unbekannte Karten, 6 davon im Talon) [MAIR-GRUND: „bei jedem siebten Besserrufer“].</p>
+@ 4.6 2 Verlegen (Ablage)
+<p><b>Tarockspiele</b> (Rufer, Besserrufer, Dreier, Sechserdreier):</p>
+<ul>
+<li><b>Nie</b> Könige, <b>nie</b> Trullstücke (Sk, XXI, I).</li>
+<li>Tarock (II–XX) darf man nur verlegen, wenn keine verlegbaren Farbkarten mehr vorhanden sind. Verlegte Tarock werden <b>offen</b> gezeigt.</li>
+<li>Genau 3 Karten (Sechserdreier: 6).</li>
+<li>Belege: [OÖ23 Renonce 2: „Unerlaubte Ablage (Trullstücke, Könige, falsche Anzahl, verdeckte Tarock)“; LTA-GK1 Kap. 7: „Bei Tarockspielen dürfen Tarock nur verlegt werden, wenn der Spieler keine Farbkarten mehr verlegen kann. Sie müssen aber aufgedeckt werden“; WIKI].</li>
+</ul>
+<p><b>Farbendreier:</b></p>
+<ul>
+<li><b>Zuerst Tarock</b> verlegen, <b>verdeckt</b>, keine Trullstücke.</li>
+<li>Farbkarten erst, wenn keine verlegbaren Tarock mehr da sind, dann <b>immer offen</b>.</li>
+<li>Nie Könige.</li>
+<li>Belege: [OÖ23 Farben 1; LTA-GK1 Kap. 7, 10; LTA-F1 Kap. 9].</li>
+<li><b>[ABWEICHUNG]</b> [KTC] und [STMK] verlangen zusätzlich mindestens sechs Farbkarten nach dem Verlegen; im OÖ-Profil gilt das nicht [MAIR-CUPS].</li>
+</ul>
+<p><b>Validierung</b> (Kartenmenge H nach Aufnahme, zu verlegende Anzahl k, gewählte Ablage D):</p>
+<ul>
+<li>Eine gültige Ablage existiert immer: Unter 15 (18) Karten sind höchstens 7 verbotene.</li>
+<li>Die UI markiert verlegbare Karten und erklärt Ablehnungen (11.4).</li>
+</ul>
+@ 4.7 2 Was offengelegt wird
+<ul><li><b>beide Talonhälften (Rufer, Besserrufer, Dreier, Farbendreier)</b> · Wem: vier aktive Spieler · Bis wann: Aufnahme; die liegen gelassene Hälfte bis Ende 1. Stich [OÖT26 3]</li><li><b>verlegte Tarock (Tarockspiele einschl. Sechser)</b> · Wem: vier aktive Spieler · Bis wann: bleibt als Information vermerkt</li><li><b>verlegte Farbkarten (Farbendreier)</b> · Wem: vier aktive Spieler · Bis wann: bleibt vermerkt</li><li><b>gerufene Farbe bzw. „vierter König“</b> · Wem: alle, auch der Fünfte · Bis wann: ganzes Spiel</li><li><b>Karten aller Spieler im Ouvertspiel</b> · Wem: alle · Bis wann: ab dem 2. Ausspiel</li><li><b>alle Karten, Talon und Ablage</b> · Wem: alle · Bis wann: nach Spielende (Rückschau)</li></ul>
+@ 4.8 2 Übergang zu den Ansagen
+<p>Nach eventueller Ablage wiederholt der Spieler Spiel, gerufene Farbe und seine Prämien und schließt mit „<b>Ich liege</b>“ [OÖT26 3; LTA-GK1 Kap. 6; KTC Etikette].</p>
+<ul>
+<li>„Ich liege“ ist sein letztes Wort. Danach sind keine eigenen Prämienansagen und keine Änderung der Ablage mehr möglich [KTC Etikette; STMK].</li>
+<li><b>UI:</b> Zusammenfassungsbanner „Dreier · Pagat · ich liege“ bzw. „Rufer · Pik-König · ich liege“.</li>
+</ul>
+<p>---</p>
+@ 5 1 Ansagen (Prämien) und Kontra
+<ul><li>5.1  Übersicht der Prämien im OÖ-Profil</li><li>5.2  Genaue Definitionen</li><li>5.3  Wer darf wann was ansagen</li><li>5.4  Pflichten aus einer Ansage (wirken als Zugbeschränkung)</li><li>5.5  Still oder angesagt</li><li>5.6  Kontra, Rekontra, Subkontra</li><li>5.7  Ansage- und Kontraphase als Zustandsautomat</li></ul>
+@ 5.1 2 Übersicht der Prämien im OÖ-Profil
+<ul><li><b><b>Trull</b></b> · Bedingung: Sk + XXI + I in den Stichen der eigenen Partei · still: 1 · angesagt: 2 · in Solospielen: doppelt · möglich in: positive Tarockspiele</li><li><b><b>Alle Könige</b></b> · Bedingung: alle vier Könige in den Stichen der eigenen Partei · still: 1 · angesagt: 2 · in Solospielen: doppelt · möglich in: positive Tarockspiele <b>und</b> Farbenspiele</li><li><b><b>König ultimo</b></b> · Bedingung: der gerufene König liegt im letzten Stich und die Spielerpartei gewinnt ihn · still: 1 · angesagt: 2 · in Solospielen: doppelt · möglich in: nur Ruferspiele</li><li><b><b>Pagat</b> (Pagat ultimo)</b> · Bedingung: I gewinnt den 12. Stich · still: 1 · angesagt: 2 · in Solospielen: doppelt · möglich in: positive Tarockspiele</li><li><b><b>Uhu</b></b> · Bedingung: II gewinnt den 11. Stich · still: 2 · angesagt: 4 · in Solospielen: doppelt · möglich in: positive Tarockspiele</li><li><b><b>Kakadu</b></b> · Bedingung: III gewinnt den 10. Stich · still: 3 · angesagt: 6 · in Solospielen: doppelt · möglich in: positive Tarockspiele</li><li><b><b>Quapil</b></b> · Bedingung: IIII gewinnt den 9. Stich · still: 4 · angesagt: 8 · in Solospielen: doppelt · möglich in: positive Tarockspiele</li><li><b><b>Valat</b></b> · Bedingung: eine Partei gewinnt alle 12 Stiche · still: Spielwert × 4 · angesagt: Spielwert × 8 · in Solospielen: <b>nicht</b> zusätzlich verdoppelt · möglich in: alle positiven Spiele</li></ul>
+<p>Belege: [OÖ23 Tarif] (angesagte Werte), [OÖ23 Ansagen 1] („Alle Prämien zählen still die Hälfte, bei den Solospielen doppelt“), [OÖ23 Ansagen 2] (Valat 8-fach/4-fach), [LTA-GK1 Kap. 4, 12], [ÖF21 Ansagen].</p>
+<ul>
+<li><b>Solospiele</b> sind Solorufer, Solodreier und Farbensolo [LTA-GK1 Kap. 9].</li>
+<li>Der Valat wird nicht zusätzlich verdoppelt, weil er sich ohnehin auf den bereits höheren Solo-Spielwert bezieht [LTA-GK1 Kap. 9: „Der Valat bezieht sich ohnedies auf den hier höheren Spielwert (4 bzw. 8-fach)“; STMK ausdrücklich: „Im Solorufer, Solodreier und Farbensolo gelten alle Prämien doppelt (Valat bleibt aber 8-fach/4-fach)“]. Rechnerische Gegenprobe [MAIR-CUPS]: angesagter Valat im Solorufer = 16 Punkte = 2 × 8, nicht 32.</li>
+<li><b>In Negativspielen (Piccolo, Bettel, Ouvertspiele, Trischaken) gibt es überhaupt keine Prämien</b> [OÖ23 Negativ; LTA-GK1 Kap. 11].</li>
+<li><b>In Farbenspielen</b> gibt es nur Alle Könige und Valat; Trull und Vögel werden nicht honoriert [LTA-GK1 Kap. 10, wörtlich für Farben-Solo <b>und</b> Farben-Dreier: „An Zusatzprämien sind nur alle Könige und Valat möglich“; LTA-F1 Kap. 8/9: „Trull und Vogerl werden nicht [gewertet]“; ÖF21 Ansagen: „Beim Farbensolo sind nur Vier Könige und Valat möglich“]. Gegenprobe in [MAIR-CUPS], Tabelle „Maximale Punkte pro Spiel“: Farbendreier mit allen stillen Zusätzen 12 = 9 (Spiel) + 3 (stille vier Könige) – für Trull und Vögel ist dort kein Platz.</li>
+<li><b>Es gibt keine</b> Fänge (Mondfang, Sküsfang, Königfang), keinen Kaiserstich, keine Säcke/Absolut, keine Handprämien (Honneurs, Tarockansagen) [OÖ23 Allg. 3; Tarif].</li>
+</ul>
+@ 5.2 2 Genaue Definitionen
+<ul>
+<li><b>Trull / Alle Könige</b> sind <i>Bestandsprämien</i>: Entscheidend ist, wo die Karten am Ende liegen. Stiche, Ablage und die der Partei zugefallenen Talonkarten zählen gleich (1.8).</li>
+<li><b>Vögel</b> sind <i>Verlaufsprämien</i>: Die genannte Karte muss den genannten Stich <b>selbst stechen</b> [LTA-GK2 Kap. 1: „Der Ansagende muss das Vogerl selbst in der Karte haben und den Stich auch selbst machen“; MAIR-TURNIER: „Die Vögel müssen selber stechen“].</li>
+<ul>
+<li>Stichnummern: Pagat = 12., Uhu = 11., Kakadu = 10., Quapil = 9. Stich.</li>
+<li>Es genügt <b>nicht</b>, wenn der Partner den Stich gewinnt.</li>
+</ul>
+<li><b>König ultimo:</b> Der gerufene König wird im letzten Stich gespielt und die Spielerpartei gewinnt den Stich; es genügt, wenn der <b>Partner</b> sticht [LTA-GK1 Kap. 4: „vom Spieler oder seinem Partner heimgestochen“; MAIR-TURNIER].</li>
+<li><b>Valat:</b> Eine Partei gewinnt <b>alle zwölf</b> Stiche. Auch die Gegenpartei kann einen Valat erzielen oder ansagen (7.4).</li>
+<li><b>Kein Kaiserstich:</b> Fallen Sk, XXI und I in einen Stich, gewinnt der Sküs [OÖ23 Allg. 3].</li>
+</ul>
+@ 5.3 2 Wer darf wann was ansagen
+<p><b>Ablauf:</b></p>
+<ol>
+<li><b>Der Spieler</b> sagt nach dem Verlegen seine Prämien an und schließt mit „Ich liege“ [OÖ23 Allg. 2; LTA-GK1 Kap. 6].</li>
+<ul>
+<li><b>Solodreier:</b> Alle Ansagen müssen unmittelbar nach der Spielansage erfolgen, bevor „Ich liege“ gesagt wird [OÖ23 Ansagen 3].</li>
+<li><b>Besserrufer:</b> Der ursprüngliche Vogel (der schon vor der Talonaufnahme im Blatt war) <b>muss</b> angesagt werden [OÖ23 Ansagen 4; LTA-GK1 Kap. 10]. Ein weiterer, aus dem Talon gehobener Vogel darf zusätzlich angesagt werden [ÖF21 Rufen; LTA-GK1 Kap. 10].</li>
+</ul>
+<li><b>Reihum</b> ab dem Spieler nach dem Spieler (gegen den Uhrzeigersinn): „gut“, eigene Ansagen oder Kontra [LTA-GK1 Kap. 6: „der Partner kann Zusatzprämien ansagen, die Gegner können ‚gut‘ sagen oder kontrieren, sie können auch selbst Zusatzprämien ansagen“].</li>
+<li><b>Jeder Spieler darf nur einmal Prämien ansagen</b> [OÖ23 Ansagen 1].</li>
+<li><b>Ende der Runde:</b> <b>[EMPFEHLUNG]</b> Die Runde endet, wenn nach der letzten Ansage bzw. dem letzten Kontra drei Spieler hintereinander „gut“ gesagt haben. So ausdrücklich [MAIR-TURNIER] und [PAGAT]; [OÖ23 Allg. 2] verlangt nur, dass jede Ansage mit „gut“ zur Kenntnis genommen oder kontriert wird.</li>
+</ol>
+<p><b>Berechtigungen:</b></p>
+<ul><li><b>Vögel (Pagat, Uhu, Kakadu, Quapil)</b> · Wer darf sie machen: nur, wer die Karte selbst im Blatt hat. <b>Nicht für den Partner</b> [OÖ23 Ansagen 1]</li><li><b>König ultimo</b> · Wer darf sie machen: nur, wer den gerufenen König im Blatt hat, also der Partner – oder der Spieler, wenn er den König aus dem Talon aufgenommen hat (4.5 a). Nicht für den Partner [OÖ23 Ansagen 1]</li><li><b>Trull, Alle Könige</b> · Wer darf sie machen: jeder Spieler, auch „auf Verdacht“ ohne die Karten [ÖF21 Ansagen]</li><li><b>Valat</b> · Wer darf sie machen: jeder Spieler; er sagt ihn für seine Partei an</li><li><b>Kontra / Rekontra / Subkontra</b> · Wer darf sie machen: siehe 5.6</li></ul>
+<p><b>Folgen falscher Ansagen</b> (am Tisch; die App verhindert sie, 3.7):</p>
+<ul>
+<li>Besserrufer ohne einen der vier Ansager im Blatt: Renonce, je 3 Punkte an die Mitspieler [OÖ23 Ansagen 4; OÖR25 B.4].</li>
+<li>Falscher Ansager beim Besserrufer (nicht im Blatt oder nur aus dem Talon gehoben) oder falscher König ultimo: Renonce [OÖ23 Ansagen 5].</li>
+<li>Falscher Ansager bei Rufer, Solorufer, Sechserdreier, Dreier, Solodreier: keine Renonce, nur diese Prämie ist verloren [OÖ23 Ansagen 5].</li>
+</ul>
+@ 5.4 2 Pflichten aus einer Ansage (wirken als Zugbeschränkung)
+<p><b>Wichtig – keine harte Sperre.</b> Eine angesagte Karte zu früh zu spielen ist nach OÖ-Regeln <b>erlaubt</b>; es kostet nur die Prämie. [OÖ23 Ansagen 6]: „Wird eine Ansage zum falschen Zeitpunkt gespielt, so gilt diese als verloren. Eine Renonce liegt aber nur dann vor, wenn sich ein Spieler dadurch einen offensichtlichen Vorteil verschafft (z. B. Pagat vorzeitig heimstechen, um Trull und Spiel zu retten).“ Gleichlautend [ÖF21 Ansagen]: „Wird ein angesagter Vogel zum falschen Zeitpunkt gespielt, so ist er verloren und darf nicht zurückgenommen werden, aber es ist keine Renonce, sofern der Spieler nicht gegen die Reihenfolge verstößt.“ Auch [OÖR25 B.2] führt „ein Vogerl wird zum falschen Zeitpunkt gespielt, ohne dass sich der Spieler dadurch einen offensichtlichen Vorteil verschafft“ und „angesagter König wird zu früh gespielt …“ ausdrücklich unter <b>keine Renonce</b>.</p>
+<ol>
+<li><b>Obliegenheit, nicht Verbot:</b> Ein angesagter Vogel bzw. der angesagte König ultimo <i>sollte</i> bis zu seinem Stich in der Hand bleiben; wer ihn früher spielt, verliert die Prämie (der Partner trägt den Verlust mit). Der striktere Wortlaut „Beide Ansagen dürfen nicht freiwillig aufgegeben werden“ [MAIR-TURNIER] gehört zum <b>Tiroler</b> Profil und wird selbst dort in [MAIR-AUSL] als bloßer Prämienverlust abgerechnet („ist die Prämie verloren … Es handelt sich aber nicht um eine Renonce“). (Korrektur K-1 in Abschnitt 12: Die Fassung vom 11.09.2026 sah hier eine harte Sperre vor.)</li>
+<li><b>Echtes Verbot nur im Vorteilsfall:</b> Renonce ist ausschließlich, <b>mit der angesagten Karte vor ihrem Zielstich einen Stich zu gewinnen</b> (der in [OÖ23 Ansagen 6] genannte Fall „Pagat vorzeitig heimstechen, um Trull und Spiel zu retten“; [ÖF21 Ansagen] ergänzt „mit angesagtem König vorzeitig einstechen“). Die App sperrt diesen Zug <b>nur dann</b>, wenn der Stichgewinn schon aus öffentlich bekannten Tatsachen feststeht (z. B. Ausspiel des Pagats, nachdem alle höheren Tarock gefallen sind). Ist es unsicher, bleibt der Zug erlaubt – sonst würde die Ablehnung verdeckte Information verraten (10.8). Gewinnt die Karte dann tatsächlich vorzeitig, ist die Prämie verloren; die am Tisch fällige Renonce bildet die App nicht nach (7.9).</li>
+<li><b>Spielpflicht im richtigen Stich:</b> Im vorgesehenen Stich ist die angesagte Karte zu spielen, sobald das regelkonform möglich ist [KTC: „muss versuchen, die entsprechende Karte zum vorgeschriebenen Stich zu spielen“; STMK]. <b>[EMPFEHLUNG]</b>, in [OÖ23] nicht ausdrücklich; die App erzwingt es (Verzicht wäre ohnehin nur Prämienverlust).</li>
+<li><b>Zwangsweise vorzeitige Abgabe:</b> Muss wegen Tarockzwang einer von mehreren angesagten Vögeln vorzeitig gespielt werden, ist <b>zuerst der höhere Vogel</b> aufzugeben. Ein Verstoß ist Renonce [OÖ23 Ansagen 7; ÖF21: „zuerst Quapil, dann Kakadu, dann Uhu und zuletzt Pagat“]. Das ist eine <b>harte</b> Regel und wird erzwungen. Sie gilt nach dem Wortlaut nur für <b>Vögel</b>; der angesagte König ultimo ist nicht in die Reihenfolge einbezogen (<b>[OFFEN] P-12</b>).</li>
+<li><b>Verhinderung durch Farbzwang:</b> Kann die angesagte Karte im vorgesehenen Stich wegen Farbzwang nicht gespielt werden, ist die Prämie verloren; danach darf die Karte jederzeit gespielt werden [KTC; STMK]. <b>[EMPFEHLUNG]</b>, da [OÖ23] dazu schweigt.</li>
+<li><b>Solidarität:</b> Der Partner trägt den Verlust mit [ÖF21 Ansagen; OÖ23 Allg. 4].</li>
+</ol>
+<p>Umsetzung als Zugregel in 6.5, Fehlertexte in 11.4.</p>
+@ 5.5 2 Still oder angesagt
+<ul>
+<li><b>Still</b> heißt: keine Ansage, die Prämie wird einfach erzielt; sie zählt die Hälfte [OÖ23 Ansagen 1].</li>
+<li><b>Angesagt</b> zählt den vollen Tarifwert, kann aber verloren gehen und ist kontrierbar.</li>
+<li><b>In Solospielen</b> zählen alle Prämien doppelt, still wie angesagt [OÖ23 Ansagen 1]. Beispiel: stiller Uhu im Solorufer = 2 × 2 = 4 Punkte [LTA-GK1 Kap. 10].</li>
+<li><b>Beim verlorenen Sechserdreier</b> verdoppelt sich nur das <b>Spiel</b>, nicht die Prämien [STMK ausdrücklich: „Ein verlorener Sechserdreier zählt doppelt (nur das Spiel, nicht die Prämien)“; nachgerechnet in [OÖR25 B.4]: Renonce eines Gegenspielers beim Sechser-Dreier mit angesagtem Uhu → je Gegner 8 (Spiel) + 4 (Uhu); PEPI].</li>
+<li><b>Beim Valat</b> zählen nur <b>angesagte</b> Prämien, stille nicht – auch beim verlorenen Valat [OÖ23 Ansagen 2; ÖF21 Valat; LTA-GK1 Kap. 12].</li>
+<li><b>[OFFEN]</b> Ob ein misslungener <b>stiller</b> Vogel bzw. König ultimo negativ zählt, sagt [OÖ23] nicht. Siehe 9, Punkt P-5; Empfehlung: <b>nein</b> (stille Prämien zählen nur, wenn sie gelingen).</li>
+</ul>
+@ 5.6 2 Kontra, Rekontra, Subkontra
+<ul>
+<li><b>Stufen:</b> Kontra (× 2), Rekontra (× 4), Subkontra (× 8). Weitere Stufen (Hirsch-, Mordkontra) gibt es nicht [OÖ23 Allg. 5].</li>
+<li><b>Wirkung:</b> „Ein Kontra wirkt sich nur auf das Geld, aber nicht auf die Punktewertung aus.“ [OÖ23 Allg. 5] Die Schrift (Turnierwertung) bleibt unberührt; siehe 7.1 und 8.2.</li>
+<li><b>Positive Spiele:</b> Das Kontra gilt automatisch für alle Mitspieler, also für beide Gegner und beide Partner [OÖ23 Allg. 5].</li>
+<li><b>Negativspiele:</b> Jeder Gegner kontriert für sich [OÖ23 Allg. 5; LTA-GK1 Kap. 8]. Es entstehen bis zu drei getrennte Abrechnungen Spieler–Gegner.</li>
+<li><b>Trischaken:</b> kein Kontra [OÖ23 Allg. 5].</li>
+<li><b>Getrennt kontrierbar</b> sind das Spiel und <b>jede einzelne</b> angesagte Prämie; man kann auch „alles“ schießen [LTA-GK1 Kap. 8; LTA-GK2 Kap. 4].</li>
+<li><b>Zeitpunkt:</b> erst, nachdem der Spieler „Ich liege“ gesagt hat [LTA-GK1 Kap. 8]. Ein Kontra vor der Talonaufnahme („Mutterleib“) gibt es nicht [STMK].</li>
+<li><b>Wer:</b> Gegner kontrieren; der Spieler oder sein Partner geht „retour“ (Rekontra); die Gegner können „nochmals spritzen“ (Subkontra) [LTA-GK1 Kap. 8].</li>
+<li><b>Solorufer mit gerufenem König im Talon:</b> Jedes Kontra ist wirkungslos [OÖ23 Allg. 7].</li>
+<li><b>Schleifen:</b> kein Kontra [LTA-GK1 Kap. 10].</li>
+<li><b>[EMPFEHLUNG] Kontra unter Partnern zählt nicht.</b> Weil die Partnerschaft verdeckt ist, kann ein Gegner die Ansage seines eigenen Partners kontrieren. Stellt sich das heraus, zählt das Kontra nicht und wird nicht ausbezahlt [KTC Prämien; STMK Prämien; MAIR-AUSL]. [OÖ23] schweigt dazu.</li>
+<li><b>[EMPFEHLUNG] Zeitfenster:</b> Ein Kontra gegen Spiel oder eine Prämie muss beim ersten eigenen Zug nach dieser Ansage erfolgen; danach nur noch gegen später erfolgte Ansagen [KTC Prämien; STMK Prämien]. Das macht den Automaten eindeutig.</li>
+</ul>
+@ 5.7 2 Ansage- und Kontraphase als Zustandsautomat
+<p>// Ausgangspunkt: Spiel und (bei Ruferspielen) gerufene Farbe stehen fest, Talon ist erledigt.<br/>offen = { SPIEL } ∪ {}                        // kontrierbare Posten<br/>ansagenErlaubt(p) = (positives Spiel) ∧ (p hat noch nicht angesagt)<br/><br/>Schritt 0 (Spieler):<br/>   Solodreier: Ansagen wurden bereits mit dem Gebot gemacht.<br/>   sonst: Spieler sagt 0..n Prämien an (Besserrufer: Pflichtvogel dabei), dann "Ich liege".<br/>   jede Ansage -&gt; Posten in 'offen' mit (typ, partei, stufe=1(angesagt))<br/><br/>Schleife ab dem Spieler nach dem Spieler, zyklisch:<br/>   Aktionen von p:<br/>     a) "gut"<br/>     b) Prämien ansagen  (nur einmal pro Spieler; Vögel/König ultimo nur mit Karte im Blatt;<br/>                          Farbenspiel: nur Alle Könige/Valat; Negativspiel: keine)<br/>     c) Kontra auf einen Posten, der von der Gegenpartei stammt und noch auf Stufe 1 steht<br/>        (Negativspiel: nur eigener Posten Spieler–p)<br/>     d) Rekontra auf einen Posten der eigenen Partei, der auf Stufe 2 steht<br/>     e) Subkontra auf einen Posten der Gegenpartei, der auf Stufe 4 steht<br/>   nach b)–e) wird der Zähler "gut in Folge" zurückgesetzt.<br/>   Ende, wenn drei Spieler hintereinander "gut" gesagt haben.<br/><br/>Nebenbedingungen:<br/>   Farbenspiel: ein Gegner darf entweder kontrieren oder den Valat ansagen, nicht beides [OÖ23 Farben 4].<br/>   Solorufer mit König im Talon: alle Stufen werden am Ende auf 1 zurückgesetzt.<br/>   Partner-Kontras werden am Ende neutralisiert (Stufe zurück auf 1), siehe 5.6.</p>
+<p>---</p>
+@ 6 1 Spielregeln im Stich
+<ul><li>6.1  Ausspiel und Stichfolge</li><li>6.2  Grundzwänge (alle Spiele)</li><li>6.3  Farbenspiele (Farbendreier, Farbensolo)</li><li>6.4  Negativspiele</li><li>6.5  Zugbeschränkungen aus Ansagen (nur positive Spiele)</li><li>6.6  Stichgewinner</li><li>6.7  Erlaubte Karten (vollständiger Algorithmus)</li><li>6.8  Spielende</li></ul>
+@ 6.1 2 Ausspiel und Stichfolge
+<ul>
+<li><b>Erster Stich:</b> In allen <b>positiven</b> Spielen einschließlich der Farbenspiele spielt die <b>Vorhand</b> aus, gleichgültig wer Spieler ist [OÖ23 Farben 1; LTA-GK1 Kap. 6]. In allen <b>Negativspielen</b> (Trischaken, Piccolo, Bettel, Ouvertspiele) spielt der <b>Spieler</b> aus [OÖ23 Negativ 1; LTA-GK1 Kap. 6].</li>
+<li>Danach spielt immer der Gewinner des letzten Stichs aus [WIKI].</li>
+<li>Es werden zwölf Stiche zu je vier Karten gespielt.</li>
+</ul>
+@ 6.2 2 Grundzwänge (alle Spiele)
+<ol>
+<li><b>Farbzwang (Bedienzwang):</b> Wer die ausgespielte Farbe hat, muss sie bedienen. Wird Tarock ausgespielt, muss Tarock zugegeben werden [OÖ23 Allg. 3; LTA-GK1 Kap. 8; WIKI].</li>
+<li><b>Tarockzwang:</b> Wer die ausgespielte Farbe nicht (mehr) hat, <b>muss Tarock zugeben</b> [OÖ23 Allg. 3].</li>
+<li>Wer weder die Farbe noch Tarock hat, gibt eine beliebige Karte zu [LTA-GK1 Kap. 8].</li>
+<li><b>Kein Stichzwang in positiven Spielen</b> – man darf beliebig unterstehen („laschieren“) [LTA-GK1 Kap. 8]. <b>Stichzwang nur in Negativspielen</b> [OÖ23 Allg. 3].</li>
+<li>Ein <b>Überstechzwang bei Tarock</b> besteht in positiven Spielen <b>nicht</b>.</li>
+</ol>
+@ 6.3 2 Farbenspiele (Farbendreier, Farbensolo)
+<p>Zusätzlich zu 6.2 [OÖ23 Farben 1–2; LTA-F1 Kap. 8]:</p>
+<ul>
+<li><b>Tarock stechen keine Farbkarte.</b> Den Stich gewinnt die höchste Karte der ausgespielten Farbe.</li>
+<li>Tarock stechen nur innerhalb von Tarock: Wurde Tarock ausgespielt, gewinnt das höchste Tarock.</li>
+<li><b>Ausspielverbot:</b> Tarock darf erst ausgespielt werden, wenn man <b>keine Farbkarte mehr</b> im Blatt hat.</li>
+<li>Farbzwang und Tarockzwang gelten unverändert: Wer eine Farbe nicht bedienen kann, <b>muss Tarock zugeben</b> (das den Stich nicht gewinnt); wer auch kein Tarock hat, gibt eine beliebige Farbkarte zu.</li>
+<li><b>Kein Stichzwang</b>; der <b>Pagat</b> unterliegt keiner Sonderregel [OÖ23 Farben 1].</li>
+<li>Prämien: nur Alle Könige und Valat (5.1).</li>
+</ul>
+@ 6.4 2 Negativspiele
+<p><b>Gemeinsam</b> (Piccolo, Bettel, Piccolo ouvert, Bettel ouvert, Trischaken) [OÖ23 Negativ 1–3; Trischaken 1]:</p>
+<ul>
+<li><b>Stichzwang:</b> Man muss die höchste im Stich liegende Karte überstechen, sofern das unter Beachtung des Farbzwangs möglich ist [WIKI; LTA-GK1 Kap. 8].</li>
+<ul>
+<li>Ist die Farbe bedienbar: mit einer höheren Karte derselben Farbe, wenn vorhanden; sonst beliebige Karte dieser Farbe. Liegt bereits ein Tarock im Stich und war eine Farbe ausgespielt, kann man mit einer Farbkarte nicht überstechen – dann genügt irgendeine Karte der Farbe.</li>
+<li>Ist die Farbe nicht bedienbar: Tarockzwang; liegt bereits ein Tarock, muss man es überstechen, wenn möglich, sonst genügt ein beliebiges Tarock.</li>
+</ul>
+<li><b>Pagat-Regel:</b> Der Pagat darf nur gespielt (ausgespielt oder zugegeben) werden, wenn er das <b>letzte Tarock</b> in der Hand ist [OÖ23 Negativ 2; Trischaken 1].</li>
+<ul>
+<li>Diese Regel geht dem Stichzwang vor: Könnte man nur mit dem Pagat überstechen, spielt man ein anderes Tarock.</li>
+</ul>
+<li><b>Kein Talon</b>, keine Prämien, Kontra einzeln.</li>
+<li><b>Ouvertspiele:</b> Nach dem ersten Stich und <b>vor dem zweiten Ausspiel</b> legen <b>alle</b> Spieler ihre Karten offen auf den Tisch. Die drei Gegenspieler dürfen sich über die Spielstrategie beraten [OÖ23 Negativ 3].</li>
+<ul>
+<li><b>[EMPFEHLUNG]</b> Im LAN ist für die drei Gegner ab diesem Zeitpunkt ein Team-Chat freigeschaltet; der Spieler sieht ihn nicht. Gegen Computerspieler entfällt das.</li>
+</ul>
+</ul>
+<p><b>Trischaken</b> zusätzlich [OÖ23 Trischaken 1]:</p>
+<ul>
+<li>„Es besteht Farb- und Stichzwang, aber <b>es muss nicht austarockiert werden</b>.“ Erläuterung: Es wird „bunt gemischt“ gespielt; jeder Ausspieler darf frei wählen, ob er Tarock oder eine Farbe ausspielt [LTA-GK1 Kap. 11]. Es gibt keine Pflicht, zuerst die Tarock herauszuziehen.</li>
+<li>Der Pagat darf nur als letztes Tarock gespielt werden.</li>
+<li>Den Talon erhält der Spieler mit dem <b>letzten Stich</b>; er zählt zu dessen Punkten.</li>
+<li>Gezählt wird <b>blattgenau</b> (1.5).</li>
+<li>Es spielt jeder gegen jeden; kein Kontra, keine Prämien, kein Partner.</li>
+</ul>
+@ 6.5 2 Zugbeschränkungen aus Ansagen (nur positive Spiele)
+<p>Aus 5.4 folgen Zugregeln. Nur zwei davon sind <b>harte</b> Sperren, die restlichen sind Warnungen:</p>
+<ul>
+<li>Eine <b>reservierte</b> Karte ist ein angesagter Vogel (Zielstich 9/10/11/12) oder der angesagte König ultimo (Zielstich 12).</li>
+<li><b>HART – Stichgewinn vor dem Zielstich:</b> Ein Zug, mit dem eine reservierte Karte einen Stich <b>gewinnen</b> würde, bevor ihr Zielstich erreicht ist, wird abgelehnt (5.4 Punkt 2; einziger in [OÖ23 Ansagen 6] als Renonce benannter Fall). Die Prüfung stützt sich <b>ausschließlich auf öffentlich bekannte Karten</b> (gefallene Karten, offen gezeigte Ablage, offen gelegene Talonhälfte, eigenes Blatt): Ausspielen des Pagats bzw. des gerufenen Königs ist gesperrt, wenn keine Karte, die ihn schlagen könnte, mehr im Spiel sein kann; beim Zugeben als letzter Spieler im Stich ist es gesperrt, wenn die reservierte Karte den Stich damit sicher gewinnt. <b>Im Zweifel ist der Zug erlaubt</b> – eine Ablehnung, die fremde Handkarten voraussetzt, würde verdeckte Information verraten (10.8).</li>
+<li><b>HART – Reihenfolge:</b> Bleiben nur reservierte Vögel erlaubt (typischer Fall: Tarockzwang, in der Hand nur noch angesagte Vögel), ist der <b>höchste</b> Vogel zu spielen [OÖ23 Ansagen 7].</li>
+<li><b>HART – im Zielstich:</b> Im Zielstich muss die reservierte Karte gespielt werden, sobald sie regelkonform gespielt werden darf (5.4 Punkt 3).</li>
+<li><b>WARNUNG – sonstiges vorzeitiges Weggeben:</b> Jeder andere vorzeitige Zug mit einer reservierten Karte ist <b>erlaubt</b>. Die App zeigt vorher einmalig „Damit ist {Prämie} verloren – trotzdem spielen?“ und verbucht die Prämie anschließend als verloren. Im Lernmodus erscheint zusätzlich der Hinweistext aus 11.4.</li>
+<li>Kann sie im Zielstich wegen Farbzwang nicht gespielt werden, ist die Prämie verloren und die Reservierung entfällt (5.4 Punkt 5).</li>
+<li>Optionsschalter harteVogelreservierung (Standard <b>aus</b>) für Runden, die nach [MAIR-TURNIER] streng spielen wollen.</li>
+</ul>
+@ 6.6 2 Stichgewinner
+<p>Es gibt <b>keinen Kaiserstich</b> und keine Fangprämien [OÖ23 Allg. 3].</p>
+@ 6.7 2 Erlaubte Karten (vollständiger Algorithmus)
+<p>Hinweise:</p>
+<ul>
+<li>In positiven Tarockspielen gibt es weder Stichzwang noch Pagat-Beschränkung; die einzige zusätzliche Einschränkung kommt aus Ansagen (6.5).</li>
+<li>reserviert enthält nur <b>angesagte</b> Vögel und den <b>angesagten</b> König ultimo. Für <b>stille</b> Prämien gibt es keinerlei Zugbeschränkung.</li>
+<li>In Farbenspielen gilt der Tarockzwang unverändert, das Tarock gewinnt den Stich aber nicht (6.3).</li>
+<li>Die Funktion liefert nie eine leere Menge.</li>
+</ul>
+@ 6.8 2 Spielende
+<ul>
+<li>Regulär nach zwölf Stichen.</li>
+<li><b>[EMPFEHLUNG] Vorzeitiges Ende</b> ist nur zulässig, wenn das Ergebnis <b>aus öffentlich sichtbaren Tatsachen</b> feststeht, damit keine verdeckte Information verraten wird:</li>
+<ul>
+<li><b>Bettel / Bettel ouvert:</b> sobald der Spieler einen Stich gemacht hat (verloren).</li>
+<li><b>Piccolo / Piccolo ouvert:</b> sobald der Spieler den zweiten Stich gemacht hat (verloren). Gewonnen kann er erst nach dem zwölften Stich sein.</li>
+<li><b>Positive Spiele laufen immer bis zum zwölften Stich</b>, weil Prämien offen sind: „Das Spiel ist somit nicht beendet, wenn die Gegner einen Stich machen“ (angesagter Valat) [OÖ23 Ansagen 2].</li>
+<li>Grundlage: [WIKI] („bis entweder alle zwölf Stiche gespielt sind oder das angesagte Spielziel bereits gescheitert ist“). Im Lernmodus kann „bis zum Ende ausspielen“ eingeschaltet werden.</li>
+</ul>
+<li>Danach: Zählen (1.5), Prämien prüfen, Abrechnung (7).</li>
+</ul>
+<p>---</p>
+@ 7 1 Abrechnung
+<ul><li>7.1  Grundsätze</li><li>7.2  Spielwertung der positiven Spiele</li><li>7.3  Prämienwertung</li><li>7.4  Valat</li><li>7.5  Negativspiele</li><li>7.6  Trischaken</li><li>7.7  Sonderfälle der Abrechnung</li><li>7.8  Kontra und Geldkonto</li><li>7.9  Renonce (nur zur Vollständigkeit)</li><li>7.10  Durchgerechnete Beispiele</li><li>7.11  Abrechnung als Pseudocode</li></ul>
+@ 7.1 2 Grundsätze
+<ol>
+<li><b>Zwei Konten.</b> Jede Abrechnung erzeugt zwei Werte je Spieler:</li>
+<ul>
+<li><b>Schrift</b> (Turnierwertung): <b>ohne</b> Kontras [OÖ23 Allg. 5].</li>
+<li><b>Geld</b> (Auszahlung): <b>mit</b> Kontrafaktor; üblich 1 Punkt = 10 Cent [LTA-GK1 Kap. 8; KTC]. Beide sind Nullsummen über die vier aktiven Spieler.</li>
+</ul>
+<li><b>Posten.</b> Abgerechnet werden getrennt: das <b>Spiel</b> und <b>jede</b> Prämie [LTA-GK1 Kap. 8]. Jeder Posten hat einen Wert v (Punkte je Spieler), eine Gewinnerpartei und einen Kontrafaktor k ∈ {1,2,4,8} (nur Geld).</li>
+<li><b>Zahlungsweise je Posten:</b></li>
+<ul>
+<li><b>Partnerspiel (2 gegen 2):</b> Jeder Spieler der Gewinnerpartei erhält +v, jeder der Verliererpartei −v [PAGAT].</li>
+<li><b>Alleinspiel (1 gegen 3):</b> Der Alleinspieler erhält ±3·v, jeder Gegner ∓v [PAGAT; LTA-F1 Kap. 6: „Man spielt alleine, erhält 12 Punkte“ beim Dreier].</li>
+<li>Für Geld gilt derselbe Betrag mal k.</li>
+</ul>
+<li><b>Solidarität der Partner:</b> Was einer gewinnt oder verliert, gewinnt bzw. verliert auch sein Partner; Spielfehler des Partners muss man mittragen [OÖ23 Allg. 4; PAGAT].</li>
+<li><b>Fünfertisch:</b> Der aussetzende Geber bekommt 0 Punkte und 0 Geld.</li>
+<li><b>Rundung:</b> Es gibt keine. Alle Werte sind ganzzahlig, außer bei der Aufteilung von Trischaken-Punkten unter zwei Jungfrauen (7.6).</li>
+</ol>
+@ 7.2 2 Spielwertung der positiven Spiele
+<ul><li><b>Rufer</b> · Wert v gewonnen: 1 · Wert v verloren: 1 · Zahlungsweise: 2 gegen 2 (ohne Partner: 1 gegen 3)</li><li><b>Solorufer</b> · Wert v gewonnen: 2 · Wert v verloren: 2 · Zahlungsweise: 2 gegen 2 (ohne Partner: 1 gegen 3)</li><li><b>Besserrufer</b> · Wert v gewonnen: 1 · Wert v verloren: 1 · Zahlungsweise: 2 gegen 2 (ohne Partner: 1 gegen 3)</li><li><b>Farbendreier</b> · Wert v gewonnen: 3 · Wert v verloren: 3 · Zahlungsweise: 1 gegen 3</li><li><b>Sechserdreier</b> · Wert v gewonnen: 4 · Wert v verloren: <b>8</b> · Zahlungsweise: 1 gegen 3</li><li><b>Dreier</b> · Wert v gewonnen: 4 · Wert v verloren: 4 · Zahlungsweise: 1 gegen 3</li><li><b>Farbensolo</b> · Wert v gewonnen: 6 · Wert v verloren: 6 · Zahlungsweise: 1 gegen 3</li><li><b>Solodreier</b> · Wert v gewonnen: 8 · Wert v verloren: 8 · Zahlungsweise: 1 gegen 3</li></ul>
+<ul>
+<li>Gewonnen ist das Spiel mit ≥ 35/2 = 107 Dritteln der Spielerpartei (1.6).</li>
+<li><b>Nur beim Sechserdreier</b> zählt der Verlust doppelt [OÖ23 Tarif „Sechserdreier 4“ mit ÖF21 „Beim Verlust des Sechserdreiers zählt das Spiel doppelt“; LTA-GK1 Kap. 10]. Prämien bleiben einfach.</li>
+<li>Beispiele: Dreier gewonnen → Spieler +12, jeder Gegner −4. Sechserdreier verloren → Spieler −24, jeder Gegner +8 [OÖR25 B.4].</li>
+</ul>
+@ 7.3 2 Prämienwertung
+<ul>
+<li><b>Gewinner des Postens:</b> die Partei, die die Prämie erzielt. Eine <b>angesagte</b> Prämie, die nicht erzielt wird, zahlt die ansagende Partei an die Gegenpartei (gleicher Betrag).</li>
+<li>Prämien der <b>Gegenpartei</b> sind ebenso möglich: Gewinnen die Gegner still die Trull, erhalten sie sie [LTA-GK1 Kap. 6].</li>
+<li><b>Pro Prämienart wird nur ein Posten abgerechnet.</b> Ist sie angesagt, zählt nur das angesagte Ergebnis; sonst das stille. Dieselbe Prämienart kann nur von einer Partei angesagt werden (Vögel und König ultimo setzen den Kartenbesitz voraus, Trull und Alle Könige sind gegenläufig nicht sinnvoll). <b>[EMPFEHLUNG]</b>, siehe 9 Punkt P-6.</li>
+<li><b>Stille Prämien</b> zählen nur, wenn sie gelingen (<b>[OFFEN]</b>, siehe 9 Punkt P-5).</li>
+<li><b>Beim Valat</b> zählen nur angesagte Prämien (7.4).</li>
+<li>In Farbenspielen kommen nur Alle Könige und Valat vor (5.1).</li>
+<li>Beispiele:</li>
+<ul>
+<li>Solorufer, angesagter König ultimo gewonnen: 2 × 2 = 4 je Spieler der Spielerpartei [OÖR25 B.4: „je 4 Punkte für den angesagten König“].</li>
+<li>Sechserdreier, angesagter Uhu gewonnen: 4 je Gegner, also +12 für den Spieler; stiller Kakadu: 3 je Gegner [OÖR25 B.4].</li>
+<li>Solorufer, stiller Uhu: 2 × 2 = 4 [OÖR25 B.4].</li>
+</ul>
+</ul>
+@ 7.4 2 Valat
+<ul>
+<li><b>Angesagter Valat:</b> Der Posten „Spiel“ wird durch v = Spielwert × 8 ersetzt; <b>stiller Valat:</b> v = Spielwert × 4 [OÖ23 Ansagen 2].</li>
+<li>Beim <b>verlorenen angesagten Valat</b> ist damit auch das Spiel verloren, selbst bei 35/2 oder mehr: Die ansagende Partei zahlt den achtfachen Spielwert [ÖF21 Valat; LTA-GK1 Kap. 12].</li>
+<li><b>Beim Sechserdreier</b> wirkt die Verdoppelung des verlorenen Spiels zusätzlich: verlorener angesagter Valat = 4 × 8 × 2 = 64 je Gegner [ÖF21 Valat: „beim Sechserdreier 8 mal 8 Punkte“; MAIR-CUPS: Valat verloren Sechserdreier −192 für den Spieler].</li>
+<li><b>Prämien beim Valat:</b> Es zählen nur <b>angesagte</b> Prämien, stille nicht – bei gelungenem wie verlorenem Valat [OÖ23 Ansagen 2; ÖF21 Valat]. Angesagte Prämien werden dem Spieler gutgeschrieben bzw. gegengerechnet („Da sich der Valat nur auf das Spiel bezieht, gelten andere Ansagen nicht automatisch als verloren“ [OÖ23 Ansagen 2]).</li>
+<li><b>Weiterspielen:</b> Nach einem gescheiterten Valat wird das Spiel zu Ende gespielt, weil die übrigen Ansagen noch offen sind [OÖ23 Ansagen 2].</li>
+<li><b>Kontra:</b> Ein Kontra gegen die Valatansage ist möglich [LTA-GK1 Kap. 12]. „Wird der angesagte Valat geschossen, so bedeutet das: Spiel × 8 × 2, handelt es sich um einen verlorenen Sechser, so nochmals × 2.“ „Wird ein stiller Valat gespielt: Spiel × 4; war das Spiel kontriert, dann zusätzlich × 2.“ [LTA-F1 Kap. 1] Ein Kontra auf das Spiel wirkt also auf den Valatposten weiter.</li>
+<li><b>Valat der Gegenpartei:</b> Gewinnen die drei Gegner alle Stiche, zahlt die Spielerpartei den vier- bzw. achtfachen Spielwert; beim Sechserdreier zusätzlich verdoppelt [LTA-F1 Kap. 1]. Sagen die Gegner den Valat an und erreichen ihn nicht, zahlen sie den achtfachen Spielwert (<b>[EMPFEHLUNG]</b>, spiegelbildlich; siehe 9 Punkt V-2).</li>
+<li><b>Farbenspiele:</b> Als Gegenspieler darf man entweder kontrieren oder den Valat ansagen [OÖ23 Farben 4].</li>
+</ul>
+@ 7.5 2 Negativspiele
+<ul>
+<li>Werte: Piccolo 2, Bettel 2, Piccolo ouvert 6, Bettel ouvert 7 [OÖ23 Tarif].</li>
+<li>Immer 1 gegen 3: gewonnen +3·v für den Spieler, je −v für die Gegner; verloren umgekehrt.</li>
+<li><b>Kontra einzeln:</b> Jeder Gegner hat seinen eigenen Faktor k. Für das Geld wird die Abrechnung Spieler–Gegner einzeln mit k multipliziert [OÖ23 Allg. 5].</li>
+<ul>
+<li>Beispiel: Bettel ouvert (7) verloren, B kontriert (×2), C kontriert und der Spieler geht retour (×4), D sagt nichts. Schrift: Spieler −21, B/C/D je +7. Geld: Spieler −(14+28+7) = −49; B +14, C +28, D +7.</li>
+</ul>
+<li>Prämien gibt es nicht; Piccolo verlangt <b>genau</b> einen, Bettel <b>keinen</b> Stich.</li>
+</ul>
+@ 7.6 2 Trischaken
+<p>Grundlage: [OÖ23 Trischaken 2–3], ergänzt um [ÖF21 Trischaken] (Dreifach-Gleichstand) und [LTA-GK1 Kap. 11].</p>
+<ul>
+<li>Gezählt wird blattgenau; der Talon gehört zum letzten Stich (1.8).</li>
+<li><b>Verlierer</b> ist, wer die meisten Punkte hat.</li>
+<li>Grundbetrag b:</li>
+<ul>
+<li>normaler Verlierer: b = 1;</li>
+<li>Verlierer mit „dem Spiel“ (≥ 35/2 = 107 Drittel, „Bürgermeister“): b = 2;</li>
+<li>ist der <b>Trischaker</b> (die Vorhand) Verlierer oder punktegleich mitbeteiligt, verliert er <b>allein</b> und zahlt doppelt: b = 2, mit ≥ 35/2 sogar b = 4.</li>
+</ul>
+<li>Ausgeschüttet werden 3 · b Punkte.</li>
+<li><b>Jungfrau</b> (kein Stich): Eine Jungfrau zieht die gesamte Ausschüttung ein; zwei Jungfrauen <b>teilen</b> sie [OÖ23 Trischaken 3: „Hat ein Spieler keinen Stich (‚Jungfrau‘), bekommt er den gesamten Gewinn. Haben zwei Spieler keinen Stich, teilen sie sich den Gewinn“].</li>
+<li><b>Sonderfall</b> „35/1 : 34/2 und zwei Jungfrauen“: Der Verlierer zahlt 2 × 2 = 4 [OÖ23 Trischaken 3], also 2 je Jungfrau statt 1,5. Das ist zugleich die allgemeine Auflösung für b = 1 mit zwei Jungfrauen (3 lässt sich nicht halbieren).</li>
+<li><b>[ABWEICHUNG]</b> [LTA-GK1 Kap. 11] schreibt dagegen: „Haben zwei Spieler keinen Stich, so erhalten sie vom Verlierer je drei Punkte“ (also 6 statt 3/4), und [WIKI] nennt ebenfalls „je 30 Cent … auch wenn er nur 35/1 hat“. Das widerspricht dem ausdrücklichen Wortlaut von [OÖ23 Trischaken 3] („teilen sie sich“) samt dessen Rechenbeispiel. <b>Festlegung: [OÖ23] gilt</b> (Primärquelle); Option jungfrauenVoll (Standard aus) für Runden nach [LTA-GK1].</li>
+<li><b>Punktegleichheit ohne Trischaker:</b> zwei Gleiche verlieren je 2 Punkte (auch bei 35 : 35) [OÖ23 Trischaken 2]; drei Gleiche verlieren je 1 Punkt [ÖF21 Trischaken].</li>
+<li>Kein Kontra, keine Prämien.</li>
+</ul>
+<p>Hinweis: Vier Punktegleiche kann es nicht geben, weil 210 nicht durch 4 teilbar ist.</p>
+<p><b>Beispiele</b> (Angaben in Dritteln, Summe immer 210; alle Zeilen nachgerechnet):</p>
+<ul><li><b>Jungfrau D, Verlierer B (30/1)</b> · T: 60 · B: 91 · C: 59 · D: 0 · Ergebnis (Schrift): T 0, B −3, C 0, <b>D +3</b></li><li><b>Trischaker Bürgermeister (36/0)</b> · T: 108 · B: 40 · C: 40 · D: 22 · Ergebnis (Schrift): <b>T −12</b>, B/C/D je +4</li><li><b>zwei Punktegleiche (25/0)</b> · T: 36 · B: 75 · C: 75 · D: 24 · Ergebnis (Schrift): B −2, C −2, T +2, D +2</li><li><b>35/1 : 34/2, zwei Jungfrauen</b> · T: 0 · B: 106 · C: 104 · D: 0 · Ergebnis (Schrift): <b>B −4</b>, T +2, D +2, C 0</li><li><b>35/2 : 34/1, zwei Jungfrauen</b> · T: 0 · B: 107 · C: 103 · D: 0 · Ergebnis (Schrift): <b>B −6</b>, T +3, D +3, C 0</li><li><b>drei Punktegleiche (20/0)</b> · T: 30 · B: 60 · C: 60 · D: 60 · Ergebnis (Schrift): B/C/D je −1, <b>T +3</b></li><li><b>Trischaker punktegleich (25/0)</b> · T: 75 · B: 75 · C: 30 · D: 30 · Ergebnis (Schrift): <b>T −6</b>, B/C/D je +2</li><li><b>Bürgermeister B (36/2)</b> · T: 50 · B: 110 · C: 30 · D: 20 · Ergebnis (Schrift): <b>B −6</b>, T/C/D je +2</li><li><b>35 : 35, zwei Jungfrauen</b> · T: 0 · B: 105 · C: 105 · D: 0 · Ergebnis (Schrift): B −2, C −2, T +2, D +2</li></ul>
+@ 7.7 2 Sonderfälle der Abrechnung
+<p><b>a) Schleifen (gerufener König im Talon, Rufer oder Besserrufer).</b></p>
+<ul>
+<li>Der Spieler zahlt „Spiel und Ansage“ [OÖ23 Allg. 7], konkret „Spiel plus Ansager (3, 5, 7 oder 9 Punkte)“ [ÖF21 Rufen]. Die genannten Beträge sind 1 + 2 (Pagat), 1 + 4 (Uhu), 1 + 6 (Kakadu), 1 + 8 (Quapil); beim einfachen Rufer ist es 1.</li>
+<li>Dass diese Zahlen <b>je Mitspieler</b> gemeint sind, zeigt die Parallelstelle im selben Text: Beim Besserrufer ohne Vogel „verliert [er] an alle 3 Spieler Spiel + Pagat (3 Punkte)“ [ÖF21 Rufen], und [OÖR25 B.4] rechnet denselben Fall als „jeder reguläre Spieler 3 Punkte, der Renoncierende 9 Minuspunkte“.</li>
+<li>Weil kein Partner existiert, zahlt er <b>an alle drei</b> Mitspieler: Spieler = −3·(Spielwert + Vogelwert), jeder andere + (Spielwert + Vogelwert).</li>
+<ul>
+<li>Beispiel Besserrufer mit Uhu: Spieler −15, alle anderen je +5.</li>
+<li>Beispiel Rufer: Spieler −3, alle anderen je +1.</li>
+</ul>
+<li>Kein Kontra, keine weiteren Prämien [LTA-GK1 Kap. 10].</li>
+<li><b>[OFFEN]</b> Welcher Vogel gilt beim Schleifen, wenn der Spieler mehrere im Blatt hat? Siehe 9 Punkt R-2. <b>[EMPFEHLUNG]</b> derjenige, den er als ursprünglichen Ansager benennt; die App verlangt die Benennung vor dem Schleifen und schlägt den niedrigsten vor.</li>
+</ul>
+<p><b>b) Rufer oder Besserrufer allein weitergespielt</b> (König lag im Talon): normale Abrechnung, aber <b>1 gegen 3</b>; Kontras zählen; Prämien wie üblich.</p>
+<p><b>c) Solorufer mit gerufenem König im Talon:</b> 1 gegen 3, der Spieler erhält die Talonhälfte mit dem König; <b>alle Kontras sind wirkungslos</b>, gewonnen wie verloren [OÖ23 Allg. 7; LTA-F1 Kap. 3].</p>
+<p><b>d) Vorzeitiges Spielende</b> (Bettel/Piccolo, 6.8): normale Wertung des Negativspiels.</p>
+@ 7.8 2 Kontra und Geldkonto
+<ul><li><b>ohne</b> · Faktor: 1</li><li><b>Kontra („gespritzt“, „Schuss“)</b> · Faktor: 2</li><li><b>Rekontra („retour“)</b> · Faktor: 4</li><li><b>Subkontra („nochmals gespritzt“)</b> · Faktor: 8</li></ul>
+<ul>
+<li>Der Faktor wirkt <b>nur auf das Geldkonto</b> [OÖ23 Allg. 5]; die Schrift bleibt unverändert.</li>
+<li>Jeder Posten hat seinen eigenen Faktor.</li>
+<li>Positive Spiele: ein Kontra gilt für alle vier Spieler; Negativspiele: je Gegner getrennt.</li>
+<li>Kontras werden nach jedem Spiel sofort ausbezahlt [KTC; STMK].</li>
+<li><b>[EMPFEHLUNG]</b> Die App führt beide Konten und zeigt sie getrennt an („Schrift“ und „Geld“). Als Hausregel-Option kann „Kontra zählt auch für die Wertung“ eingeschaltet werden; Standard ist <b>aus</b> (OÖ-konform).</li>
+</ul>
+@ 7.9 2 Renonce (nur zur Vollständigkeit)
+<p>Die App lässt Regelverstöße nicht zu; im LAN kann nichts Regelwidriges gespielt werden. Die OÖ-Regeln sehen vor [OÖ23 Renonce; OÖR25]:</p>
+<ul>
+<li><b>Renonce liegt vor</b> bei: Verstoß gegen Farb-, Tarock- oder Stichzwang; unerlaubter Ablage (Trullstücke, Könige, falsche Anzahl, verdeckte Tarock, verdeckte Farbkarte beim Farbendreier); Beginn der Lizitation mit falscher Kartenanzahl; Besserrufer ohne Vogel im Blatt; falscher Ansager beim Besserrufer; falscher König ultimo; Verstoß gegen „höherer Vogel zuerst“; spielentscheidendem Vorwerfen oder Reden; Zusammenwerfen der Karten vor Klärung [OÖ23 Renonce 2; Ansagen 4–7; OÖR25 B.2].</li>
+<li><b>Folgen:</b> Das Spiel endet. Alle regulären Spieler erhalten die Punkte, als hätten sie Spiel und alle angesagten Prämien gewonnen; der Renoncespieler bekommt deren Summe als Minus [OÖ23 Renonce 5].</li>
+<ul>
+<li>Beispiele [OÖR25 B.4]: Renonce des Spielers beim Dreier: Gegner je +4, Spieler −12. Renonce eines Gegners beim Dreier: Spieler +12, reguläre Gegner je +4, Renoncespieler −20. Renonce eines Gegners beim Sechserdreier mit angesagtem Uhu: Spieler +24, reguläre Gegner je +12, Renoncespieler −48.</li>
+<li>Zwei Renoncespieler teilen den Verlust.</li>
+<li>Besserrufer ohne Vogel: je 3 Punkte an die Mitspieler, Renoncespieler −9.</li>
+<li>Trischaken: je 2 Punkte an die regulären Spieler (−6); der Trischaker selbst je 4 (−12); zwei Renoncespieler je −3 [OÖ23 Trischaken 4; OÖR25].</li>
+<li>Nachweisbare stille Prämien kann der Geschädigte zusätzlich einfordern [OÖ23 Renonce 7].</li>
+</ul>
+<li><b>[EMPFEHLUNG]</b> Die App bildet Renonce nicht nach, erklärt sie aber im Lernmodus (11.5) und zeigt bei verhinderten Zügen, dass dieser Zug am Tisch eine Renonce wäre.</li>
+</ul>
+@ 7.10 2 Durchgerechnete Beispiele
+<p>Alle Werte in Punkten (Schrift / Geld), Reihenfolge Spieler · Partner · Gegner · Gegner bzw. Spieler · drei Gegner.</p>
+<ul><li><b>1</b> · Situation: <b>Rufer</b> gewonnen (41/2), stille Trull bei den Gegnern, stille 4 Könige bei der Spielerpartei · Schrift: Spieler +1, Partner +1, Gegner je −1 · Geld: gleich</li><li><b>2</b> · Situation: <b>Besserrufer</b>, Pagat angesagt und gemacht, Spiel gewonnen, ein Gegner hat den Pagat kontriert · Schrift: Spieler +3, Partner +3, Gegner je −3 · Geld: Spieler +5, Partner +5, Gegner je −5</li><li><b>3</b> · Situation: <b>Piccolo</b> gewonnen, ein Gegner hat kontriert · Schrift: Spieler +6, Gegner je −2 · Geld: Spieler +8, Kontra-Gegner −4, andere je −2</li><li><b>4</b> · Situation: <b>Dreier</b> gewonnen, stille Trull beim Spieler, stiller Pagat bei den Gegnern · Schrift: Spieler +12, Gegner je −4 · Geld: gleich</li><li><b>5</b> · Situation: <b>Sechserdreier</b> verloren, angesagter Uhu gemacht · Schrift: Spieler −12, Gegner je +4 · Geld: gleich</li><li><b>6</b> · Situation: <b>Sechserdreier</b> verloren, Kontra auf das Spiel · Schrift: Spieler −24, Gegner je +8 · Geld: Spieler −48, Gegner je +16</li><li><b>7</b> · Situation: <b>Solorufer</b> verloren, angesagter König ultimo gemacht · Schrift: Spieler +2, Partner +2, Gegner je −2 · Geld: gleich</li><li><b>8</b> · Situation: <b>Solorufer</b>, gerufener König lag im Talon, Spiel gewonnen, Kontra wirkungslos · Schrift: Spieler +6, Gegner je −2 · Geld: gleich</li><li><b>9</b> · Situation: <b>Besserrufer</b>, Spiel gewonnen, angesagter Uhu verloren, Uhu kontriert · Schrift: Spieler −3, Partner −3, Gegner je +3 · Geld: Spieler −7, Partner −7, Gegner je +7</li><li><b>10</b> · Situation: <b>Dreier</b>, stiller Valat, zusätzlich angesagte Trull; stiller Pagat zählt nicht · Schrift: Spieler +54, Gegner je −18 · Geld: gleich</li><li><b>11</b> · Situation: <b>Dreier</b>, Valat angesagt und verloren (Spiel mit 40 Punkten gewonnen), angesagter Pagat gemacht · Schrift: Spieler −90, Gegner je +30 · Geld: gleich</li><li><b>12</b> · Situation: <b>Sechserdreier</b>, stiller Valat der Gegner, Spiel war kontriert · Schrift: Spieler −96, Gegner je +32 · Geld: Spieler −192, Gegner je +64</li><li><b>13</b> · Situation: <b>Rufer</b>, Valat angesagt und gemacht, kontriert · Schrift: Spieler +8, Partner +8, Gegner je −8 · Geld: Spieler +16, Partner +16, Gegner je −16</li><li><b>14</b> · Situation: <b>Farbensolo</b> gewonnen, stille vier Könige (im Farbensolo doppelt) · Schrift: Spieler +24, Gegner je −8 · Geld: gleich</li><li><b>15</b> · Situation: <b>Bettel ouvert</b> verloren, Kontra von B, Kontra + Rekontra gegen C · Schrift: Spieler −21, Gegner je +7 · Geld: Spieler −49; B +14, C +28, D +7</li><li><b>16</b> · Situation: <b>Schleifen</b> eines Besserrufers mit Uhu · Schrift: Spieler −15, andere je +5 · Geld: gleich</li></ul>
+<p>Rechenwege zu den wichtigsten Zeilen:</p>
+<ul>
+<li>Nr. 2: Spiel 1 + Pagat angesagt 2 = 3 je Spieler; Geld 1 + (2 × 2) = 5.</li>
+<li>Nr. 4: Spiel 4 × 3 = 12; stille Trull 1 × 3 = +3; stiller Pagat der Gegner 1 × 3 = −3 → +12.</li>
+<li>Nr. 5: Spiel verloren doppelt 8 × 3 = −24; angesagter Uhu 4 × 3 = +12 → −12.</li>
+<li>Nr. 10: Valat still = 4 × 4 = 16 je Gegner → 48; angesagte Trull 2 × 3 = 6 → 54.</li>
+<li>Nr. 11: Valat angesagt verloren = 8 × 4 = 32 je Gegner → −96; angesagter Pagat 2 × 3 = +6 → −90.</li>
+<li>Nr. 12: 4 (Spiel) × 4 (stiller Valat) × 2 (verlorener Sechser) = 32 je Gegner → −96; Geld zusätzlich × 2 wegen Kontra.</li>
+<li>Nr. 14: Farbensolo 6 × 3 = 18; stille Könige 1 × 2 (Solo) × 3 = 6 → 24.</li>
+</ul>
+@ 7.11 2 Abrechnung als Pseudocode
+<p>---</p>
+@ 8 1 Partiestruktur (Turnier- und App-Modi)
+<ul><li>8.1  Der oberösterreichische Turniermodus</li><li>8.2  Empfohlene Modi der App</li><li>8.3  Optionale Hausregeln (Standard: aus)</li><li>8.4  Hinweise für LAN und Persistenz</li></ul>
+@ 8.1 2 Der oberösterreichische Turniermodus
+<ul>
+<li><b>Drei Durchgänge (Runden)</b>; je Durchgang <b>16 Spiele am Vierertisch</b> [MAIR-CUPS, Tabelle „Cupmodus“, Spalten RTC/HRC/SWC: „Runden 3“, „Spiele pro Runde (4 Spieler) 16“]. 16 Spiele = 4 Radl.</li>
+<li><b>Fünfertisch:</b> Fünfertische sind in allen OÖ-Cups vorgesehen [MAIR-CUPS, Zeile „Fünfertische“]. Die Zahl der Spiele je Durchgang am Fünfertisch ist <b>in keiner der ausgewerteten Quellen belegt</b>; die Spalte in [MAIR-CUPS] ist ausdrücklich mit „Spiele pro Runde (4 Spieler)“ überschrieben (RTC/HRC/SWC/TTC/ÖF 16, WTC/STC/KTC 20). <b>[OFFEN] M-1</b> <b>[EMPFEHLUNG]</b> 4 Radl, also 20 Spiele, damit jeder Spieler viermal gibt und viermal aussetzt; einstellbar.</li>
+<li>Gewertet wird die <b>Schrift</b>; Kontras werden sofort in Geld ausbezahlt und nicht geschrieben [OÖ23 Allg. 5; KTC].</li>
+<li>1 Punkt = 10 Cent ist üblich [LTA-GK1 Kap. 8; KTC; STMK].</li>
+<li>Tagessieger ist, wer die meisten Schriftpunkte hat. Bei Gleichstand entscheidet die beste bzw. zweitbeste Runde [MAIR-CUPS, „Ex-aequo-Kriterien … BR“].</li>
+<li>Cuppunkte nach dem OÖ-Fixpunktesystem (223, 198, 180, … für die besten 50 Ränge) [MAIR-CUPS]; für die App ohne Bedeutung.</li>
+<li>Nicht mehr auflösbare Schreibfehler: Das betroffene Spiel wird für alle vier mit null bewertet [OÖ23 Allg. 9].</li>
+</ul>
+@ 8.2 2 Empfohlene Modi der App
+<ul><li><b><b>Einzelspiel</b></b> · Inhalt: 1 Hand · Wertung: Schrift + Geld</li><li><b><b>Radl</b></b> · Inhalt: 4 Spiele (Vierertisch) bzw. 5 Spiele (Fünfertisch); jeder gibt einmal · Wertung: Summe</li><li><b><b>Durchgang (Standard)</b></b> · Inhalt: 4 Radl = 16 bzw. 20 Spiele · Wertung: Summe, Rangliste</li><li><b><b>Turnier</b></b> · Inhalt: 3 Durchgänge = 48 bzw. 60 Spiele, mit Zwischenständen je Durchgang · Wertung: Schrift, Gleichstand: bester Durchgang</li><li><b><b>Endlos / Stammtisch</b></b> · Inhalt: offen, jederzeit beendbar, laufende Bilanz · Wertung: Schrift + Geld</li></ul>
+<ul>
+<li>Die Partie endet <b>immer am Ende eines Radls</b>, damit jeder gleich oft Vorhand und Geber war.</li>
+<li>Anzeige je Spieler: Schrift, Geld (in Punkten und optional Euro), Anzahl gespielter Spiele, Bilanz je Spielart (für den Lernmodus interessant).</li>
+<li>Speichern und Fortsetzen muss mitten in der Partie möglich sein (Handy!). Persistiert werden Sitzordnung, Geberposition, Radl-Zähler, beide Konten und der vollständige Spielverlauf des laufenden Spiels.</li>
+</ul>
+@ 8.3 2 Optionale Hausregeln (Standard: aus)
+<p>Nicht Teil des OÖ-Profils, aber verbreitet; als Schalter sinnvoll [LTA-GK1 Kap. 13; LTA-S „Ergänzungen“]:</p>
+<ul>
+<li><b>Doppeltes Radl nach dem Trischaken</b> oder als Schlussradl („Gstieß a Radl“).</li>
+<li><b>Klopfen statt Abheben</b> (dann werden ganze Blätter zu zwölf Karten gegeben und die Spieler wählen ihr Paket).</li>
+<li><b>Zwiccolo</b> (genau zwei Stiche) und <b>Farbensechser</b>.</li>
+<li><b>Kontra zählt in die Schrift.</b></li>
+<li><b>Kaiserstich/Märchenstich</b> – im OÖ-Profil ausdrücklich nicht [OÖ23 Allg. 3], in Wien üblich [MAIR-CUPS].</li>
+</ul>
+<p>Jede eingeschaltete Hausregel muss im Spielprotokoll und beim LAN-Beitritt sichtbar sein, weil sie die Wertung verändert.</p>
+@ 8.4 2 Hinweise für LAN und Persistenz
+<ul>
+<li>Der <b>Server ist maßgeblich</b>: Er allein kennt Handkarten, Talon, Ablage und die Partnerschaft. Clients erhalten nur ihre Sicht (2.7).</li>
+<li>Jede Aktion wird als Ereignis protokolliert (Gebot, Ruf, Talonwahl, Ablage, Ansage, Kontra, Karte). Aus dem Protokoll lässt sich jede Sicht rekonstruieren; das ist die Grundlage für Wiederaufnahme, Rückschau und Lernmodus.</li>
+<li>Beim Verbindungsabbruch eines Spielers: Ein Computerspieler übernimmt vorübergehend; der Wiedereinstieg ist ohne Informationsverlust möglich, weil der Server die Sicht neu ausliefert.</li>
+<li>Der aussetzende Fünfte bekommt einen eigenen Zuschauerkanal ohne verdeckte Informationen.</li>
+</ul>
+<p>---</p>
+@ 9 1 Sonderfälle, offene Punkte und regionale Abweichungen
+<p>Jede Zeile hat eine ID, damit im Code darauf verwiesen werden kann (z. B. RuleNote::P5). <b>Fett</b> markiert ist die Festlegung für die App.</p>
+@ 9.1 2 Lizitation
+<ul><li><b><b>L-1</b></b> · Frage: Darf die Vorhand beim ersten Sprechen passen? · Quellenlage: [OÖ23 Allg. 2] setzt „Vorhand oder Spielansage“ voraus; [KTC] verbietet es ausdrücklich · Festlegung: <b>Nein.</b> Die Vorhand muss „Vorhand“ sagen oder ein Spiel ansagen</li><li><b><b>L-2</b></b> · Frage: Die Vorhand hat gleich ein Spiel angesagt, alle passen. Darf sie noch wechseln? · Quellenlage: [OÖ23 Vorhand 1]: Rufer/Trischaken nur „im Nachhinein“ · Festlegung: <b>Nein</b>, das Gebot ist bindend. Rufer und Trischaken gibt es nur nach „Vorhand“</li><li><b><b>L-3</b></b> · Frage: Darf die Vorhand mehrfach halten? · Quellenlage: [OÖ23 Vorhand 2] ohne Einschränkung · Festlegung: <b>Ja</b>, jedes Mal, wenn ein anderer ein höheres Spiel ansagt</li><li><b><b>L-4</b></b> · Frage: Darf die Vorhand den Solodreier halten, obwohl dessen Ansagen „sofort“ erfolgen müssen? · Quellenlage: [OÖ23 Vorhand 2] und [Ansagen 3] widersprechen sich nicht ausdrücklich; [MAIR-AUSL] nennt den Solodreier als nicht mehr überbietbar · Festlegung: <b>Ja, solange die Vorhand noch aktiv ist.</b> Die Ansagen des überbotenen Bieters verfallen, die haltende Vorhand sagt ihrerseits sofort an. Option solodreierBeendetLizit für Runden, die es anders halten</li><li><b><b>L-5</b></b> · Frage: Rang von Trischaken und Rufer zueinander · Quellenlage: beide nur nach dreimal „weiter“ · Festlegung: ohne Bedeutung; UI reiht Trischaken vor Rufer wie [OÖ23 Tarif]</li><li><b><b>L-6</b></b> · Frage: Besserrufer mit hohem Vogel bleibt unter dem Farbendreier · Quellenlage: [MAIR-CUPS]: „Besserrufer nicht aufgeteilt – OÖ ja“, [MAIR-GRUND] kritisiert das · Festlegung: <b>So implementieren.</b> Der Vogel beeinflusst den Rang nicht</li><li><b><b>L-7</b></b> · Frage: Gebot nach eigenem „weiter“ · Quellenlage: [LTA-GK1 Kap. 6] · Festlegung: <b>Nicht möglich</b>, Passen ist endgültig</li><li><b><b>L-8</b></b> · Frage: Zwiccolo, Triccolo, Bei-Spiele, Pagat-/Uhurufer als eigene Gebote · Quellenlage: [OÖ23 Tarif] kennt sie nicht; [LTA-F1]: „Es gibt keine sog. Bei-Spiele“ · Festlegung: <b>Nicht im Profil</b>; optional als Hausregel (8.3)</li></ul>
+@ 9.2 2 Rufen, Talon, Ablage
+<ul><li><b><b>R-1</b></b> · Frage: Wird der König vor oder nach dem Talon gerufen? · Quellenlage: [WIKI] und [KTC] sagen: vorher; [OÖ23] regelt es nicht · Festlegung: <b>Vorher</b> (erst rufen, dann Talon aufdecken)</li><li><b><b>R-2</b></b> · Frage: Welcher Vogel wird beim Schleifen bezahlt, wenn mehrere im Blatt sind? · Quellenlage: [ÖF21]: „Spiel plus Ansager (3, 5, 7 oder 9)“; [LTA-GK1]: „das geplante Vogerl“ · Festlegung: <b>Der Spieler benennt vor dem Schleifen seinen ursprünglichen Ansager</b>; die App schlägt den niedrigsten Vogel vor</li><li><b><b>R-3</b></b> · Frage: Zahlt der Schleifende an alle drei? · Quellenlage: [ÖF21] nennt Beträge je Spieler; ohne Partner bleibt nur 1 gegen 3 · Festlegung: <b>Ja: −3 × (Spiel + Vogel)</b></li><li><b><b>R-4</b></b> · Frage: Darf der Spieler, der den gerufenen König aus dem Talon nimmt, König ultimo ansagen? · Quellenlage: [MAIR-AUSL] ja; [OÖ23] schweigt; [OÖ23 Ansagen 1] verlangt nur, dass man die Karte selbst hat · Festlegung: <b>Ja</b></li><li><b><b>R-5</b></b> · Frage: Abrechnung, wenn der Spieler nach „König im Talon“ allein weiterspielt · Quellenlage: [LTA-GK1 Kap. 10]: „spielt allein gegen die anderen drei“ · Festlegung: <b>1 gegen 3</b> (dreifacher Spielwert)</li><li><b><b>R-6</b></b> · Frage: Solorufer, König im Talon: Wann erfährt der Tisch davon? · Quellenlage: [OÖ23 Allg. 7]; [LTA-F1 Kap. 3] · Festlegung: <b>Erst bei der Abrechnung.</b> Engine und KI dürfen es vorher nicht verwerten (10.8)</li><li><b><b>R-7</b></b> · Frage: Mit drei Königen statt „vierter König“ die Farbe nennen? · Quellenlage: nirgends verboten · Festlegung: <b>Erlaubt</b>; beides führt zum selben Partner</li><li><b><b>R-8</b></b> · Frage: Liegen gelassene Talonhälfte · Quellenlage: [OÖT26 3]: nach dem ersten Stich umdrehen · Festlegung: <b>So umsetzen.</b> Im Lernmodus als Merkhilfe weiter einsehbar</li><li><b><b>R-9</b></b> · Frage: Muss der Spieler beim Verlegen Tarock zeigen? · Quellenlage: [OÖ23 Renonce 2] („verdeckte Tarock“ = Renonce) · Festlegung: <b>Ja</b>, verlegte Tarock offen; beim Farbendreier verlegte <b>Farbkarten</b> offen [OÖ23 Farben 1]</li></ul>
+@ 9.3 2 Prämien und Kontra
+<ul><li><b><b>P-1</b></b> · Frage: Angesagter Vogel kann im Zielstich wegen Farbzwang nicht gespielt werden · Quellenlage: [KTC], [STMK]: Prämie verloren, Karte danach frei; [OÖ23] schweigt · Festlegung: <b>Prämie verloren, Reservierung entfällt</b></li><li><b><b>P-2</b></b> · Frage: Ist die Aufbewahrungspflicht hart? · Quellenlage: <b>[ABWEICHUNG]</b> [MAIR-TURNIER] (Tirol): „dürfen nicht freiwillig aufgegeben werden“ – aber [OÖ23 Ansagen 6], [ÖF21 Ansagen] und [OÖR25 B.2] behandeln das vorzeitige Spielen ausdrücklich als bloßen <b>Prämienverlust</b> und nur bei „offensichtlichem Vorteil“ als Renonce; auch [MAIR-AUSL] rechnet es als Prämienverlust ab · Festlegung: <b>Nein.</b> Vorzeitiges Weggeben ist erlaubt (Warnung, Prämie verloren). <b>Hart gesperrt</b> ist nur, mit der angesagten Karte vor ihrem Zielstich einen Stich zu <b>gewinnen</b>; hart sind außerdem die Reihenfolge „höherer Vogel zuerst“ im Zwangsfall und die Spielpflicht im Zielstich (5.4, 6.5). Option harteVogelreservierung (Standard aus)</li><li><b><b>P-12</b></b> · Frage: Gilt „höherer Vogel zuerst“ auch gegenüber dem angesagten König ultimo? · Quellenlage: [OÖ23 Ansagen 7] und [ÖF21] nennen nur Vögel · Festlegung: <b>Nein.</b> Der König ultimo steht außerhalb der Vogelreihenfolge; muss er zwangsweise weg, ist das reiner Prämienverlust</li><li><b><b>P-3</b></b> · Frage: Wer darf Trull und Alle Könige ansagen? · Quellenlage: [ÖF21]: „auf Verdacht“ erlaubt · Festlegung: <b>Jeder Spieler</b>, auch ohne die Karten</li><li><b><b>P-4</b></b> · Frage: Kontra zwischen (verdeckten) Partnern · Quellenlage: [KTC], [STMK], [MAIR-AUSL]: zählt nicht; [OÖ23] schweigt · Festlegung: <b>Zählt nicht</b> (wird bei der Abrechnung neutralisiert)</li><li><b><b>P-5</b></b> · Frage: Zählt ein <b>misslungener stiller</b> Vogel bzw. König ultimo negativ? · Quellenlage: [PAGAT]: ja, minus; [ÖF21 Rufen]: „Der Verlust des gerufenen Königs wird nicht bewertet, es sei denn er wird ultimo angesagt“; [LTA-F1 Kap. 5] empfiehlt, sich große Vögel für ein stilles Vogerl aufzubehalten – das spricht gegen ein Risiko; [OÖ23] schweigt · Festlegung: <b>Nein.</b> Stille Prämien zählen nur, wenn sie gelingen. Option stillVerlustZaehlt (Standard aus) für Runden nach [PAGAT]</li><li><b><b>P-6</b></b> · Frage: Kann dieselbe Prämienart von beiden Parteien beansprucht werden? · Quellenlage: nicht geregelt · Festlegung: <b>Nein</b>, je Prämienart genau ein Posten (5.3/7.3)</li><li><b><b>P-7</b></b> · Frage: König ultimo in Dreierspielen · Quellenlage: es gibt keinen gerufenen König · Festlegung: <b>Nicht möglich</b></li><li><b><b>P-8</b></b> · Frage: Dürfen auch die Gegner im Farbenspiel „Alle Könige“ ansagen? · Quellenlage: [ÖF21]: „Beim Farbensolo sind nur Vier Könige und Valat möglich“, ohne Partei-Einschränkung · Festlegung: <b>Ja</b></li><li><b><b>P-9</b></b> · Frage: Bis wann darf kontriert werden? · Quellenlage: [KTC], [STMK]: sofort auf die jeweilige Ansage; [OÖ23 Allg. 2] verlangt Kenntnisnahme mit „gut“ · Festlegung: <b>Beim ersten eigenen Zug nach der Ansage</b>; später nur gegen spätere Ansagen</li><li><b><b>P-10</b></b> · Frage: Reservierung eines Vogels, dessen Zielstich vorbei ist · Quellenlage: – · Festlegung: <b>Reservierung endet</b>, die Prämie ist verloren, die Karte frei spielbar</li><li><b><b>P-11</b></b> · Frage: Pagatansage im Sechserdreier/Dreier sinnvoll? · Quellenlage: [LTA-GK2 Kap. 5] rät ab (5 Kartenpunkte Risiko) · Festlegung: Nur Hinweis für die KI (10.5)</li></ul>
+@ 9.4 2 Valat
+<ul><li><b><b>V-1</b></b> · Frage: Dürfen Gegner kontrieren <b>und</b> Valat ansagen? · Quellenlage: [OÖ23 Farben 4]: „entweder … oder“ (nur Farbenspiele); [ÖF21]: „zugleich“ erlaubt; [ÖF10]: „nicht zugleich“ · Festlegung: <b>In Farbenspielen entweder/oder</b> (geltende Fassung 4/2023), <b>in allen anderen positiven Spielen beides</b></li><li><b><b>V-2</b></b> · Frage: Angesagter Valat der Gegenpartei misslingt · Quellenlage: nicht ausdrücklich geregelt · Festlegung: <b>Spiegelbildlich</b>: Die ansagende Gegenpartei zahlt den achtfachen Spielwert</li><li><b><b>V-3</b></b> · Frage: Zählen liegen gebliebene Talonkarten für angesagte Trull/Könige, wenn ein Valat erzielt wurde? · Quellenlage: [PAGAT]: Talon fällt der Valatpartei zu; [MAIR-AUSL] und [LTA-GK1 Kap. 7]: Talon gehört immer den Gegnern · Festlegung: <b>Talon bleibt bei den Gegnern.</b> Eine angesagte Trull kann also trotz Valat verloren gehen. Option valatZiehtTalon (Standard aus)</li><li><b><b>V-4</b></b> · Frage: Wirkt ein Kontra auf das Spiel auch auf den Valat? · Quellenlage: [LTA-F1 Kap. 1] ausdrücklich ja · Festlegung: <b>Ja</b></li><li><b><b>V-5</b></b> · Frage: Angesagter Valat scheitert, die Gegner machen alle übrigen Stiche · Quellenlage: – · Festlegung: <b>Nur der angesagte Posten zählt</b> (achtfach zu Lasten der Ansager)</li><li><b><b>V-6</b></b> · Frage: Valat in Solospielen doppelt? · Quellenlage: [LTA-GK1 Kap. 9]: nein, er bezieht sich schon auf den höheren Spielwert · Festlegung: <b>Nicht zusätzlich verdoppeln</b></li></ul>
+@ 9.5 2 Stichregeln
+<ul><li><b><b>S-1</b></b> · Frage: Kaiserstich / Märchenstich · Quellenlage: [OÖ23 Allg. 3]: „weder Kaiserstich noch Fänge“ · Festlegung: <b>Nicht im Profil</b> (Option für Hausrunden, 8.3)</li><li><b><b>S-2</b></b> · Frage: Stichzwang, wenn der Stich schon getarockt ist und man die Farbe hat · Quellenlage: [WIKI]: Stichzwang nur „unter Erfüllung des Farbzwangs“ · Festlegung: <b>Beliebige Karte der ausgespielten Farbe</b></li><li><b><b>S-3</b></b> · Frage: Pagat-Regel gegen Stichzwang · Quellenlage: [OÖ23 Negativ 2] ohne Ausnahme · Festlegung: <b>Pagat-Regel geht vor</b>: lieber ein anderes Tarock, auch wenn damit nicht überstochen wird</li><li><b><b>S-4</b></b> · Frage: Vorzeitiges Spielende · Quellenlage: [WIKI] · Festlegung: <b>Nur bei gescheitertem Negativspiel</b> (6.8)</li><li><b><b>S-5</b></b> · Frage: Wer deckt bei Ouvert auf? · Quellenlage: [OÖ23 Negativ 3]: „alle Karten offen auf den Tisch“ · Festlegung: <b>Alle vier Spieler</b>, nach dem ersten Stich, vor dem zweiten Ausspiel; Beratung der drei Gegner erlaubt</li><li><b><b>S-6</b></b> · Frage: Farbenspiel: Gilt das Tarock-Ausspielverbot auch für den Spieler? · Quellenlage: [OÖ23 Farben 2]: „Tarock darf erst dann ausgespielt werden, wenn man keine Farbkarte mehr im Blatt hat“; [LTA-GK1 Kap. 10]: „Jeder Spieler muss so lange Farbkarten ausspielen, als er noch welche hat“ · Festlegung: <b>Ja, für alle</b></li><li><b><b>S-8</b></b> · Frage: Farbenspiel: Wer spielt zum ersten Stich aus? · Quellenlage: [OÖ23 Farben 1] eindeutig: „Die Farbenspiele gehören zu den positiven Spielen (Vorhand spielt aus …)“; ebenso [ÖF21 Farbenspiele], [LTA-GK1 Kap. 10]. <b>[ABWEICHUNG]</b> [PAGAT] widerspricht sich selbst: erst „In positive contracts (including Farbensolo and Farbendreier) … Forehand leads“, unmittelbar danach „In negative contracts <b>and Farbensolo</b>, Declarer leads“ · Festlegung: <b>Vorhand</b>, in allen Farbenspielen; die zweite pagat-Aussage ist ein Redaktionsfehler</li><li><b><b>S-7</b></b> · Frage: Dürfen eigene Stiche angesehen werden? · Quellenlage: [LTA-GK1 Kap. 8] und [MAIR-CUPS]: ja; [ÖF21]: fremde Stiche nein · Festlegung: <b>Eigene Stiche ja, fremde nur der letzte Stich</b> (2.8)</li></ul>
+@ 9.6 2 Trischaken
+<ul><li><b><b>T-1</b></b> · Frage: Drei Punktegleiche · Quellenlage: [ÖF21]: je 1 Punkt; [OÖ23] nennt nur zwei Gleiche · Festlegung: <b>Je −1 an den vierten Spieler</b></li><li><b><b>T-2</b></b> · Frage: Eine Jungfrau bei zwei punktegleichen Verlierern · Quellenlage: [OÖ23 Trischaken 3]: „bekommt den gesamten Gewinn“ · Festlegung: <b>Die Jungfrau erhält alle 4 Punkte</b></li><li><b><b>T-3</b></b> · Frage: Talonbehandlung · Quellenlage: [OÖ23 Trischaken 1]: an den letzten Stich; andere Cups verteilen ihn auf die ersten sechs Stiche [KTC; PAGAT] · Festlegung: <b>An den Gewinner des letzten Stichs</b></li><li><b><b>T-4</b></b> · Frage: Fünfertisch · Quellenlage: [OÖ23 Allg. 8]: der Geber ist außen vor; [PAGAT] kennt Runden, in denen er mitspielt · Festlegung: <b>Der Fünfte spielt nicht mit</b></li><li><b><b>T-5</b></b> · Frage: Kontra · Quellenlage: [OÖ23 Allg. 5] · Festlegung: <b>Keines</b></li><li><b><b>T-6</b></b> · Frage: Gibt es eine Ausspielpflicht („austarockieren“)? · Quellenlage: [OÖ23 Trischaken 1]: „es muss nicht austarockiert werden“; [LTA-GK1 Kap. 11]: „bunt gemischt“ · Festlegung: <b>Freie Wahl beim Ausspielen</b></li><li><b><b>T-7</b></b> · Frage: Zwei Jungfrauen: teilen oder je voll? · Quellenlage: <b>[ABWEICHUNG]</b> [OÖ23 Trischaken 3]: „teilen sie sich den Gewinn“, mit Rechenbeispiel 35/1:34/2 → 2 × 2 = 4; ebenso [KTC]: „Gibt es mehrere ‚Jungfrauen‘, dann werden die zu verteilenden Punkte unter ihnen geteilt“. Dagegen [LTA-GK1 Kap. 11] und [WIKI]: <b>je</b> der volle Betrag (also 6 bzw. „je 30 Cent“) · Festlegung: <b>Teilen nach [OÖ23]</b> (3 → 2 je Jungfrau, bei „Bürgermeister“ 6 → 3 je Jungfrau). Option jungfrauenVoll</li></ul>
+@ 9.7 2 Modus
+<ul><li><b><b>M-1</b></b> · Frage: Spiele je Durchgang am Fünfertisch · Quellenlage: in keiner Quelle belegt; die Angabe 16 in [MAIR-CUPS] gilt laut Spaltenkopf nur für Vierertische · Festlegung: <b>20 (4 Radl)</b>; einstellbar</li><li><b><b>M-2</b></b> · Frage: Zeitlimit je Durchgang · Quellenlage: in OÖ nicht veröffentlicht; [KTC]: 100/110 Minuten · Festlegung: <b>Optional</b>, Standard aus</li><li><b><b>M-3</b></b> · Frage: Muss um Geld gespielt werden? · Quellenlage: [OÖ23 Allg. 1]: ja (Turnier) · Festlegung: Für die App ohne Bedeutung; Geldkonto nur als Anzeige</li></ul>
+@ 9.8 2 Abweichungen anderer Regelwerke (für spätere Profile)
+<p><b>Gegenüber [PAGAT]</b> (allgemeine Königrufen-Beschreibung):</p>
+<ul><li><b>Tarife</b> · pagat.com: Sechserdreier +2/−4, Bettel 3, Piccolo ouvert 5, Bettel ouvert 6, Solodreier 8 · OÖ 4/2023: 4/−8, 2, 6, 7, 8</li><li><b>Zwiccolo, Driccolo, Besserdreier, eigene Vogelrufer</b> · pagat.com: erwähnt · OÖ 4/2023: nicht vorhanden</li><li><b>Eigenen König rufen</b> · pagat.com: erlaubt („legal to call your own king“) · OÖ 4/2023: verboten [OÖ23 Allg. 6]</li><li><b>Fänge (Mondfang 1, Sküsfang 2, Königfang 1)</b> · pagat.com: vorhanden · OÖ 4/2023: keine [OÖ23 Allg. 3]</li><li><b>Kaiserstich</b> · pagat.com: optional · OÖ 4/2023: keiner</li><li><b>Kontra-Stufen</b> · pagat.com: bis Hirsch-/Mordkontra (×64) · OÖ 4/2023: nur Kontra/Rekontra/Subkontra</li><li><b>Trischaken</b> · pagat.com: Talonkarte zu jedem der ersten sechs Stiche; zwei Verlierer zahlen zwei Gewinnern · OÖ 4/2023: Talon zum letzten Stich; Wertung nach 7.6</li><li><b>Lizitationspriorität</b> · pagat.com: Spieler mit höherer Priorität dürfen gleich hoch bieten · OÖ 4/2023: nur die Vorhand darf halten</li><li><b>„Marabu“ für IIII</b> · pagat.com: ja · OÖ 4/2023: „Quapil“ bzw. „Wildsau“</li><li><b>Stille Prämie misslungen</b> · pagat.com: zählt minus · OÖ 4/2023: siehe P-5</li><li><b>Wer darf eine Prämie ansagen</b> · pagat.com: nur, wer Partner des Spielers ist oder dessen Partei bereits bekannt ist („A player may only make a bonus announcement if they are declarer's partner or if it is already known which side they are on“) · OÖ 4/2023: jeder Spieler; Trull und Alle Könige sogar „auf Verdacht“ [ÖF21 Ansagen]</li><li><b>Farbenspiel, erstes Ausspiel</b> · pagat.com: widersprüchlich (siehe S-8) · OÖ 4/2023: immer die Vorhand</li></ul>
+<p><b>Gegenüber [WIKI]:</b> Der Artikel beschreibt zusätzlich Bei-Spiele, Triccolo, halboffene Negativspiele, Handprämien (Köpfe, Honneurs, Tarock, Grand-Tarock, Ohne Trull), Materialprämien (Absolut, Grammopoi), Königfang und Mondfang sowie Kaiserstich-Varianten. Nichts davon gehört zum OÖ-Profil.</p>
+<p><b>Gegenüber anderen Cups</b> [MAIR-CUPS, Stand März 2026]:</p>
+<ul><li><b>Trischaken</b> · OÖ: 1 · Tirol: 2 · Wien: 2</li><li><b>Bettler</b> · OÖ: 2 · Tirol: 4 · Wien: 4</li><li><b>Farbendreier</b> · OÖ: 3 · Tirol: 5 · Wien: 5</li><li><b>Dreier</b> · OÖ: 4 · Tirol: 5 · Wien: 5</li><li><b>Farbensolo</b> · OÖ: 6 · Tirol: 10 · Wien: 10</li><li><b>Piccolo ouvert</b> · OÖ: 6 · Tirol: 8 · Wien: 6</li><li><b>Solodreier</b> · OÖ: 8 · Tirol: 10 · Wien: 10</li><li><b>Valat</b> · OÖ: Spiel × 8 · Tirol: fix 20 · Wien: fix 20</li><li><b>Säcke (Absolut)</b> · OÖ: – · Tirol: 2 · Wien: –</li><li><b>Kaiserstich</b> · OÖ: – · Tirol: – · Wien: ja</li><li><b>Vorhand darf halten</b> · OÖ: ja · Tirol: – · Wien: –</li><li><b>Trischaken-Talon</b> · OÖ: letzter Stich · Tirol: beides angekreuzt¹ · Wien: erste sechs Stiche</li><li><b>Zwiccolo</b> · OÖ: – · Tirol: – · Wien: 2</li></ul>
+<p>¹ [MAIR-CUPS] markiert für Tirol sowohl „Trischaken: Talon zum Schluss“ als auch „Talon zu den ersten sechs Stichen“; das ist in der Quelle nicht aufgelöst. Für das OÖ-Profil ohne Bedeutung, beim Anlegen eines Tiroler Profils aber zu klären.</p>
+<p>Diese Tabelle ist die Vorlage für weitere Regelprofile (AT-KR-TIROL, AT-KR-WIEN), wenn die App später mehr Profile anbieten soll.</p>
+<p><b>Private Hausregeln</b> (z. B. [PEPI], [LTA-GK1 Kap. 13]): Ein Rufer ohne jede Ansage wird nicht gespielt, sondern ausbezahlt; Vorhand weitergeben mit vier Königen; doppelte Runden; Klopfen. Im OÖ-Turnierprofil gilt ausdrücklich: „Nach den Turnierregeln muss auch ein Rufer, bei dem keinerlei Ansage erfolgt, gespielt werden“ [LTA-F1 Kap. 2].</p>
+<p>---</p>

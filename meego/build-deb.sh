@@ -42,6 +42,10 @@ cp -a "$HERE/assets/lessons" "$STAGE/opt/harbour-tarock/assets/lessons"
 # Die Kartenbilder (docs/design.md §10); TarockEngine::deckPath sucht sie
 # unter appDir/../assets/decks.
 cp -a "$HERE/assets/decks" "$STAGE/opt/harbour-tarock/assets/decks"
+# Die Regeltexte (docs/design.md §7.7); RulesIndex sucht sie unter
+# appDir/../assets/rules.
+mkdir -p "$STAGE/opt/harbour-tarock/assets/rules"
+cp "$HERE"/assets/rules/*.txt "$STAGE/opt/harbour-tarock/assets/rules/"
 cp -a "$OUT/arm/translations" "$STAGE/opt/harbour-tarock/translations"
 cp "$HERE/sailfish/icons/icon-256.png" "$STAGE/opt/harbour-tarock/icons/icon-256.png"
 

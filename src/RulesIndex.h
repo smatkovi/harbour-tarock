@@ -68,7 +68,7 @@ public:
     static QString markup(tarock::ProfileId profile, const QString& text);
 
     // --- rule reference ----------------------------------------------------
-    static QVariantList chapters(tarock::ProfileId profile);   // [{anchor, title, level}]
+    static QVariantList chapters(tarock::ProfileId profile);   // [{chapter, anchor, title, level, text}]
     static QString chapterTitle(tarock::ProfileId profile, const QString& anchor);
     // Contracts and bonuses with their tariffs, straight from RuleProfile —
     // there is no second, copied table (§7.7).

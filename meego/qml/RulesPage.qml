@@ -139,6 +139,8 @@ SubPage {
                 wrapMode: Text.WordWrap
                 font.pixelSize: AppTheme.fontSizeExtraSmall
                 color: AppTheme.secondaryColor
+                // Qt rich text from assets/rules (tools/make-rules.py).
+                textFormat: Text.RichText
                 text: page.opened && page.opened.text ? page.opened.text : ""
             }
         }
@@ -192,6 +194,7 @@ SubPage {
                     wrapMode: Text.WordWrap
                     font.pixelSize: AppTheme.fontSizeExtraSmall
                     color: AppTheme.secondaryColor
+                    textFormat: Text.RichText
                     text: modelData.text ? modelData.text : ""
                 }
             }

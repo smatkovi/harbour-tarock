@@ -22,7 +22,11 @@
 
 #include "ReasonText.h"
 
+#include <QDir>
+#include <QFile>
 #include <QLatin1String>
+#include <QList>
+#include <QMap>
 
 using tarock::BonusDef;
 using tarock::BonusId;
@@ -598,13 +602,134 @@ QString RulesIndex::anchorFor(ProfileId profile, const QString& chapter)
         + chapter;
 }
 
+// --- die Regeltexte selbst (assets/rules/<profil>.de.txt) --------------------------
+//
+// tools/make-rules.py zieht die Kapitel 1–9 der Regelwerke in docs/ zu einer
+// Datei je Profil zusammen; Format siehe assets/rules/README.md. Ohne diese
+// Datei zeigte die Regelseite nur Kapitelüberschriften, und ein angetipptes
+// Kapitel ging nicht auf -- auf jeder Plattform gleich, denn der Text fehlte
+// im Index, nicht in der Seite.
+namespace {
+
+struct LoadedChapter {
+    QString chapter;   // "6.2"
+    int level;         // 1 = Kapitel, 2 = Abschnitt
+    QString title;
+    QString text;      // Qt-Rich-Text
+};
+
+QStringList rulesFileCandidates(ProfileId profile)
+{
+    const QString name = QLatin1String(profileStem(profile)) + QLatin1String(".de.txt");
+    QStringList files;
+#ifdef TAROCK_DATA_DIR
+    // Die Tests (docs/design.md §11) laufen aus dem Bauverzeichnis.
+    files << QLatin1String(TAROCK_DATA_DIR "/assets/rules/") + name;
+#endif
+    const QString appDir = QCoreApplication::applicationDirPath();
+    if (!appDir.isEmpty()) {
+        files << appDir + QLatin1String("/rules/") + name;
+        files << appDir + QLatin1String("/assets/rules/") + name;
+        files << appDir + QLatin1String("/../assets/rules/") + name;   // MeeGo: /opt/harbour-tarock
+    }
+    files << QLatin1String("/usr/share/harbour-tarock/rules/") + name;  // Sailfish
+    files << QLatin1String("assets/rules/") + name;
+    // Android trägt die Datei als Ressource im Programm.
+    files << QLatin1String(":/rules/") + name;
+    return files;
+}
+
+// Gelesen wird mit QFile::readAll und fromUtf8, nicht über QTextStream: unter
+// der C-Locale (Start aus der Shell) nähme der sonst Latin-1 und zerhackte
+// jeden Umlaut.
+QList<LoadedChapter> parseRulesFile(const QString& path)
+{
+    QList<LoadedChapter> chapters;
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return chapters;
+    const QStringList lines = QString::fromUtf8(file.readAll()).split(QLatin1Char('\n'));
+    LoadedChapter current;
+    bool open = false;
+    QStringList body;
+    for (const QString& line : lines) {
+        if (line.startsWith(QLatin1String("@ "))) {
+            if (open) {
+                current.text = body.join(QLatin1String("\n")).trimmed();
+                chapters.append(current);
+            }
+            // "@ 6.2 2 Spielen im Stich"
+            const QString rest = line.mid(2);
+            const int firstSpace = rest.indexOf(QLatin1Char(' '));
+            const int secondSpace = firstSpace < 0 ? -1 : rest.indexOf(QLatin1Char(' '), firstSpace + 1);
+            current = LoadedChapter();
+            current.chapter = firstSpace < 0 ? rest : rest.left(firstSpace);
+            current.level = secondSpace < 0 ? 1
+                : rest.mid(firstSpace + 1, secondSpace - firstSpace - 1).toInt();
+            current.title = secondSpace < 0 ? QString() : rest.mid(secondSpace + 1).trimmed();
+            if (current.level < 1)
+                current.level = 1;
+            body.clear();
+            open = true;
+        } else if (open) {
+            body.append(line);
+        }
+        // Zeilen vor dem ersten Kapitel sind Kommentar.
+    }
+    if (open) {
+        current.text = body.join(QLatin1String("\n")).trimmed();
+        chapters.append(current);
+    }
+    return chapters;
+}
+
+const QList<LoadedChapter>& loadedChapters(ProfileId profile)
+{
+    static QMap<int, QList<LoadedChapter> > cache;
+    const int key = static_cast<int>(profile);
+    QMap<int, QList<LoadedChapter> >::const_iterator it = cache.constFind(key);
+    if (it != cache.constEnd())
+        return it.value();
+    QList<LoadedChapter> chapters;
+    const QStringList candidates = rulesFileCandidates(profile);
+    for (const QString& path : candidates) {
+        if (!QFile::exists(path))
+            continue;
+        chapters = parseRulesFile(path);
+        if (!chapters.isEmpty())
+            break;
+    }
+    return cache.insert(key, chapters).value();
+}
+
+QString sectionOfAnchor(const QString& anchor)
+{
+    // Both "6.2" and the full "rules:at-kr-ooe#6.2" are accepted.
+    const int hash = anchor.indexOf(QLatin1Char('#'));
+    return hash >= 0 ? anchor.mid(hash + 1) : anchor;
+}
+
+} // namespace
+
 QVariantList RulesIndex::chapters(ProfileId profile)
 {
     QVariantList list;
-    // Die Kapitelliste ist die des Königrufens (und, in denselben Nummern,
-    // die des ungarischen Blattes). Für das Tapp-Tarock und das Strohmandeln
-    // stehen die Regelwerke bisher nur in docs/tapptarock.md und
-    // docs/strohmandeln.md; lieber keine Kapitel zeigen als fremde
+    const QList<LoadedChapter>& loaded = loadedChapters(profile);
+    if (!loaded.isEmpty()) {
+        for (const LoadedChapter& chapter : loaded) {
+            QVariantMap entry;
+            entry.insert(QStringLiteral("chapter"), chapter.chapter);
+            entry.insert(QStringLiteral("anchor"), anchorFor(profile, chapter.chapter));
+            entry.insert(QStringLiteral("level"), chapter.level);
+            entry.insert(QStringLiteral("title"), chapter.title);
+            entry.insert(QStringLiteral("text"), chapter.text);
+            list.append(entry);
+        }
+        return list;
+    }
+    // Rückfall ohne Regeldatei: die Kapitelliste des Königrufens (und, in
+    // denselben Nummern, die des ungarischen Blattes), ohne Text. Für das
+    // Tapp-Tarock und das Strohmandeln lieber keine Kapitel zeigen als fremde
     // (docs/design.md §12, M11 und M12).
     if (profile == ProfileId::AtTappKlassik || profile == ProfileId::AtStrohMsErw)
         return list;
@@ -614,6 +739,7 @@ QVariantList RulesIndex::chapters(ProfileId profile)
         entry.insert(QStringLiteral("anchor"), anchorFor(profile, QString::fromLatin1(row.anchor)));
         entry.insert(QStringLiteral("level"), row.level);
         entry.insert(QStringLiteral("title"), tr(row.title));
+        entry.insert(QStringLiteral("text"), QString());
         list.append(entry);
     }
     return list;
@@ -621,10 +747,14 @@ QVariantList RulesIndex::chapters(ProfileId profile)
 
 QString RulesIndex::chapterTitle(ProfileId profile, const QString& anchor)
 {
-    // Both "6.2" and the full "rules:at-kr-ooe#6.2" are accepted.
-    const int hash = anchor.indexOf(QLatin1Char('#'));
-    const QString chapter = hash >= 0 ? anchor.mid(hash + 1) : anchor;
-    Q_UNUSED(profile);
+    const QString chapter = sectionOfAnchor(anchor);
+    // Erst die Regeldatei, damit "Mehr dazu" dieselbe Überschrift nennt wie
+    // die Seite; die Tabelle unten ist nur der Rückfall.
+    const QList<LoadedChapter>& loaded = loadedChapters(profile);
+    for (const LoadedChapter& entry : loaded) {
+        if (entry.chapter == chapter)
+            return entry.title;
+    }
     for (const ChapterRow& row : kChaptersKr) {
         if (chapter == QLatin1String(row.anchor))
             return tr(row.title);

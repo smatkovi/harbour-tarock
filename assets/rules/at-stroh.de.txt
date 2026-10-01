@@ -1,0 +1,533 @@
+# Erzeugt von tools/make-rules.py aus docs/strohmandeln.md -- nicht von Hand ändern.
+# Kapitel 1 bis 9 des Regelwerks; Format siehe assets/rules/README.md.
+@ 1 1 Blatt, Rangfolgen, Kartenwerte, Zählung
+<ul><li>1.1  Das Blatt: alle 54 Karten des IuG‑Decks</li><li>1.2  Tarockordnung (Trumpffolge)</li><li>1.3  Farbreihenfolgen – rot und schwarz sind unterschiedlich!</li><li>1.4  Kartenwerte</li><li>1.5  Zählmethode (exakt)</li><li>1.6  Durchgerechnetes Zählbeispiel</li><li>1.7  Gewinnschwelle</li></ul>
+@ 1.1 2 Das Blatt: alle 54 Karten des IuG‑Decks
+<p>Strohmandeln verwendet das <b>vollständige</b> Tarockblatt „Industrie und Glück“ zu <b>54 Karten</b> – es wird <b>nichts entfernt</b> [MS‑WEB], [DEWIKI], [ENWIKI], [TIROL], [FURR]:</p>
+<p>Deck = 22 Tarock + 4 Farben × 8 Karten = 54 Karten</p>
+<ul>
+<li><b>22 Tarock:</b> Sküs und XXI … I</li>
+<li><b>32 Farbkarten:</b> je 8 in ♥, ♦, ♠, ♣</li>
+</ul>
+<p>Das unterscheidet Strohmandeln von Zwanzigerrufen (40 Blatt) und vom ungarischen Tarokk (42 Blatt) und bedeutet für die App: <b>dasselbe Kartenmaterial wie Königrufen</b>, kein zusätzliches Deckprofil (Deckprofil IuG-54).</p>
+<p>Jeder Spieler bekommt <b>27 Karten</b> (15 Hand + 12 Strohmann). Es gibt <b>keinen übrig bleibenden Talon</b>; das gesamte Deck ist im Spiel.</p>
+@ 1.2 2 Tarockordnung (Trumpffolge)
+<p>Absteigend:</p>
+<p>Sküs &gt; XXI &gt; XX &gt; XIX &gt; XVIII &gt; XVII &gt; XVI &gt; XV &gt; XIV &gt; XIII &gt; XII &gt; XI &gt; X &gt; IX &gt; VIII &gt; VII &gt; VI &gt; V &gt; IIII &gt; III &gt; II &gt; I</p>
+<ul>
+<li>Der <b>Sküs</b> (Narrenbild, ohne Zahl) ist der <b>höchste Tarock</b>. Er ist <b>kein</b> „Excuse“/„Narr“ wie im französischen Tarot: er sticht ganz normal, unterliegt dem Farb‑/Tarockzwang, kann aber von nichts gestochen werden [MS‑WEB §Zählwerte: „Der Sküs ist der höchste Trumpf“], [FURR: „the Fool, which is the highest trump“]. → §6.5.</li>
+<li><b>I = Pagat</b> (auch <i>Spatz</i>), der <b>niedrigste</b> Tarock. Er ist zugleich ein Fünfer‑Zähler – das ist die Spannungsquelle des ganzen Spiels.</li>
+<li><b>XXI = Mond.</b></li>
+<li><b>II = Uhu</b>, <b>III = Kakadu</b>, <b>IIII = Quapil</b> – nur relevant, wenn die entsprechenden Prämien aktiv sind (§5.4).</li>
+<li><b>Trull</b> (Trullstücke, „Honneurs“) = Sküs, XXI, I. <b>Königstrull / vier Könige</b> = ♥K ♦K ♠K ♣K.</li>
+<li>Tarock ist im Sinne der Spielregeln eine <b>fünfte Farbe</b>: „auf Tarock muss Tarock zugegeben werden“ (§6.2).</li>
+</ul>
+@ 1.3 2 Farbreihenfolgen – rot und schwarz sind unterschiedlich!
+<ul><li><b><b>Schwarz</b> (♠ Pik, ♣ Treff)</b> · Rangfolge hoch → niedrig: K &gt; D &gt; C &gt; B &gt; <b>10 &gt; 9 &gt; 8 &gt; 7</b></li><li><b><b>Rot</b> (♥ Herz, ♦ Karo)</b> · Rangfolge hoch → niedrig: K &gt; D &gt; C &gt; B &gt; <b>A &gt; 2 &gt; 3 &gt; 4</b></li></ul>
+<p>Beleg wörtlich: „König, Dame, Kavall, Bube; schwarze Farben: 10 bis 7; rote Farben: Ass bis 4“ [MS‑WEB], gleichlautend [ENWIKI Cards], [FURR: „using irrational ranking“].</p>
+<p>Merksatz für den Lernmodus: <b>In Schwarz zählt die Zehn am meisten, in Rot das Ass</b> – in beiden Farben ist die <i>jeweils erstgenannte</i> Zahlkarte die höchste, aber schwarz läuft abwärts (10‑9‑8‑7) und rot aufwärts (A‑2‑3‑4). Diese Asymmetrie stammt aus dem historischen italienischen Blatt (runde Farben Becher/Münzen gegen lange Farben Schwerter/Stäbe) und ist in <b>allen</b> Tarockspielen des IuG‑Decks gleich.</p>
+<p>// rank(card): je größer, desto stärker; nur innerhalb derselben Farbe vergleichbar<br/>static constexpr int kSuitRank[] = { /*7/4*/0, /*8/3*/1, /*9/2*/2, /*10/A*/3, 4 /*B*/, 5 /*C*/, 6 /*D*/, 7 /*K*/ };</p>
+@ 1.4 2 Kartenwerte
+<ul><li><b>Trullstücke: Sküs, XXI, I</b> · Wert: <b>5</b> · Anzahl: 3 · Summe roh: 15</li><li><b>Tarock II–XX</b> · Wert: <b>1</b> · Anzahl: 19 · Summe roh: 19</li><li><b>König K</b> · Wert: <b>5</b> · Anzahl: 4 · Summe roh: 20</li><li><b>Dame D</b> · Wert: <b>4</b> · Anzahl: 4 · Summe roh: 16</li><li><b>Cavall C</b> · Wert: <b>3</b> · Anzahl: 4 · Summe roh: 12</li><li><b>Bube B</b> · Wert: <b>2</b> · Anzahl: 4 · Summe roh: 8</li><li><b>Farb‑Zahlkarten (rot A 2 3 4, schwarz 10 9 8 7)</b> · Wert: <b>1</b> · Anzahl: 16 · Summe roh: 16</li><li><b><b>Summe</b></b> · Anzahl: <b>54</b> · Summe roh: <b>106</b></li></ul>
+<p>[MS‑WEB], [DEWIKI], [ENWIKI], [FURR], [TIROL] stimmen hier vollständig überein.</p>
+@ 1.5 2 Zählmethode (exakt)
+<p>Gezählt wird die <b>österreichische Dreierlagen‑Zählung</b>. Historisch stammt sie aus dem Dreier‑Tarock: dort zählte jede Karte einen Punkt weniger als heute, dafür gab es pro Stich (= 3 Karten) einen Zusatzpunkt. Um das doppelte Zählen zu vermeiden, erhöhte man die Kartenwerte um 1 und zog pro Dreierlage 2 Punkte ab – das ergibt exakt dasselbe [TIROL‑G].</p>
+<p><b>1.5.1 Die exakte Definition (für die Engine maßgeblich)</b></p>
+<p><i><b>Punktezahl eines Stichhaufens</b> P = Σ Kartenwerte − (2/3) · Kartenanzahl</i></p>
+<p>Das ist die einzige Formel, die die Engine braucht. Sie wird <b>in Dritteln</b> gerechnet (Integer‑Arithmetik in Dritteln, p3 = 3·Σwert − 2·n), niemals in double.</p>
+<p>Probe fürs ganze Deck: 106 − (2/3)·54 = 106 − 36 = 70. <b>Das Spiel hat 70 Punkte.</b></p>
+<p><b>1.5.2 Die drei praktischen Verfahren am Tisch (alle äquivalent)</b></p>
+<p>[MS‑WEB] nennt sie ausdrücklich: „in Dreierlagen mit 2 Punkte‑Abzug <b>oder</b> jeweils 1 Zählkarte und 2 Leerkarten <b>oder</b> in Bruchzahlen“.</p>
+<p><b>(a) Dreierlagen (Standard, ganzzahlig).</b> Karten zu Lagen à 3 stapeln, Werte addieren, pro vollständiger Lage 2 Punkte abziehen. Für die unvollständige Restlage (1 oder 2 Karten) <b>1 Punkt</b> abziehen [TIROL], [TIROL‑G]. Ergebnis: ganze Zahlen, Gewinnschwelle <b>36</b>. <i>Beispiel:</i> ♠K + ♠C + XIII = 5+3+1 = 9 − 2 = 7.</p>
+<p><b>(b) Zählkarte + zwei Leerkarten („blattgenau“).</b> Jede Zählkarte mit zwei Leerkarten zu einer Lage kombinieren – dann zählt die Zählkarte <b>ihren vollen Wert</b> (denn Wert + 1 + 1 − 2 = Wert). Übrig bleibende Leerkarten heißen <b>„Blatt“</b> und zählen je <b>⅓</b>. Ergebnis in der Form <i>„n Punkte und r Blatt“</i>, Gewinnschwelle <b>35 und 2 Blatt</b>.</p>
+<p><b>(c) Bruchzahlen.</b> Jede Karte zählt Wert − ⅔:</p>
+<ul><li><b>Sküs, XXI, I, K</b> · Bruchwert: 4 ⅓</li><li><b>D</b> · Bruchwert: 3 ⅓</li><li><b>C</b> · Bruchwert: 2 ⅓</li><li><b>B</b> · Bruchwert: 1 ⅓</li><li><b>Leerkarte</b> · Bruchwert: ⅓</li></ul>
+<p>Gewinnschwelle <b>35 ⅔</b>.</p>
+<p><b>1.5.3 Umrechnung und Äquivalenz</b></p>
+<ul>
+<li>„n Punkte und r Blatt“ ⟺ exakt n + r/3 (r ∈ {0,1,2}).</li>
+<li>Verfahren (a) ist genau die <b>Rundung</b> von (c): ⅓ → 0, ⅔ → 1. [TIROL‑G] führt beide als <b>getrennte</b> althergebrachte Verfahren auf („bei unvollständigen Lagen wird nur ein Punkt abgezogen“ <i>bzw.</i> „Andere Spieler runden einfach die übriggebliebenen Karten zu vollen Punkten (2/3 = 1, 1/3 = 0)“). Sie liefern <b>immer</b> dasselbe Ergebnis; Beweis: mit n = 3k + r ist der exakte Wert Σ − 2k − 2r/3, also für r = 1 (Σ−2k−1) + ⅓ → abgerundet Σ−2k−1, für r = 2 (Σ−2k−2) + ⅔ → aufgerundet Σ−2k−1. Beides ist der Wert von Verfahren (a), das für die Restlage pauschal 1 abzieht. Welche Karten in der Restlage liegen, ist dabei irrelevant – nur ihre Anzahl zählt.</li>
+<li>Weil ein Spieler n und der andere 54 − n Karten hat, gilt für die Restlagen zwingend r_A = 0 ⟹ r_B = 0, r_A = 1 ⟹ r_B = 2 und umgekehrt. Andere Kombinationen sind ein Rechenfehler und müssen in der Engine assertiert werden.</li>
+<li><b>Deshalb ist 36 (gerundet) exakt dasselbe wie 35/2 Blatt</b> – und <i>nicht</i> dasselbe wie 35/1 Blatt [TIROL‑G]: „darf das Spiel erst mit 35/2 Blatt gewonnen sein (und nicht schon mit 35/1)“.</li>
+</ul>
+@ 1.6 2 Durchgerechnetes Zählbeispiel
+<p>Spieler <b>A</b> hat am Ende folgende <b>26 Karten</b> in seinen Stichen:</p>
+<p><i><b>Tarock (13):</b> Sküs, XXI, XIX, XVII, XV, XIII, XI, IX, VII, V, III, II, I <b>♥ (5):</b> ♥K, ♥D, ♥B, ♥A, ♥2  <b>♦ (2):</b> ♦C, ♦3 <b>♠ (3):</b> ♠C, ♠10, ♠9  <b>♣ (3):</b> ♣D, ♣8, ♣7</i></p>
+<p><b>Schritt 1 – Rohsumme.</b></p>
+<ul><li><b>Trullstücke Sküs,XXI,I</b> · Rechnung: 3 × 5 · Summe: 15</li><li><b>Tarock XIX XVII XV XIII XI IX VII V III II</b> · Rechnung: 10 × 1 · Summe: 10</li><li><b>♥K 5 + ♥D 4 + ♥B 2 + ♥A 1 + ♥2 1</b> · Summe: 13</li><li><b>♦C 3 + ♦3 1</b> · Summe: 4</li><li><b>♠C 3 + ♠10 1 + ♠9 1</b> · Summe: 5</li><li><b>♣D 4 + ♣8 1 + ♣7 1</b> · Summe: 6</li><li><b><b>Rohsumme Σ</b></b> · Summe: <b>53</b></li></ul>
+<p><b>Schritt 2 – Abzug.</b> A hat 26 Karten.</p>
+<ul>
+<li><b>Exakt (c):</b> 53 − (2/3) · 26 = 53 − 17⅓ =  <b>35 ⅔</b></li>
+<li><b>Dreierlagen (a):</b> 26 = 8 volle Lagen + 1 Restlage zu 2 Karten → 53 − 8·2 − 1 = 53 − 17 =  <b>36</b></li>
+<li><b>Blattgenau (b):</b> A hat 9 Zählkarten (Summe 36) und 17 Leerkarten. Legt man 8 Lagen (= 24 Karten, darin alle 9 Zählkarten und 15 Leerkarten, Summe 51, minus 16) = <b>35</b>, bleiben <b>2 Blatt</b> übrig → <b>35 und 2 Blatt</b>.</li>
+</ul>
+<p><b>Schritt 3 – Gegenprobe beim Gegner B.</b> B hat die anderen <b>28 Karten</b>, ebenfalls mit Rohsumme 53 (10 Zählkarten Summe 35 + 18 Leerkarten).</p>
+<ul>
+<li>Exakt: 53 − (2/3) · 28 = 53 − 18⅔ =  <b>34 ⅓</b></li>
+<li>Dreierlagen: 28 = 9 volle Lagen + 1 Restkarte → 53 − 18 − 1 =  <b>34</b></li>
+<li>Blattgenau: <b>34 und 1 Blatt</b></li>
+</ul>
+<p><b>Probe:</b> 35⅔ + 34⅓ = 70 ✔ und 36 + 34 = 70 ✔ und (35,2 Blatt) + (34,1 Blatt) = 70 ✔.</p>
+<p><b>Ergebnis:</b> A hat <b>35 und 2 Blatt</b> erreicht – das ist die <b>knappst mögliche</b> Gewinnzahl. A gewinnt.</p>
+@ 1.7 2 Gewinnschwelle
+<ul><li><b>≥ 35 ⅔</b> · blattgenau: ≥ 35/2 Blatt · gerundet: ≥ 36 · p3: ≥ 107 · Bewertung: <b>gewonnen</b></li><li><b>35 ⅓</b> · blattgenau: 35/1 Blatt · gerundet: 35 · p3: 106 · Bewertung: <b>nicht</b> gewonnen – Unentschieden‑Zone (§1.7.1)</li><li><b>35</b> · blattgenau: 35/0 Blatt · gerundet: 35 · p3: 105 · Bewertung: <b>nicht</b> gewonnen – Unentschieden‑Zone</li><li><b>34 ⅔</b> · blattgenau: 34/2 Blatt · gerundet: 35 · p3: 104 · Bewertung: <b>nicht</b> gewonnen – Unentschieden‑Zone</li><li><b>≤ 34 ⅓</b> · blattgenau: ≤ 34/1 Blatt · gerundet: ≤ 34 · p3: ≤ 103 · Bewertung: verloren (der Gegner hat ≥ 35 ⅔)</li></ul>
+<p><b>Achtung – häufiger Denkfehler:</b> 34 ⅔ ist <b>kein</b> verlorenes, sondern ein <b>unentschiedenes</b> Ergebnis, denn der Gegner hat dann 35 ⅓ und erreicht die Schwelle ebenfalls nicht. Die Unentschieden‑Zone umfasst in Dritteln genau p3 ∈ {104, 105, 106} (§1.7.1). Erst ab p3 ≤ 103 hat der Gegner das Spiel wirklich gewonnen. Die Engine prüft daher <b>nie</b> „verloren = nicht ≥ 107“, sondern immer beide Seiten getrennt.</p>
+<p><b>„Zum Gewinn eines Spiels sind mindestens 35 Punkte und 2 Blatt erforderlich.“</b> [MS‑WEB], wortgleich [MS‑WZ]; „um zu gewinnen sind 36 Punkte erforderlich (= 35/2 Blatt bei blattgenauer Zählweise)“ [TIROL]; „To win the game the declarer needs 36 points (out of 70)“ [ENWIKI], [FURR].</p>
+<p><b>1.7.1 Die Unentschieden‑Zone</b></p>
+<p>Weil die Schwelle bei 35 ⅔ liegt, gibt es genau <b>zwei</b> Ergebnislagen, in denen <b>keiner</b> der beiden Spieler die Schwelle erreicht:</p>
+<ol>
+<li>35 : 35 (p3 105 : 105)</li>
+<li>35⅓ : 34⅔ bzw. 34⅔ : 35⅓ (= „35/1 Blatt zu 34/2 Blatt“; p3 106 : 104 bzw. 104 : 106)</li>
+</ol>
+<p>In Dritteln also genau p3 ∈ {104, 105, 106} für <b>beide</b> Spieler gleichzeitig – drei Werte, zwei Ergebnislagen.</p>
+<p>[MS‑WZ] wörtlich: „Ein Ergebnis von 35 zu 35 Punkten, aber auch von 34 Punkten/2 Blatt zu 35 Punkten/1 Blatt sowie umgekehrt, ist in einem einfachen Spiel ein Unentschieden.“</p>
+<ul><li><b>simple_only</b> · Bedeutung: Unentschieden <b>nur im einfachen Spiel</b>; im aufgenommenen Spiel hat der Aufnehmer die Schwelle verfehlt und <b>verliert</b> · Quelle: [MS‑WEB], [MS‑WZ] — <b>Default</b></li><li><b>always</b> · Bedeutung: Unentschieden in jedem Spiel; es werden nur die Prämien verrechnet · Quelle: [DEWIKI] („für ein solches werden nur Ansagen geschrieben oder ausgezahlt“)</li><li><b>declarer_loses</b> · Bedeutung: wie always, aber das aufgenommene Spiel gilt dem Aufnehmer als verloren · Quelle: [DEWIKI], ausdrücklich als Variante genannt</li></ul>
+<p><b>Empfehlung: simple_only.</b> Der Aufnehmer hat das Spiel riskiert; verfehlt er 35/2, hat er sein Ziel nicht erreicht. Das ist die Logik von [MS‑WEB] und vermeidet einen Sonderzweig in der Abrechnung.</p>
+<p>Folge eines Unentschiedens: <b>Nullrunde</b>, §8.3.</p>
+<p>---</p>
+@ 2 1 Sitzordnung, Geben, Strohmänner legen
+<ul><li>2.1  Zwei Sitze</li><li>2.2  Wer gibt zuerst</li><li>2.3  Mischen, Abheben, Geben</li><li>2.4  Zeitpunkt des Strohmänner‑Legens — <b>⚙ Flag strawmen_dealt_before_bidding</b></li><li>2.5  Zusammenwerfen ohne Tarock (Neugabe)</li><li>2.6  Vergeben (Misdeal)</li><li>2.7  Sicht‑ und Netzwerkmodell (LAN, Server ist autoritativ)</li></ul>
+@ 2.1 2 Zwei Sitze
+<p>Strohmandeln ist ein reines Zweipersonenspiel. In der App sind die beiden Sitze SEAT_0 und SEAT_1; jeder kann <b>Mensch oder Computerspieler</b> sein (auch beide – Demo‑Modus).</p>
+<ul>
+<li><b>Vorhand</b> = wer <b>nicht</b> gegeben hat. <b>Geber</b> = wer gegeben hat.</li>
+<li>Die Vorhand hat sämtliche Vorrechte: sie erklärt sich zuerst (§3) und spielt zum ersten Stich aus (§6.1).</li>
+<li>Nach jedem Spiel wechselt das Geben. <b>Runde</b> = zwei Spiele, sodass jeder einmal gegeben hat (§8.1).</li>
+</ul>
+@ 2.2 2 Wer gibt zuerst
+<p>Es wird abgehoben bzw. gelost; danach wird abwechselnd geteilt [DEWIKI: „Es wird gelost, welcher der beiden Spieler mit dem Teilen beginnt, anschließend wird abwechselnd geteilt“], [ENWIKI: „The deck is cut to decide which of the two players deals first“], [FURR: „First Dealer is chosen at random“].</p>
+<p><b>App:</b> Beim ersten Spiel einer Partie zieht jeder verdeckt eine Karte; der <b>höhere Tarock bzw. die höhere Karte</b> gibt (UI‑Animation, überspringbar). Danach strikter Wechsel.</p>
+@ 2.3 2 Mischen, Abheben, Geben
+<ol>
+<li>Der Geber mischt, der Gegner hebt ab.</li>
+<li><b>Handkarten:</b> Der Geber gibt in <b>3 Durchgängen je 5 Karten</b>, beginnend bei der <b>Vorhand</b> → jeder hat <b>15 Handkarten</b> [MS‑WEB], [DEWIKI], [TIROL], [FURR].</li>
+<li><b>Strohmänner:</b> Die restlichen <b>24 Karten</b> werden als <b>6 Päckchen à 4 verdeckten Karten</b> ausgelegt, drei vor jeden Spieler. Sie werden ebenso <b>wechselweise</b> ausgeteilt: <i>Päckchen 1 → Vorhand, Päckchen 2 → Geber, Päckchen 3 → Vorhand, …</i> [MS‑WEB: „so dass die Vorhand das erste, der Geber das zweite usw. erhält“].</li>
+<li>Jeder Spieler hat damit <b>27 Karten</b> = 15 Hand + 3 × 4 Strohmann. Es bleibt <b>kein Talon</b> übrig.</li>
+</ol>
+<p>Die drei Päckchen eines Spielers liegen nebeneinander; die App nummeriert sie aus Sicht ihres Besitzers von links (S1) nach rechts (S3). Das ist relevant, weil die Erstaufdeckung „von links nach rechts“ erfolgt [DEWIKI], [ENWIKI].</p>
+@ 2.4 2 Zeitpunkt des Strohmänner‑Legens — <b>⚙ Flag strawmen_dealt_before_bidding</b>
+<ul><li><b>true</b> · Ablauf: Hand <b>und</b> Strohmänner werden in einem Zug gegeben; danach erklärt sich die Vorhand · Quelle: [MS‑WEB], [TIROL], [FURR] — <b>Default</b></li><li><b>false</b> · Ablauf: Zuerst nur die 15+15 Handkarten; erst <b>nachdem</b> ein Spiel aufgenommen wurde, werden die Strohmänner gelegt · Quelle: [DEWIKI]/[BECK] („Nimmt einer das Spiel auf …, werden vor jeden Spieler je drei Päckchen à vier Karten Talon gelegt“); [MS‑WEB] empfiehlt das ausdrücklich für den Fall, dass das einfache Spiel gar nicht gespielt wird</li></ul>
+<p><b>Empfehlung: true.</b> Spielentscheidend ist der Unterschied nicht (niemand sieht die Strohmänner vor der Erklärung), aber true erlaubt eine einzige Gebe‑Animation und ein einfacheres Zustandsmodell. false ist nur zusammen mit redeal_if_both_pass = true (§3.2) sinnvoll.</p>
+@ 2.5 2 Zusammenwerfen ohne Tarock (Neugabe)
+<p><i>„Hat ein Spieler nach Austeilen der Karten und <b>vor Aufdecken der Strohmänner</b> kein Tarock im Handblatt, so kann er zusammenwerfen. In diesem Fall gibt <b>derselbe Spieler</b> neu.“ [MS‑WEB], [MS‑WZ]</i></p>
+<ul>
+<li>Das Recht ist <b>fakultativ</b> („kann“) und steht <b>beiden</b> Spielern zu.</li>
+<li>Maßgeblich ist allein das <b>Handblatt</b> (15 Karten); Tarock in den eigenen Strohmännern zählen nicht.</li>
+<li>Es muss <b>vor</b> der Erstaufdeckung (§4.2) ausgeübt werden. In der App: eigener Zustand AWAIT_THROW_IN mit Timeout, nur sichtbar, wenn die Bedingung tatsächlich erfüllt ist.</li>
+<li>Nach dem Zusammenwerfen gibt <b>derselbe</b> Geber erneut; die Geber‑Rotation verschiebt sich nicht.</li>
+</ul>
+@ 2.6 2 Vergeben (Misdeal)
+<p>Strafe: <b>1 Spielpunkt</b> an den Gegner, in einer verdoppelten Runde <b>2 Spielpunkte</b> [MS‑WEB]. Danach gibt derselbe Spieler neu.</p>
+<p>Die App vergibt nie falsch; die Regel ist trotzdem zu implementieren, weil sie in physischen Turnier‑Modi (LAN mit Papierabrechnung) nachgetragen werden kann → Menüpunkt „Strafpunkt eintragen“.</p>
+@ 2.7 2 Sicht‑ und Netzwerkmodell (LAN, Server ist autoritativ)
+<p>Weil Strohmandeln mehrere Sichtbarkeitsstufen hat, ist der Server <b>zwingend</b> autoritativ. Pro Karte gilt genau einer der Zustände:</p>
+<ul><li><b>HAND_PRIVATE</b> · sichtbar für: nur Besitzer · Beispiel: die 15 Handkarten</li><li><b>HAND_KNOWN</b> · sichtbar für: Besitzer <b>und Gegner</b> · Beispiel: ein Tarock/König, der offen aus einem Strohmann ins Blatt genommen wurde (§4.3)</li><li><b>PILE_HIDDEN</b> · sichtbar für: niemand · Beispiel: Karten unter dem Deckblatt</li><li><b>PILE_FACEUP</b> · sichtbar für: <b>beide</b> · Beispiel: das Deckblatt</li><li><b>HAND_SECRET_LAST</b> · sichtbar für: nur Besitzer · Beispiel: die <b>letzte</b> Karte eines Päckchens, verdeckt aufgenommen (§4.5)</li><li><b>PLAYED / TRICK_TAKEN</b> · sichtbar für: beide · Beispiel: gespielte Karten</li></ul>
+<p>HAND_KNOWN ist die für die KI wertvollste Information des Spiels: Der Gegner <b>weiß</b>, welche Tarock und Könige du aus den Strohmännern gezogen hast (§10.1). Der Client darf PILE_HIDDEN und HAND_SECRET_LAST <b>nie</b> erhalten; der Server sendet dafür nur Platzhalter mit Kartenanzahl.</p>
+<p>---</p>
+@ 3 1 Die Spielstufen (Verträge) und die Spielaufnahme
+<ul><li>3.1  Es gibt nur zwei (bzw. drei) Spielstufen</li><li>3.2  Ablauf der Erklärung („Lizit“)</li><li>3.3  Wertetabelle der Spielstufen nach Profil</li><li>3.4  Wer darf was – Übersicht</li></ul>
+@ 3.1 2 Es gibt nur zwei (bzw. drei) Spielstufen
+<p>Strohmandeln kennt <b>kein Lizit</b> im Sinne von Königrufen – keine Spielstufenleiter, kein Überbieten, kein Halten. Es gibt nur die Frage: <b>Nimmt jemand auf?</b></p>
+<ul><li><b>1</b> · Spielstufe: <b>Einfaches Spiel</b> (beide haben gepasst) · Wer erklärt: – · Spielziel: mehr als die Hälfte der Punkte (≥ 35/2 Blatt) · Wert (Default AT-STROH-MS-ERW): 1 Spielpunkt an den Gewinner; 2 bei ≥ 45 Punkten; Unentschieden möglich</li><li><b>2</b> · Spielstufe: <b>Aufgenommenes Spiel</b> · Wer erklärt: Vorhand zuerst, dann Geber · Spielziel: der <b>Aufnehmer</b> braucht ≥ 35/2 Blatt · Wert (Default AT-STROH-MS-ERW): Aufnehmer gewinnt <b>3</b>, verliert <b>4</b>; 4 bzw. 5 mit Grammel‑Punkt</li><li><b>3</b> · Spielstufe: <i>(nur AT-STROH-TIROL-2025)</i> <b>Trischaken</b> (beide haben gepasst) · Wer erklärt: – · Spielziel: <b>möglichst wenige</b> Punkte · Wert (Default AT-STROH-MS-ERW): 2 Spielpunkte an den Gewinner</li></ul>
+<p>Die Stufen stehen in dieser Reihenfolge, weil das aufgenommene Spiel das einfache Spiel <b>ersetzt</b>, sobald sich jemand erklärt. Es gibt <b>keine höhere Stufe</b> – kein Solo, kein Farbenspiel, kein Negativspiel (außer Trischaken im Tiroler Profil), keine Ouvert‑Spiele.</p>
+@ 3.2 2 Ablauf der Erklärung („Lizit“)
+<p>             ┌────────────────────────┐<br/>  Geben ───▶ │  AWAIT_FOREHAND        │<br/>             └─────────┬──────────────┘<br/>              „Ich nehme auf!“ │ „Weiter!“ / „Ich passe!“<br/>                   ▼           ▼<br/>        AUFGENOMMENES     ┌────────────────────┐<br/>        SPIEL (Vorhand)   │  AWAIT_DEALER      │<br/>                          └───────┬────────────┘<br/>                „Ich nehme auf!“  │  „Ich passe!“<br/>                       ▼          ▼<br/>             AUFGENOMMENES    EINFACHES SPIEL<br/>             SPIEL (Geber)    (bzw. Neugabe / Trischaken)</p>
+<ul>
+<li><b>Vorhand erklärt sich zuerst.</b> Wortlaut am Tisch: <b>„Ich nehme auf!“</b> bzw. <b>„Weiter!“</b> oder <b>„Ich passe!“</b> [MS‑WEB], [MS‑WZ], [ENWIKI].</li>
+<li>Passt die Vorhand, <b>darf</b> (nicht muss) der Geber aufnehmen.</li>
+<li>Passen beide, kommt es zum <b>einfachen Spiel</b> – es wird also trotzdem gespielt [MS‑WEB], [MS‑WZ], [DEWIKI], [FURR].</li>
+<li><b>Die Erklärung ist unwiderruflich.</b> Es gibt <b>kein Überbieten</b>, kein „Halten“, keine zweite Runde. Sobald ein Spieler aufgenommen hat, endet die Erklärungsphase sofort – auch für den anderen.</li>
+<li>Die Erklärung erfolgt <b>vor</b> der Erstaufdeckung der Strohmänner [TIROL: „bevor der Strohmann aufgedeckt wird“]. Das ist wesentlich: Man entscheidet auf Basis von 15 von 27 eigenen Karten (§10.2).</li>
+</ul>
+<ul><li><b>simple_game</b> · Verhalten bei „beide passen“: Es wird ein <b>einfaches Spiel</b> gespielt · Quelle: [MS‑WEB], [MS‑WZ], [FURR] — <b>Default</b></li><li><b>redeal</b> · Verhalten bei „beide passen“: Karten zusammenwerfen, es wird <b>neu gegeben</b> (wer gibt: siehe redeal_dealer) · Quelle: „Alte Tarockbücher empfehlen, ein einfaches Spiel gar nicht zu spielen, sondern die Karten zusammenzuwerfen“ [MS‑WEB], [MS‑EN]; so auch [BAMB] laut [ENWIKI]; [DEWIKI]/[BECK] nennt es als Hauptregel mit dem einfachen Spiel als Vereinbarung</li><li><b>trischaken</b> · Verhalten bei „beide passen“: Es wird <b>Trischaken</b> gespielt (§5.9) · Quelle: [TIROL]</li></ul>
+<ul><li><b>same_dealer</b> · Wer gibt neu: <b>derselbe Geber</b> · Quelle: [MS‑WEB]: „Anschließend gibt <b>derselbe Geber</b> neu.“; [MS‑EN]: „Subsequently, the same dealer deals again.“ — <b>Default</b>, weil die Profilfamilie MS-* die Normquelle dieser Spezifikation ist</li><li><b>forehand_deals</b> · Wer gibt neu: die <b>bisherige Vorhand</b>, d. h. das Geben rotiert normal weiter · Quelle: [DEWIKI]/[BECK]: „es wird <b>von der alten Vorhand</b> neu gegeben“; [ENWIKI]: „a new hand dealt by the player who was forehand“</li></ul>
+<p>Der Unterschied ist <b>nicht</b> kosmetisch: same_dealer lässt den Vorhandvorteil (zuerst erklären, zuerst ausspielen) beim selben Spieler, bis endlich jemand aufnimmt, forehand_deals reicht ihn weiter. Im Profil AT-STROH-BECK-1972 ist daher forehand_deals gesetzt. Vgl. dagegen §2.5: beim <b>Zusammenwerfen ohne Tarock</b> sagen [MS‑WEB] <i>und</i> [MS‑WZ] übereinstimmend „derselbe Spieler gibt neu“, dort gibt es keinen Widerspruch.</p>
+<p><b>Empfehlung: simple_game.</b> Eine App, die Karten wegwirft, fühlt sich für Anfänger frustrierend an; das einfache Spiel ist zudem das beste Lernvehikel (kein Risiko, volle Spielmechanik).</p>
+@ 3.3 2 Wertetabelle der Spielstufen nach Profil
+<ul><li><b>Einfaches Spiel gewonnen</b> · MS-ERW (Default): <b>1</b> · MS-KLASS: 2 · MS-WZ2007: 2 (20 ct) · TIROL-2025: – <i>(Trischaken 2)</i> · BECK-1972: 1 · FURR-2009: 2</li><li><b>Einfaches Spiel, Sieger ≥ 45 Punkte</b> · MS-ERW (Default): <b>2</b> · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: – · FURR-2009: –</li><li><b>Einfaches Spiel unentschieden</b> · MS-ERW (Default): 0, Nullrunde · MS-KLASS: 0, Nullrunde · MS-WZ2007: 0, Nullrunde · TIROL-2025: – · BECK-1972: 0 · FURR-2009: –</li><li><b>Aufgenommenes Spiel <b>gewonnen</b></b> · MS-ERW (Default): <b>3</b> · MS-KLASS: 3 · MS-WZ2007: 3 (30 ct) · TIROL-2025: 2 · BECK-1972: 2 · FURR-2009: 3</li><li><b>Aufgenommenes Spiel <b>verloren</b> (an den Gegner)</b> · MS-ERW (Default): <b>4</b> · MS-KLASS: 4 · MS-WZ2007: 4 (40 ct) · TIROL-2025: 3 · BECK-1972: 3 · FURR-2009: 4</li><li><b>Aufnehmer ≥ 45 Punkte</b> · MS-ERW (Default): <b>4</b> · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: – · FURR-2009: 4</li><li><b>Aufnehmer <b>unter 26</b> Punkten (M&amp;S) bzw. <b>26 oder weniger</b> (Furr)</b> · MS-ERW (Default): <b>5</b> · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: – · FURR-2009: 5</li></ul>
+<p>Quellen: [MS‑WEB §Die Werte der Spielansagen und der Prämien] (Spalten 1 und 2, Zeilenbeschriftungen dort wörtlich „Aufnehmer mind. 45 Punkte“ / „Aufnehmer unter 26 Punkte“); [MS‑WZ] („Einfaches Spiel gewonnen/verloren: 20 Cent … Aufgenommenes Spiel gewonnen: 30 Cent, verloren: 40 Cent“); [TIROL] („Spiel gewonnen 2 / Spiel verloren 3“); [ENWIKI Scoring] und [FURR S. 110] für Beck und Furr.</p>
+<p><b>Achtung, die letzte Zeile fasst zwei <i>verschiedene</i> Schwellen zusammen</b> (deshalb die Doppelbeschriftung):</p>
+<ul>
+<li><b>M&amp;S</b> ([MS‑WEB]): „Aufnehmer <b>unter</b> 26 Punkte“, d. h. Aufnehmer ≤ 25 ⟺ Gegner ≥ 45. Die Zeile ist nur die Kehrseite des Grammel‑Punkts (§5.6), den der Gegner erzielt.</li>
+<li><b>Furr</b> ([FURR]): „With 26: If Declarer takes <b>26 card points or less</b>: Scores 5 for the defender“, d. h. Aufnehmer ≤ 26 ⟺ Gegner ≥ 44. Furrs Verteidiger‑Großgewinn liegt also <b>einen Punkt tiefer</b>; [ENWIKI] gibt das konsistent als „Major win by defender: Win by defender with <b>44</b> or more points“ wieder. Furrs Gewinner‑Schwelle „With 45“ (Aufnehmer ≥ 45) stimmt dagegen mit M&amp;S überein. Die Asymmetrie ist bei Furr systematisch: der Verteidiger gewinnt das Spiel schon mit 35 Punkten, also liegen auch seine Großgewinn‑Schwellen um 1 niedriger.</li>
+</ul>
+<p>Die Engine bildet das über zwei getrennte Flags ab (§5.6): grand_point_threshold (eigene Punkte, Default</p>
+<ol>
+<li>und grand_point_defender_threshold (Default = grand_point_threshold, im Profil FURR-2009 = 44).</li>
+</ol>
+<p><b>Lesart „verloren“:</b> Der Wert ist immer <b>positiv für den Gewinner</b>. Verliert der Aufnehmer, bekommt sein Gegner 4 (nicht 3) – die asymmetrische Bestrafung des Risikos ist der Kern des Spiels: <i>„Der Aufnehmer hat die Chance, 1 Spielpunkt mehr als in einem einfachen Spiel zu gewinnen, und er riskiert, 2 Spielpunkte gegenüber einem einfachen Spiel zu verlieren.“</i> [MS‑WEB]</p>
+<p><b>Achtung Profilinkonsistenz (dokumentierter Widerspruch):</b> In MS-ERW ist das einfache Spiel nur <b>1</b> wert, weil die Erhöhung auf <b>2</b> dem Grammel‑Punkt vorbehalten ist (§5.6); in [MS‑WZ] – derselben Autoren, sechs Jahre später – ist es <b>2</b> und es gibt gar keinen Grammel‑Punkt. Beides ist belegt; die App bildet beide als eigene Profile ab. Siehe §9.4.</p>
+@ 3.4 2 Wer darf was – Übersicht
+<ul><li><b>Sich zuerst erklären</b> · Vorhand: ✔ · Geber: –</li><li><b>Aufnehmen</b> · Vorhand: ✔ (zuerst) · Geber: ✔ (nur wenn Vorhand passt)</li><li><b>Zusammenwerfen ohne Tarock (§2.5)</b> · Vorhand: ✔ · Geber: ✔</li><li><b>Erstes Ausspiel (§6.1)</b> · Vorhand: ✔ <b>immer</b> · Geber: –</li><li><b>Prämien (§5)</b> · Vorhand: ✔ · Geber: ✔ — Prämien hängen <b>nicht</b> an der Aufnehmerrolle</li></ul>
+<p>Das ist der große Unterschied zu Königrufen: Prämien sind hier <b>keine Ansagen einer Partei</b>, sondern Leistungen, die <b>jeder</b> Spieler für sich erzielen kann – auch der Nicht‑Aufnehmer, auch im einfachen Spiel.</p>
+<p>---</p>
+@ 4 1 Die Strohmänner (entspricht dem Talon anderer Tarockspiele)
+<p>Dies ist das Herzstück des Spiels und der Teil, der am häufigsten falsch wiedergegeben wird. Die folgende Darstellung folgt [MS‑WEB] (ausführlichste Fassung), abgeglichen mit [DEWIKI]/[BECK], [TIROL], [ENWIKI] und [FURR]; Abweichungen sind markiert.</p>
+@ 4.1 2 Zustand eines Päckchens
+<p>Ein Strohmann ist ein <b>Stapel</b> (LIFO von oben) mit 0–4 Karten und einem Flag:</p>
+<p>struct Strawman {<br/>    std::vector&lt;Card&gt; cards;   // cards[0] = oberste Karte<br/>    bool faceUp = false;       // true ⇒ cards[0] ist Deckblatt (öffentlich, spielbar)<br/>};</p>
+<p>Invarianten (im Server zu assertieren):</p>
+<ul>
+<li>faceUp == true ⟹ cards.size() &gt;= 2 und cards[0] ist <b>weder Tarock noch König</b>.</li>
+<li>cards.size() == 1 kommt <b>nie</b> in einem stabilen Zustand vor – die letzte Karte wandert sofort auf die Hand (§4.5).</li>
+<li>cards.empty() ⟹ das Päckchen ist aufgebraucht und verschwindet aus der UI.</li>
+</ul>
+@ 4.2 2 Erstaufdeckung (vor dem ersten Stich)
+<p>Nach der Erklärung (§3.2) decken <b>beide</b> Spieler ihre Strohmänner auf, <b>jeder für sich, von links nach rechts</b> [DEWIKI], [ENWIKI], [MS‑WEB]:</p>
+<p>für jedes Päckchen p von links nach rechts:<br/>    schleife:<br/>        wenn p leer:                       weiter mit nächstem Päckchen<br/>        wenn p genau 1 Karte enthält:      Karte VERDECKT auf die Hand (§4.5); Päckchen weg; weiter<br/>        c := oberste Karte von p<br/>        c offen umdrehen, der Gegner muss sie sehen können<br/>        wenn c Tarock oder König:          c auf die Hand nehmen (Zustand HAND_KNOWN); schleife wiederholen<br/>        sonst:                             p.faceUp := true (c bleibt als Deckblatt liegen); weiter</p>
+<p>Wörtlich [MS‑WEB]: <i>„Ist diese Karte ein Tarock oder ein König, so nimmt er sie ins Blatt auf. Handelt es sich um eine Farbkarte, die niedriger als ein König ist, so bleibt diese Karte offen als Deckblatt am jeweiligen Strohmann liegen. Jeder Spieler kann in einer Folge so lange Karten aufnehmen, bis er auf eine Farbkarte stößt, die niedriger als ein König ist. Genauso verfährt er mit den zwei anderen Strohmännern.“</i></p>
+<p><b>Aufnahmekriterium exakt:</b> aufgenommen wird <b>jeder Tarock</b> (also auch II, auch der Pagat) und <b>jeder König</b>. Liegen bleibt <b>jede Farbkarte niedriger als König</b>, also D, C, B und alle Zahlkarten. <b>Damen bleiben liegen</b> – das ist spieltaktisch zentral (§10.3).</p>
+<p><b>Reihenfolge zwischen den Spielern:</b> Beide Prozeduren sind unabhängig. Am Tisch macht man es nacheinander; in der App laufen sie <b>gleichzeitig animiert</b>, weil sie sich nicht beeinflussen. Für das LAN‑Protokoll: ein einziges StrawmenRevealed‑Event mit beiden Ergebnislisten.</p>
+@ 4.3 2 Nachdecken während des Spiels
+<p><i>„Wenn ein Spieler das Deckblatt durch Ausspielen, Stechen oder Zugeben benutzt hat, muss er <b>sofort nach Umlegen des betreffenden Stiches</b> die darunter gelegene Karte des Päckchens für den Gegner sichtbar aufdecken und sie, falls es ein Tarock oder ein König ist, in sein Blatt aufnehmen.“ [MS‑WEB]</i></p>
+<p>Daraus folgen zwei harte Implementierungsregeln:</p>
+<ol>
+<li><b>Zeitpunkt.</b> Nachgedeckt wird <b>erst, nachdem der Stich vollständig ist und eingezogen wurde</b> – nicht sofort beim Legen der Karte. Sonst bekäme der Gegner vor seiner eigenen Antwortkarte eine Information, die ihm nicht zusteht. Die Engine hat dafür eine eigene Phase TRICK_RESOLVED → REVEAL_PENDING.</li>
+<li><b>Prozedur.</b> Identisch mit §4.2 (dieselbe Schleife auf genau diesem Päckchen).</li>
+</ol>
+<p>Reihenfolge, wenn <b>beide</b> Spieler in demselben Stich ein Deckblatt verbraucht haben: erst der Stichgewinner, dann der Verlierer (deterministisch, damit LAN und Replay bitgleich sind). Regeltechnisch ist die Reihenfolge irrelevant, weil die Päckchen unabhängig sind.</p>
+@ 4.4 2 Die offen liegenden Deckblätter gehören zum Blatt
+<p><i>„Mit den offen auf den Strohmännern aufliegenden Karten kann der Spieler ebenso verfahren wie mit den Karten in seiner Hand. Er kann sie ausspielen, kann mit ihnen stechen oder sie zugeben.“ [MS‑WEB]</i></p>
+<p>Die Menge der spielbaren Karten ist also</p>
+<p>spielbar(Spieler) = Handkarten ∪ { Deckblatt(p) : p ∈ Strohmänner, p.faceUp }</p>
+<p>und <b>auf dieser Vereinigung</b> werden Farbzwang und Tarockzwang ausgewertet (§6.2). Die Karten <b>unter</b> dem Deckblatt zählen nicht mit – wer die Farbe nur verdeckt im Päckchen hat, ist im Sinne der Regel „blank“.</p>
+@ 4.5 2 Die letzte Karte eines Päckchens
+<p><i>„Die letzte Karte eines Strohmannes kann <b>sofort aufgenommen</b> werden, auch wenn sie sich nicht für die Aufnahme ins Handblatt eignen würde.“ [MS‑WEB]; „Die letzte Karte eines Pakets wird <b>sofort aufgenommen</b>, auch wenn es sich um eine Farbkarte handelt, die niedriger als ein König ist.“ [MS‑WZ] — „Die letzte Karte des jeweiligen Stapels wird <b>nicht aufgedeckt</b>. Man darf sie, <b>ohne sie zu zeigen</b>, ins Blatt aufnehmen.“ [TIROL] — „Die letzte Karte eines jeden Päckchens wird ungeachtet ihres Wertes <b>ohne Aufdecken</b> ins Blatt des Spielers genommen.“ [DEWIKI]/[BECK]</i></p>
+<p>Also: Sobald ein Päckchen nur noch <b>eine</b> Karte enthält, geht diese Karte <b>verdeckt</b> (Zustand HAND_SECRET_LAST) auf die Hand – unabhängig davon, was sie ist. Das Päckchen ist damit verbraucht.</p>
+<p><b>Quellenlage genau:</b> Dass die letzte Karte <b>nicht gezeigt</b> wird, sagen ausdrücklich nur [TIROL] und [DEWIKI]/[BECK]. [MS‑WEB], [MS‑EN] und [MS‑WZ] regeln an dieser Stelle <b>nur</b> die Aufnahmebedingung („auch wenn sie sich nicht eignen würde“) und <b>schweigen</b> zum Vorzeigen; ihre allgemeine Prozedur lautet sonst „für den Gegner sichtbar aufdecken <b>und</b> ggf. aufnehmen“, sodass sich die Gegenlesart („wird wie jede andere Karte gezeigt und dann trotzdem aufgenommen“) aus ihrem Wortlaut nicht ausschließen lässt. <b>⚙ Flag last_card_is_secret, Default true</b> ([TIROL], [DEWIKI]/[BECK]). Bei false ist die Karte HAND_KNOWN statt HAND_SECRET_LAST; die ganze Informationsasymmetrie dieses Spiels (§10.1, §11.5 Fehler 10) hängt an diesem Flag.</p>
+<p>Das ist die einzige Stelle, an der ein Spieler Information gewinnt, die der Gegner <b>nicht</b> hat, und sie ist der Grund, warum Kartenzählen in Strohmandeln so wichtig ist: Der Gegner weiß nur, <b>dass</b> eine Karte auf die Hand ging, nicht <b>welche</b>.</p>
+@ 4.6 2 Es gibt <b>kein Drücken / keinen Skart</b>
+<p>In Strohmandeln wird <b>nichts abgelegt</b>. Es gibt keinen Talon, aus dem man tauscht, folglich auch keine Verbote „keine Könige, keine Trullstücke, Tarock nur offen“, wie sie aus Königrufen und Tapp‑Tarock bekannt sind. Alle 54 Karten kommen in Stiche.</p>
+<p>Diese Aussage ist eine <b>Negativfeststellung</b> und in keiner Quelle ausdrücklich formuliert – sie ergibt sich zwingend daraus, dass alle 54 Karten ausgeteilt werden und keine Quelle ein Ablegen erwähnt. Die App muss daher an dieser Stelle <b>keine</b> Ablage‑Validierung implementieren (im Gegensatz zu allen anderen Tarock‑Profilen der Engine).</p>
+@ 4.7 2 Grenzfälle
+<ul><li><b>Alle 4 Karten eines Päckchens sind Tarock/König</b> · Behandlung: Karten 1–3 werden offen genommen, Karte 4 verdeckt; das Päckchen ist <b>schon vor dem ersten Stich weg</b> · Quelle: [MS‑WEB], [ENWIKI]/[FURR] („until either the Straw Men are gone (which is rare but can happen)“)</li><li><b>Ein Spieler nimmt gleich ein oder zwei ganze Päckchen auf, der andere keine einzige Karte</b> · Behandlung: ausdrücklich vorgesehen und normal · Quelle: [MS‑WEB]: „Es kann vorkommen, dass auf diese Weise ein oder zwei Päckchen auf einmal in die Handkarten des einen Spielers wandern …“</li><li><b>Ein Spieler hat <b>alle Handkarten verausgabt</b> und spielt nur noch von den Strohmännern</b> · Behandlung: erlaubt und regelkonform – aber taktisch die schlimmste Lage · Quelle: [MS‑WEB]: „Es kann übrigens vorkommen, dass ein Spieler alle Karten aus der Hand verausgabt hat und dann nur mehr von den Strohmännern zu Ende spielt bzw. spielen muss.“</li><li><b>Ein Spieler hat <b>keine Strohmänner mehr</b>, der andere schon</b> · Behandlung: normal; der eine spielt mit offenem, der andere mit teilweise verdecktem Blatt · Quelle: –</li><li><b>Versehentlich <b>zwei</b> Karten gleichzeitig aufgedeckt, und die <b>erste</b> ist kein König und kein Trullstück</b> · Behandlung: Die <b>zweite</b> Karte dem Gegner zeigen und sie dann <b>wieder verdeckt</b> an ihren Platz zurücklegen; die erste bleibt als Deckblatt liegen bzw. wird nach §4.2 behandelt · Quelle: [MS‑WEB §Renonceregeln]</li></ul>
+<p>Die App kann den letzten Fall nicht auslösen; er ist nur für den Papier‑/Turniermodus dokumentiert.</p>
+<p><b>Zwei Genauigkeitshinweise zum letzten Fall</b> (beide beim Nachprüfen der Quelle aufgefallen):</p>
+<ol>
+<li><b>Nur die zweite Karte geht zurück.</b> [MS‑WEB] im Original: <i>„so muss er auch <b>diese zweite Karte</b> dem Gegenspieler zeigen und <b>sie</b> dann wieder verdeckt auf den Strohmann zurücklegen“</i> – Singular, also ausschließlich die zweite Karte. Die englische Übersetzung [MS‑EN] gibt das mit <i>„he must show his opponent <b>these two cards</b> and lay <b>them</b> back face-down“</i> im Plural wieder; das ist ein Übersetzungsfehler und ergäbe zudem eine andere Regel (die erste Karte müsste dann erneut aufgedeckt werden). <b>Maßgeblich ist das deutsche Original.</b></li>
+<li><b>Die Bedingung ist im Original zu eng formuliert.</b> [MS‑WEB] schreibt „kein König und kein <b>Trullstück</b>“. Nach §4.2 wird aber <b>jeder</b> Tarock aufgenommen, nicht nur Sküs/XXI/I. Der Sinn der Bedingung ist: <i>Die erste Karte darf keine Karte sein, die ohnehin aufgenommen wird</i> – sonst wäre die zweite Karte regulär das neue Deckblatt und müsste gar nicht zurück. Die Engine prüft daher !isTarock(c1) &amp;&amp; !isKing(c1) und <b>nicht</b> die wörtliche Trullstück‑Bedingung. Das ist eine <b>Auslegung dieser Spezifikation</b>, keine Quellenangabe.</li>
+</ol>
+@ 4.8 2 Referenz‑Pseudocode
+<p>---</p>
+@ 5 1 Ansagen und Prämien
+<ul><li>5.1  Grundsatz: In Strohmandeln wird (fast) alles <b>still</b> gespielt</li><li>5.2  Trull und vier Könige (Königstrull)</li><li>5.3  Pagat ultimo und abgefangener Pagat</li><li>5.4  Die „Vögel“: Uhu, Kakadu, Quapil</li><li>5.5  Rostopschin</li><li>5.6  Grand Point / Grammel‑Punkt</li><li>5.7  Valat</li><li>5.8  Mondfang — im Default <b>keine Prämie</b></li><li>5.9  Trischaken (nur Profil AT-STROH-TIROL-2025)</li><li>5.10  Kontra, Re, Sub — im Default <b>abgeschaltet</b></li><li>5.11  Gesamt‑Prämientabelle nach Profil</li><li>5.12  Zeitpunkte auf einen Blick</li></ul>
+@ 5.1 2 Grundsatz: In Strohmandeln wird (fast) alles <b>still</b> gespielt
+<p>[MS‑WEB] und [MS‑WZ] begründen das ausführlich und identisch:</p>
+<p><i>„Ein <b>angesagter Pagat ist nicht vorgesehen</b>, weil der Erfolg oder Misserfolg in vielen Fällen davon abhinge, ob in den letzten Strohmänner‑Karten des Gegners Tarock liegen. Schon ein stiller Pagat ultimo ist schwer genug.“ [MS‑WEB]</i></p>
+<p><i>„Eine Bewertung nach dem Muster des Königrufens ist deswegen nicht sinnvoll, weil sich im Endspiel oft einige Tarock verdeckt in den Strohmännern befinden und ein Austarockieren daher nur bedingt gelingen kann. Auch Trull in den Stichen und Vier Könige in den Stichen können nur still gespielt werden.“ [MS‑WZ]</i></p>
+<p>Im <b>Default‑Profil AT-STROH-MS-ERW gibt es daher überhaupt keine Ansagen</b> – alle Prämien sind still („sang‑ und klanglos“). Das vereinfacht UI, KI und Netzwerkprotokoll erheblich.</p>
+<p>Ausnahmen in anderen Profilen:</p>
+<ul>
+<li>AT-STROH-MS-KLASS: <b>Trull im Blatt</b> und <b>vier Könige im Blatt</b> sind <b>ansagbar</b> (§5.2).</li>
+<li>AT-STROH-TIROL-2025: <b>Pagat ultimo, vier Könige, Trull</b> sind jeweils <b>still 1 / angesagt 2</b> (§5.2.3).</li>
+<li>Der <b>Rostopschin</b> (§5.5) ist eine Sonderform: er wird <b>während</b> des Spiels durch zwei Rufworte „konstituiert“ und kann nicht vorher angesagt werden.</li>
+</ul>
+@ 5.2 2 Trull und vier Könige (Königstrull)
+<p>Es gibt <b>zwei grundverschiedene Auffassungen</b>, was prämiert wird. Beide sind belegt.</p>
+<p><b>5.2.1 Variante A – „im Blatt, angesagt“ (klassisch)</b></p>
+<p><i>„Zusätzlich können <b>Trull im Blatt</b> und <b>vier Könige im Blatt</b> angesagt werden, dies ist jedoch nicht verpflichtend. <b>Ob sich diese Karten am Ende auch in den Stichen des Spielers befinden, ist für den Gewinn dieser Prämienansage nicht von Bedeutung.</b> Die Ansagen müssen spätestens dann erfolgen, wenn die erste Karte der Trull oder der erste der vier Könige gespielt wird.“ [MS‑WEB], gleichlautend [DEWIKI]/[BECK]: „kann er beim Spielen der ersten Karte derselben diese ansagen“.</i></p>
+<ul>
+<li>Prämiert wird der <b>Besitz</b>, nicht der Heimbringen‑Erfolg. Die Prämie kann also <b>nicht verloren gehen</b>.</li>
+<li><b>Was ist „im Blatt“?</b> Handkarten <b>und</b> offen aufliegende Deckblätter (§4.4) – aber nicht die verdeckten Karten unter den Deckblättern. Diese Präzisierung findet sich in <b>keiner</b> Quelle ausdrücklich; sie folgt aus dem Grundsatz, dass die Deckblätter zum Blatt gehören. <b>⚙ Flag bonus_hand_includes_faceup, Default true.</b> → §9.7, offene Frage.</li>
+<li><b>Ansagezeitpunkt / Verfallsklausel:</b> spätestens beim Spielen der <b>ersten</b> dazugehörigen Karte. Wer eine Trullkarte oder einen König gespielt hat, ohne anzusagen, hat die Prämie <b>verwirkt</b>.</li>
+<li><b>Taktik daraus (sehr wichtig fürs Lernen):</b> <i>„Für Spieler, die zu Beginn drei Könige im Blatt haben, kann es daher ratsam sein, diese zunächst zurückzuhalten, denn es könnte ja der vierte König im Verlauf des Spiels in einem der Strohmänner auftauchen. Gleiches gilt für jene Fälle, wo nur eine Karte auf die Trull fehlt.“</i> [MS‑WEB] — Das ist die einzige echte Ansage‑Taktik des Spiels.</li>
+</ul>
+<p><b>5.2.2 Variante B – „in den Stichen, still“ (erweitert, <b>Default</b>)</b></p>
+<p><i>„Da die Ansage von vier Königen im Blatt bzw. der Trull im Blatt in den heutigen Spielformen für 4 Spieler immer seltener werden, hat es sich eingebürgert, stattdessen auch im Strohmann‑Tarock eine Prämie für <b>still gespielte vier Könige in den Stichen</b> und für die <b>still gespielte Trull in den Stichen</b> vorzusehen.“ [MS‑WEB], ebenso [MS‑WZ], [ENWIKI] (Spalten Furr und Mayr&amp;Sedlaczek), [TIROL].</i></p>
+<ul>
+<li>Prämiert wird, wer am Ende <b>alle drei Trullstücke</b> bzw. <b>alle vier Könige</b> in <b>seinen Stichen</b> hat.</li>
+<li>Keine Ansage, keine Verfallsklausel, keine Timing‑Regel – reine Auswertung nach dem letzten Stich.</li>
+<li>[TIROL] formuliert es wörtlich so: <i>„Trull … ein Spieler hat Mond, Sküs und Pagat in den Stichen“</i>, <i>„Vier Könige … ein Spieler hat alle 4 Könige in den Stichen“</i>.</li>
+</ul>
+<p><b>5.2.3 Variante C – Tirol: still <b>oder</b> angesagt</b></p>
+<p>[TIROL] kombiniert beides: prämiert wird <b>in den Stichen</b>, aber man darf es <b>ansagen</b> und verdoppelt damit den Wert:</p>
+<ul><li><b>Pagat ultimo</b> · still: 1 · angesagt: 2</li><li><b>Vier Könige</b> · still: 1 · angesagt: 2</li><li><b>Trull</b> · still: 1 · angesagt: 2</li></ul>
+<p>Der Ansagezeitpunkt ist in [TIROL] <b>nicht</b> geregelt. <b>Empfehlung für das Profil AT-STROH-TIROL-2025:</b> Analog zu Königrufen – Ansage <b>vor dem ersten Ausspiel</b> (also unmittelbar nach der Erstaufdeckung der Strohmänner), danach nicht mehr. Eine misslungene Ansage kostet den angesagten Wert, und zwar <b>an den Gegner</b>. Das ist eine <b>begründete Ergänzung, keine Quellenangabe</b> → §9.11.</p>
+@ 5.3 2 Pagat ultimo und abgefangener Pagat
+<p><i>„Es ist möglich, den Tarock I ultimo, d. h. <b>als letzte Karte</b> zu spielen. Dies bringt (je nachdem ob er überstochen wird oder nicht) den Gewinn oder Verlust des einfachen Spielwertes.“ [DEWIKI]</i></p>
+<p><i>„<b>Pagat ultimo</b>, der nur still gespielt werden kann, und ein <b>im letzten Stich abgefangener Pagat</b> kosten ebenfalls 1 Spielpunkt.“ [MS‑WEB]</i></p>
+<p><i>„it is normal for bonuses for playing the ‚birds‘ to their respective tricks to go to the opponent if they fail to win. For example, if the Pagat is played to the last trick and lost, the winner of the trick gets the <i>Pagat ultimo</i> bonus.“ [ENWIKI]</i></p>
+<p><b>Exakte Definition (Default):</b></p>
+<ul><li><b>Ein Spieler <b>spielt</b> den Pagat und <b>gewinnt</b> den Stich</b> · Prämie: +1 an ihn (<i>Pagat ultimo</i>)</li><li><b>Ein Spieler <b>spielt</b> den Pagat und <b>verliert</b> den Stich</b> · Prämie: +1 an den <b>Gegner</b> (<i>abgefangener Pagat / Pagat gefangen</i>)</li><li><b>Der Pagat ist im letzten Stich <b>nicht dabei</b></b> · Prämie: keine Prämie</li></ul>
+<ul>
+<li>„Spielt“ umfasst <b>ausspielen und zugeben</b> – es kommt nicht darauf an, wer eröffnet hat.</li>
+<li>Der Pagat ist der <b>niedrigste</b> Tarock. Er gewinnt den letzten Stich also nur, wenn der Gegner <b>überhaupt keinen Tarock</b> mehr zulegen kann – d. h. keinen auf der Hand <b>und</b> keinen als Deckblatt. Genau deshalb ist der Pagat ultimo in Strohmandeln so schwierig (§10.6).</li>
+<li><b>Kein Pagat‑Ultimo‑Zwang:</b> Wer den Pagat im letzten Stich hält, <i>muss</i> ihn spielen (er hat ja nur noch eine Karte), aber niemand ist verpflichtet, darauf hinzuspielen.</li>
+</ul>
+@ 5.4 2 Die „Vögel“: Uhu, Kakadu, Quapil
+<ul><li><b><b>Pagat ultimo</b></b> · Karte: I · Stich: 27. (letzter) · Wert (still): 1 · Belegt in: alle Quellen</li><li><b><b>Uhu</b></b> · Karte: II · Stich: 26. (vorletzter) · Wert (still): 1 · Belegt in: [MS‑WEB], [MS‑WZ], [ENWIKI] (Furr, M&amp;S), [FURR: „An Owl“]</li><li><b><b>Kakadu</b></b> · Karte: III · Stich: 25. (drittletzter) · Wert (still): 1 · Belegt in: [MS‑WEB], [MS‑WZ], [ENWIKI], [FURR: „A Cockatoo“]</li><li><b><b>Quapil</b></b> · Karte: IIII · Stich: 24. (viertletzter) · Wert (still): 1 · Belegt in: <b>nur</b> [MS‑WZ] und [ENWIKI] (Spalte M&amp;S)</li></ul>
+<p><i>„Wer gewohnt ist, beim Königrufen mit <b>Uhu</b> und <b>Kakadu</b> zu spielen, wird Freude damit haben, wenn er diese beiden Ansagen auch in das Regelwerk von Strohmandeln aufnimmt. Diesfalls ist zu empfehlen, dass ein stiller Uhu und ein stiller Kakadu je 1 Spielpunkt zählen – also genausoviel wie ein stiller Pagat.“ [MS‑WEB]</i></p>
+<p><i>„Wird mit <b>Uhu, Kakadu und ev. auch Quapil</b> gespielt, so zählen diese genauso wie der Pagat ultimo jeweils 10 Cent.“ [MS‑WZ]</i></p>
+<ul>
+<li>Für Uhu/Kakadu/Quapil gilt die <b>gleiche Spiegelregel</b> wie beim Pagat: wird der Vogel im „seinem“ Stich gespielt und verloren, geht die Prämie an den Gegner [ENWIKI]. <b>⚙ Flag bird_capture_bonus, Default true.</b></li>
+<li>[TIROL] schließt sie ausdrücklich aus: <b>„keine Säcke, keine Vögel, kein Kontra“</b>.</li>
+<li>[BECK]/[DEWIKI] kennt sie nur als Nebenbemerkung: <i>„Es gibt auch die Spielweise, dass der als vorletzte Karte gespielte Tarock II in gleicher Weise gewertet wird.“</i></li>
+</ul>
+<p><b>Reihenfolge‑Regel („höherer Vogel zuerst“), die es hier <i>nicht</i> gibt.</b> In Königrufen gibt es Regeln darüber, welcher angesagte Vogel bei Kollisionen Vorrang hat. Da in Strohmandeln <b>alle</b> Vögel still sind und ein Spieler theoretisch Pagat, Uhu und Kakadu in den drei letzten Stichen gewinnen kann, werden sie schlicht <b>einzeln und unabhängig</b> ausgewertet und addiert (kein Vorrang, keine Verdrängung). Keine Quelle sagt etwas anderes.</p>
+@ 5.5 2 Rostopschin
+<p>Ein Kuriosum mit Wiener Zwischenkriegs‑Provenienz (beschrieben in Friedrich Torbergs <i>Die Tante Jolesch</i>) [MS‑WEB].</p>
+<p><b>Definition:</b> Ein Spieler macht <b>zwei aufeinanderfolgende Stiche</b> mit <b>Tarock XVII</b> und <b>Tarock XVIII</b> und ruft dabei beim Spielen der XVII <b>„Ross!“</b> und beim Spielen der XVIII <b>„Topschin!“</b>.</p>
+<p><i>Schreibweise des Rufworts:</i> [MS‑WEB] und [MS‑EN] schreiben <b>„Ross!“</b>, [FURR] und [ENWIKI] <b>„Ros“</b>. Der Name geht auf den russischen Grafen <b>Rostoptschin</b> zurück; beide Schreibungen sind belegt. Die App zeigt im Profil MS-ERW „Ross!“, im Profil FURR-2009 „Ros!“ – <b>⚙ Flag rostopschin_call_spelling.</b></p>
+<p>Präzisierungen [MS‑WEB]:</p>
+<ul>
+<li>Die Rufworte sind <b>konstitutiv</b>: <i>„Wer Tarock XVII und Tarock XVIII hintereinander spielt, <b>ohne</b> Ross! und Topschin! zu sagen, hat diese Prämie nicht gespielt. Er kann sie also auch nicht verlieren, wenn eine der beiden Karten (oder beide Karten) gestochen werden.“</i></li>
+<li>Der <b>erste</b> der beiden Stiche kann auch dadurch zustande kommen, dass man mit der XVII <b>sticht</b> (also nicht ausspielt) und dazu „Ross!“ sagt; anschließend spielt man mit „Topschin!“ die XVIII aus und gewinnt auch diesen Stich.</li>
+<li><b>Beide</b> Stiche müssen gewonnen werden, und zwar <b>unmittelbar hintereinander</b>.</li>
+<li>Wert: <b>1 Spielpunkt</b>. Ein <b>angesagter</b> Rostopschin zu Spielbeginn ist ausdrücklich <b>nicht</b> vorgesehen [MS‑WEB].</li>
+<li>Der Rostopschin ist damit die einzige <b>einseitig risikofreie</b> Prämie des Spiels.</li>
+</ul>
+<p><b>UI:</b> Zwei Ruf‑Buttons „Ross!“ (nur aktiv, wenn XVII legal spielbar ist) und „Topschin!“ (nur aktiv nach erfolgreichem „Ross!“‑Stich und wenn XVIII legal spielbar ist). Der Computerspieler ruft nur, wenn er die beiden Stiche für sicher hält (§10.7).</p>
+@ 5.6 2 Grand Point / Grammel‑Punkt
+<p><i>„Eine interessante Bereicherung des Strohmandelns ist der <b>Grand Point (Grammel‑Punkt)</b>. Diese Regel bedeutet, dass ein Spieler, der <b>mindestens 45 Punkte</b> in seinen Stichen erzielt, eine Prämie von <b>1 Spielpunkt</b> erhält. Diesfalls hat sein Gegner 25 Punkte oder weniger. <b>Hat der Gegner mindestens 26 Punkte, so muss er keinen Grammel‑Punkt zahlen.“</b> [MS‑WEB]</i></p>
+<ul>
+<li><b>Die Schwelle ist in <i>ganzen</i> (gerundeten) Punkten zu prüfen: pointsRounded(p3) &gt;= 45, gleichwertig p3 &gt;= 134</b> (= exakt 44 ⅔ oder mehr). Gegenprobe: Gegner p3 &lt;= 76, gerundet ≤ 25. <b>Begründung (korrigiert gegenüber einer früheren Fassung dieser Spezifikation, die p3 &gt;= 135 verlangte):</b> [MS‑WEB] stellt zwei Sätze nebeneinander, die nur in <b>ganzzahliger</b> Arithmetik einander lückenlos ergänzen – „Diesfalls hat sein Gegner <b>25 Punkte oder weniger</b>“ und „Hat der Gegner <b>mindestens 26</b> Punkte, so muss er keinen Grammel‑Punkt zahlen“. Zwischen „25 oder weniger“ und „mindestens 26“ ist kein Platz für „25 und 1 Blatt“; M&amp;S rechnen an dieser Stelle also in Dreierlagen mit ganzen Punkten (§1.5.2a). Genau dann gilt die Äquivalenz exakt:</li>
+</ul>
+<ul><li><b>≥ 135</b> · gerundet eigen: ≥ 45 · p3 Gegner: ≤ 75 · gerundet Gegner: ≤ 25 · Grammel‑Punkt: ja</li><li><b><b>134</b></b> · gerundet eigen: <b>45</b> · p3 Gegner: <b>76</b> · gerundet Gegner: <b>25</b> · Grammel‑Punkt: <b>ja</b> (dieser Fall entscheidet die Frage)</li><li><b>133</b> · gerundet eigen: 44 · p3 Gegner: 77 · gerundet Gegner: 26 · Grammel‑Punkt: nein</li></ul>
+<p>Der Streitfall ist also genau ein einziger: 44 ⅔ : 25 ⅓. Er wird am Tisch als <b>45 : 25</b> gezählt und ist damit ein Grammel‑Punkt. <b>⚙ Flag grand_point_uses_rounded_points, Default true.</b> Wer strikt exakt rechnen will (p3 &gt;= 135, also „45 volle Punkte und 0 Blatt“), setzt es auf false. Der Unterschied tritt nur bei <b>genau einem</b> der 211 möglichen p3‑Werte auf; wie oft das in der Praxis vorkommt, ist nicht erhoben.</p>
+<ul>
+<li>Der Grammel‑Punkt gilt für <b>jeden</b> Spieler, auch für den Nicht‑Aufnehmer, auch im einfachen Spiel.</li>
+<li>In der Tabelle von [MS‑WEB] ist er nicht als eigene Prämienzeile geführt, sondern als <b>erhöhter Spielwert</b>: einfaches Spiel 1 → 2, aufgenommenes Spiel gewonnen 3 → 4, verloren 4 → 5. Beides ist arithmetisch dasselbe (+1); die Engine implementiert ihn als <b>Prämie</b>, weil das die Kontra‑Verdopplung (§5.10) sauber hält.</li>
+<li>[FURR] hat eine <b>ähnliche, aber nicht identische</b> Regel: <b>„With 45: If Declarer takes at least 45 card points. Scores 4“</b> und <b>„With 26: If Declarer takes 26 card points or less: Scores 5 for the defender“</b>. <b>Grenzfalldifferenz:</b> Furr sagt „26 <b>or less</b>“ (Gegner ≥ <b>44</b>), M&amp;S sagen „unter 26“ bzw. „25 oder weniger“ (Gegner ≥ <b>45</b>). Zweitens ist Furrs Regel <b>an die Aufnehmerrolle gebunden</b> und kennt keinen Großgewinn im einfachen Spiel, während der Grammel‑Punkt bei M&amp;S rollenunabhängig ist (§3.3). → §9.6. <b>Default: M&amp;S‑Lesart.</b></li>
+</ul>
+@ 5.7 2 Valat
+<ul>
+<li><b>Valat</b> = <b>alle 27 Stiche</b> eines Spiels.</li>
+<li>Wert: <b>12 Spielpunkte</b>, <b>still</b> [MS‑WEB], [MS‑WZ] („Ein stiller Valat wird mit 120 Cent bewertet“), [ENWIKI] (Furr: „Slam … 12“), [FURR].</li>
+<li>Ein <b>angesagter</b> Valat existiert nicht.</li>
+<li>Der Valat <b>ersetzt</b> die Spielwertung <b>nicht</b>, sondern tritt hinzu: Wer Valat macht, hat zwangsläufig 70:0 und damit auch das Spiel und alle anderen Prämien gewonnen. <b>⚙ Flag valat_replaces_game, Default false</b> (keine Quelle sagt etwas Gegenteiliges; additive Auswertung ist die einfachere und in [MS‑WEB]s Tabelle als eigene Zeile geführte Lösung).</li>
+<li>[MS‑WEB]: „kommt aber äußerst selten vor“. Für die App relevant: Der Valat‑Check ist trivial (tricksWon == 27), muss aber vorhanden sein, weil Anfänger gegen die Computerstufe „leicht“ durchaus einen Valat schaffen können.</li>
+</ul>
+@ 5.8 2 Mondfang — im Default <b>keine Prämie</b>
+<p><i>„Ein <b>Mondfang</b> wird <b>nicht gesondert prämiert</b>, ist aber oft spielentscheidend, weil es um einen Fünferzähler geht.“ [MS‑WEB]</i></p>
+<p>Dagegen:</p>
+<ul>
+<li>[DEWIKI]/[BECK]: <i>„2 Werteinheiten: für den gefangenen Mond, für den Spieler, der den Mond mit Sküs übersticht“</i></li>
+<li>[ENWIKI], „Further scoring options“: <i>„1 game point: for a Mondfang, i.e. for the player who captures the Mond with the Sküs“</i></li>
+</ul>
+@ 5.9 2 Trischaken (nur Profil AT-STROH-TIROL-2025)
+<p>[TIROL] sieht vor: <b>Passen beide Spieler, wird getrischakt.</b></p>
+<ul><li><b>Ziel</b> · Regel: <b>möglichst wenige</b> Punkte machen · Quelle: [TIROL]</li><li><b>Wert</b> · Regel: 2 Spielpunkte an den Spieler mit weniger Punkten · Quelle: [TIROL]</li><li><b>Spielzwang</b> · Regel: <b>mit Stichzwang</b>: wer überstechen kann, muss überstechen (§5.9.2) · Quelle: [TIROL]; Definition aus den Königrufen‑Regelwerken</li><li><b>Ausspielfreiheit</b> · Regel: „bunt gemischt“ = <b>keine Austarockier‑Pflicht</b> (§5.9.1) · Quelle: [TIROL]; Bedeutung aus den Königrufen‑Regelwerken</li><li><b>Prämien</b> · Regel: <b>keine</b> · Quelle: Analogieschluss (Negativspiele kennen keine Prämien)</li><li><b>Bemerkung im Original</b> · Regel: „möglichst wenig Punkte / <b>bunt gemischt</b>; mit Stichzwang“ · Quelle: [TIROL]</li></ul>
+<p><b>5.9.1 „bunt gemischt“ — <b>geklärt</b>, kein offener Punkt mehr</b></p>
+<p>„Bunt gemischt“ ist <b>kein</b> beschreibender Nebensatz, sondern ein <b>stehender österreichischer Fachausdruck der Trischaken‑Regel</b>. Er bedeutet:</p>
+<p><i>„Es wird ‚bunt gemischt‘ gespielt, das heißt, <b>es braucht nicht austarockiert zu werden</b>, sondern jeder Ausspieler hat <b>die Wahl, ob er Tarock oder Farbe anspielt</b>.“</i></p>
+<p>Belegt gleichlautend in mehreren Königrufen‑Regelwerken (u. a. Linzer Tarock Akademie, <i>Königrufen – Grundkurs 1</i>, Kap. 11; Regelsammlung tarock-konigrufen8.webnode.at/trischaken/; ebenso in der Schwesterspezifikation koenigrufen.md §6.4 aus [OÖ23 Trischaken 1]). Der Ausdruck grenzt Trischaken gegen jene Negativ‑ und Farbenspiele ab, in denen eine <b>Austarockier‑Pflicht</b> oder ein Tarock‑Ausspielverbot besteht.</p>
+<p><b>Folge für Strohmandeln:</b> In Strohmandeln gibt es ohnehin keine Austarockier‑Pflicht (§6.2), das Merkmal ist hier also <b>inhaltsleer</b> und ändert nichts. Insbesondere bedeutet „bunt gemischt“ <b>nicht</b>, dass die Strohmänner entfielen oder die 24 Restkarten anders verteilt würden – die frühere Lesart (b) dieser Spezifikation war ein Missverständnis und ist gestrichen. Trischaken wird mit den <b>normalen Strohmännern</b> gespielt.</p>
+<p><b>5.9.2 Stichzwang — präzise Definition</b></p>
+<p><b>Stichzwang heißt „überstechen, wenn möglich“, nicht „die höchste Karte spielen“.</b> Maßgebliche Formulierung aus der Schwesterspezifikation koenigrufen.md §6.4 (dort belegt aus [OÖ23 Negativ 1] und [LTA‑GK1 Kap. 8]): <i>„Man muss die höchste im Stich liegende Karte überstechen, sofern das unter Beachtung des Farbzwangs möglich ist.“</i></p>
+<p>Im Zweierspiel vereinfacht sich das, weil bei der Zugabe <b>genau eine</b> Karte im Stich liegt:</p>
+<p>Sei L die ausgespielte Karte, legal = Ergebnis der Kaskade aus §6.2 (Farbzwang → Tarockzwang → frei).<br/>W := { c ∈ legal : c schlägt L nach §6.4 }<br/>wenn W ≠ ∅  ⟹  legal := W          // überstechen ist Pflicht<br/>sonst       ⟹  legal bleibt        // freie Wahl im Rahmen der Zwänge</p>
+<p>Der <b>Ausspieler</b> ist frei; der Stichzwang trifft nur den Zugebenden. Innerhalb von W ist die Wahl frei – man muss <b>nicht</b> die höchste Karte nehmen. (Die frühere Fassung dieser Spezifikation verlangte die „höchstmögliche Karte“; das ist strenger als jede Quelle und war ein Fehler.)</p>
+<p><b>5.9.3 Pagat‑Regel im Trischaken — <b>⚙ Flag trischaken_pagat_last_tarock</b></b></p>
+<p>In <b>allen</b> Negativspielen der österreichischen Königrufen‑Regelwerke – Trischaken eingeschlossen – gilt: <i>„Der Pagat darf erst als letztes Tarock gespielt oder zugegeben werden.“</i> Das steht auch in <b>Markus Mairs eigenem</b> Königrufen‑Kursskript (tarock.tirol, Abschnitt „Die Negativspiele“: „Kein Talon, keine Zusätze und Stichzwang. … Der Pagat darf erst als letztes Tarock gespielt werden.“), also beim <b>selben Autor</b>, von dem das Strohmandeln‑Blatt [TIROL] stammt.</p>
+<p>Das Strohmandeln‑Blatt [TIROL] selbst erwähnt die Regel <b>nicht</b>. Zwei Lesarten:</p>
+<ul><li><b>true</b> · Verhalten: Der Pagat darf nur gespielt werden, wenn er der letzte Tarock im Blatt (Hand ∪ Deckblätter) ist; diese Regel <b>geht dem Stichzwang vor</b> · Begründung: Systematik des Autors; in seinem Königrufen‑Regelwerk gilt sie für jedes Negativspiel — <b>empfohlen</b></li><li><b>false</b> · Verhalten: keine Pagat‑Beschränkung · Begründung: [TIROL] nennt sie im Strohmandeln‑Blatt nicht; <i>argumentum e silentio</i></li></ul>
+<p><b>Empfehlung: true</b>, aber <b>klar als Analogieschluss markiert</b> – das Strohmandeln‑Blatt selbst schweigt. → §9.10, weiterhin Rückfragepunkt.</p>
+<p><b>5.9.4 Was in [TIROL] wirklich steht, und was Ergänzung ist</b></p>
+<ul><li><b>Passen beide, wird getrischakt</b> · Quelle: [TIROL] wörtlich</li><li><b>Wert 2 Spielpunkte</b> · Quelle: [TIROL] wörtlich</li><li><b>„möglichst wenig Punkte“</b> · Quelle: [TIROL] wörtlich</li><li><b>„bunt gemischt“</b> · Quelle: [TIROL] wörtlich; Bedeutung aus den Königrufen‑Regelwerken (§5.9.1)</li><li><b>„mit Stichzwang“</b> · Quelle: [TIROL] wörtlich; Definition aus den Königrufen‑Regelwerken (§5.9.2)</li><li><b>Strohmänner werden wie sonst gelegt und aufgedeckt</b> · Quelle: <b>Ergänzung dieser Spezifikation</b> (konservative Lesart)</li><li><b>Pagat‑Regel</b> · Quelle: <b>Analogieschluss</b> aus dem Königrufen‑Regelwerk desselben Autors (§5.9.3)</li><li><b>Gleichstand (p3 105 : 105) → 0 : 0</b> · Quelle: <b>Ergänzung dieser Spezifikation</b>; [TIROL] regelt den Fall nicht</li><li><b>Prämien im Trischaken</b> · Quelle: <b>keine</b> – Analogieschluss aus „in Negativspielen gibt es keine Prämien“</li></ul>
+@ 5.10 2 Kontra, Re, Sub — im Default <b>abgeschaltet</b>
+<p><i>„Es ist <b>nicht zweckmäßig</b>, ein Kontra in den Regeln vorzusehen, es sei denn, man entscheidet sich, dass ein <b>Aufnehmer</b> kontriert werden kann, ansonsten aber kein Kontra möglich ist. <b>Im Kontra werden die Spielpunkte verdoppelt.</b> Da der Spielaufnehmer im Verlustfall ohnedies einen zusätzlichen Punkt verliert, entsteht bei Handhabung der Kontrierungsregel das Problem, dass der Spielaufnehmer <b>8 Punkte verlieren und nur 6 Punkte gewinnen</b> kann. Außerdem ist ein Kontra deshalb riskant, weil das Spiel durch Aufdecken der Strohmänner‑Karten oft eine überraschende Wendung nimmt.“ [MS‑WEB]</i></p>
+<p>[TIROL] ebenso: <b>„kein Kontra“</b>. [MS‑WZ]: <i>„Es ist nicht zweckmäßig ein Kontra in den Regeln vorzusehen“</i>.</p>
+<ul><li><b><b>Kontra</b></b> · Ruf: „Kontra!“ · Wer darf: <b>nur der Gegner des Aufnehmers</b> · Zeitpunkt: ab Ende der Erstaufdeckung bis <b>vor dem ersten Ausspiel</b> · Wirkung: Spielwert × 2</li><li><b><b>Re</b></b> · Ruf: „Re!“ · Wer darf: nur der Aufnehmer · Zeitpunkt: unmittelbar nach dem Kontra · Wirkung: × 4</li><li><b><b>Sub</b></b> · Ruf: „Sub!“ · Wer darf: nur der Gegner · Zeitpunkt: unmittelbar nach dem Re · Wirkung: × 8</li></ul>
+<ul>
+<li><b>Nur das Spiel wird verdoppelt, nicht die Prämien.</b> Das ist eine <b>Festlegung dieser Spezifikation</b>; [MS‑WEB] sagt nur „Im Kontra werden die Spielpunkte verdoppelt“, was den Spielwert meint (die Prämien heißen dort durchgehend „Prämien“, nicht „Spielpunkte“). → §9.8.</li>
+<li>Im <b>einfachen Spiel</b> gibt es <b>kein Kontra</b> (es gibt keinen Aufnehmer, den man kontrieren könnte).</li>
+<li>Der Zeitpunkt „vor dem ersten Ausspiel“ ist eine <b>Ergänzung dieser Spezifikation</b>; [MS‑WEB] nennt keinen. Begründung: Später wäre es wegen der laufenden Strohmann‑Aufdeckung willkürlich.</li>
+</ul>
+@ 5.11 2 Gesamt‑Prämientabelle nach Profil
+<ul><li><b>Trull <b>im Blatt, angesagt</b></b> · MS-ERW ⭐: – · MS-KLASS: 1 · MS-WZ2007: – · TIROL-2025: – · BECK-1972: 1 · FURR-2009: –</li><li><b>Vier Könige <b>im Blatt, angesagt</b></b> · MS-ERW ⭐: – · MS-KLASS: 1 · MS-WZ2007: – · TIROL-2025: – · BECK-1972: 1 · FURR-2009: –</li><li><b>Trull <b>in den Stichen, still</b></b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: – · MS-WZ2007: 1 · TIROL-2025: 1 (ang. 2) · BECK-1972: – · FURR-2009: –</li><li><b>Vier Könige <b>in den Stichen, still</b></b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: – · MS-WZ2007: 1 · TIROL-2025: 1 (ang. 2) · BECK-1972: – · FURR-2009: –</li><li><b>Pagat ultimo, still</b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: 1 · MS-WZ2007: 1 · TIROL-2025: 1 (ang. 2) · BECK-1972: 1 · FURR-2009: 1</li><li><b>Pagat im letzten Stich abgefangen</b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: 1 · MS-WZ2007: – · TIROL-2025: – · BECK-1972: 1 (str.) · FURR-2009: –</li><li><b>Uhu (II, vorletzter Stich)</b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: – · MS-WZ2007: 1 · TIROL-2025: – · BECK-1972: – · FURR-2009: 1</li><li><b>Kakadu (III, drittletzter)</b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: – · MS-WZ2007: 1 · TIROL-2025: – · BECK-1972: – · FURR-2009: 1</li><li><b>Quapil (IIII, viertletzter)</b> · MS-ERW ⭐: – · MS-KLASS: – · MS-WZ2007: 1 · TIROL-2025: – · BECK-1972: – · FURR-2009: –</li><li><b>Rostopschin (XVII+XVIII, mit Rufworten)</b> · MS-ERW ⭐: <b>1</b> · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: – · FURR-2009: 1</li><li><b>Grammel‑Punkt / Großgewinn ≥ 45 eigene Punkte</b> · MS-ERW ⭐: <b>1</b> (jeder Spieler, auch im einfachen Spiel) · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: – · FURR-2009: 1 (<b>nur der Aufnehmer</b>; Verteidiger‑Schwelle <b>44</b>)</li><li><b>Mondfang (XXI mit Sküs gestochen)</b> · MS-ERW ⭐: – · MS-KLASS: – · MS-WZ2007: – · TIROL-2025: – · BECK-1972: 1–2 · FURR-2009: –</li><li><b>Valat (alle 27 Stiche), still</b> · MS-ERW ⭐: <b>12</b> · MS-KLASS: 12 · MS-WZ2007: 12 · TIROL-2025: – · BECK-1972: – · FURR-2009: 12</li><li><b>Kontra / Re / Sub</b> · MS-ERW ⭐: aus · MS-KLASS: aus · MS-WZ2007: aus · TIROL-2025: aus · BECK-1972: – · FURR-2009: aus</li></ul>
+<p>⭐ = Default. „–“ = im Profil nicht vorhanden. „(str.)“ = strittig, siehe §9.5.</p>
+<p><b>Zur Furr‑Spalte:</b> Sie folgt dem <b>Volltext</b> von [FURR] (S. 110 f.), nicht der Tabelle in [ENWIKI]. Insbesondere hat Furr <b>keine</b> Trull‑ und <b>keine</b> Königstrull‑Prämie – [ENWIKI] schreibt ihm dort fälschlich eine zu (§9.14). Ebenso fehlen bei ihm Quapil und Mondfang, und sein Grammel‑Äquivalent ist an die Aufnehmerrolle gebunden und beim Verteidiger um einen Punkt tiefer angesetzt (§9.6).</p>
+<p><b>Zur Beck‑Spalte:</b> Die Werte stammen aus [ENWIKI]; [DEWIKI] gibt für dieselbe Quelle (Beck 1972, S. 40–45) durchgehend <b>2</b> statt 1 an (Trull, Pagat ultimo, Mondfang) und kennt keinen erhöhten Wert für ein verlorenes aufgenommenes Spiel. Beck lag für diese Spezifikation <b>nicht im Volltext</b> vor; der Widerspruch ist in §9.2 dokumentiert und bleibt offen.</p>
+@ 5.12 2 Zeitpunkte auf einen Blick
+<ul><li><b>nach dem Geben, vor der Erstaufdeckung</b> · Was hier möglich ist: Zusammenwerfen ohne Tarock (§2.5); Erklärung „Ich nehme auf!“/„Ich passe!“ (§3.2)</li><li><b>nach der Erstaufdeckung, vor dem 1. Ausspiel</b> · Was hier möglich ist: Ansagen im Profil TIROL-2025 (§5.2.3); Kontra, falls aktiviert (§5.10)</li><li><b>beim Spielen der <b>ersten</b> Trullkarte / des <b>ersten</b> Königs</b> · Was hier möglich ist: Ansage „Trull“ / „Vier Könige“ im Profil MS-KLASS (§5.2.1)</li><li><b>beim Spielen der XVII bzw. XVIII</b> · Was hier möglich ist: Rufworte „Ross!“ / „Topschin!“ (§5.5)</li><li><b>nach dem letzten Stich</b> · Was hier möglich ist: Auswertung <b>aller</b> stillen Prämien (§7.2)</li></ul>
+<p>---</p>
+@ 6 1 Spielregeln (die Spielweise)
+<ul><li>6.1  Ausspiel und Stichfolge</li><li>6.2  Legale Züge: Farbzwang und Tarockzwang, <b>kein</b> Stichzwang</li><li>6.3  Farbzwang und das Deckblatt (variantenspezifisch)</li><li>6.4  Stichgewinn</li><li>6.5  Sküs und Pagat – ausdrücklich <b>keine</b> Sonderregeln</li><li>6.6  Einsichtsrechte</li><li>6.7  Renonce (Regelverstoß) und sonstige Fehler</li><li>6.8  Referenz‑Pseudocode für legale Züge</li></ul>
+@ 6.1 2 Ausspiel und Stichfolge
+<ul>
+<li><b>Die Vorhand spielt zum ersten Stich aus – immer</b>, unabhängig davon, wer aufgenommen hat [MS‑WEB: „Die Vorhand spielt aus“], [DEWIKI: „Vorhand spielt immer zum ersten Stich aus“], [TIROL: „Die Vorhand beginnt mit dem ersten Ausspiel“].</li>
+<li>Danach spielt <b>der Gewinner des letzten Stiches</b> aus [MS‑WEB], [DEWIKI].</li>
+<li>Es werden <b>alle 27 Stiche</b> ausgespielt, bis alle Karten weg sind. Ein vorzeitiges Beenden gibt es nicht (Ausnahme: Renonce, §6.7).</li>
+</ul>
+@ 6.2 2 Legale Züge: Farbzwang und Tarockzwang, <b>kein</b> Stichzwang
+<p>Die maßgebliche Formulierung [MS‑WEB]:</p>
+<p><i>„Es gilt <b>Farbzwang</b>, wer die angespielte Farbe nicht bedienen kann, muss <b>Tarock</b> spielen. Ist auch das nicht möglich, kann er <b>jede beliebige</b> Farbkarte spielen.“</i></p>
+<p>und [DEWIKI]:</p>
+<p><i>„Es herrscht <b>Farbzwang (auch für Tarock)</b>, jedoch <b>kein Stichzwang</b>; kann aber die ausgespielte Farbe nicht bedient werden, <b>muss mit Tarock gestochen werden</b> (Tarock‑ oder Trumpfzwang).“</i></p>
+<p>Daraus die <b>exakte Entscheidungskaskade</b> (auf der Menge spielbar = Hand ∪ offene Deckblätter, §4.4):</p>
+<p>Zusatzregeln, die es hier <b>nicht</b> gibt (ausdrücklich festgehalten, weil sie in Nachbarspielen existieren):</p>
+<ul>
+<li><b>Kein Stichzwang.</b> Man muss den Stich nie gewinnen [DEWIKI], [TIROL: „Es gibt keinen Stichzwang“]. (Ausnahme: Trischaken, §5.9.)</li>
+<li><b>Kein Überstichzwang.</b> Wer Tarock zugeben muss, darf einen <b>niedrigeren</b> Tarock zugeben, als der angespielte ist. Keine Quelle fordert Übertrumpfen; [TIROL] sagt es ausdrücklich („Es gibt keinen Stichzwang“), [MS‑WEB] nennt nur Farb‑ und Tarockzwang.</li>
+<li><b>Kein Tarock‑Ausspielverbot</b>, kein Farbausspielzwang, keine Pagat‑Zurückhaltepflicht. (<b>Ausnahme:</b> im Trischaken des Profils AT-STROH-TIROL-2025 gilt nach trischaken_pagat_last_tarock die Negativspiel‑Regel „Pagat nur als letzter Tarock“, §5.9.3 – und sie geht dem Stichzwang vor.)</li>
+<li><b>Keine Sonderrolle für Sküs</b> – kein Excuse, kein Tauschrecht, kein Straflos‑Zugeben (§6.5).</li>
+</ul>
+@ 6.3 2 Farbzwang und das Deckblatt (variantenspezifisch)
+<p>Der Zwang wird auf der <b>Vereinigung</b> von Hand und Deckblättern ausgewertet. [MS‑WEB] formuliert das operativ:</p>
+<p><i>„Kann ein Spieler die vom Gegner angespielte Farbe <b>nicht aus der Hand</b> bedienen, muss er dies <b>von den Strohmännern</b> tun, falls dort eine Karte der entsprechenden Farbe als Deckblatt offen auf einem Päckchen aufliegt. Kann ein Spieler die vom Gegner angespielte Farbe <b>nicht von den Strohmännern</b> bedienen, muss er eine Karte aus der Hand spielen.“</i></p>
+<p>und [DEWIKI] allgemeiner:</p>
+<p><i>„Kann ein Spieler aus der Hand nicht korrekt bedienen, muss er es nach Möglichkeit von den Strohmännern aus tun, <b>und umgekehrt</b>.“</i></p>
+<p>Vier Fälle, die die App unterscheiden muss:</p>
+<ul><li><b>A</b> · Hand hat die Farbe: ja · Deckblatt hat die Farbe: nein · Erlaubt ist: <b>nur</b> die Handkarten dieser Farbe</li><li><b>B</b> · Hand hat die Farbe: nein · Deckblatt hat die Farbe: ja · Erlaubt ist: <b>nur</b> das/die Deckblätter dieser Farbe</li><li><b>C</b> · Hand hat die Farbe: ja · Deckblatt hat die Farbe: ja · Erlaubt ist: <b>beides</b> – freie Wahl (der Spieler entscheidet)</li><li><b>D</b> · Hand hat die Farbe: nein · Deckblatt hat die Farbe: nein · Erlaubt ist: Tarockzwang, wieder über Hand ∪ Deckblätter</li></ul>
+<p>Fall C ist eine Stelle, an der Anfänger am häufigsten stocken; die App sollte beide Quellen optisch gleichwertig markieren (§11.4).</p>
+<p><b>Verdeckte Karten zählen nie.</b> Ein König, der unter einem Deckblatt schläft, macht den Spieler <b>nicht</b> bedienpflichtig. Das ist der Grund, warum in Strohmandeln ein König überhaupt gefangen werden kann.</p>
+@ 6.4 2 Stichgewinn
+<p><i>„Den Stich gewinnt jener Spieler, der die höchste Karte in der angespielten Farbe gespielt hat, falls auch Tarock gespielt wurde, die höchste Tarock.“ [MS‑WEB]</i></p>
+<p>Also, für zwei Karten L (ausgespielt) und F (zugegeben):</p>
+<p><b>Es gibt keinen Kaiserstich</b> (Sküs+XXI+I im selben Stich), weil ein Stich hier nur zwei Karten hat.</p>
+<p><b>Stichhaltung:</b> <i>„Üblicherweise werden die Stiche nicht getrennt abgelegt, sondern einfach aufeinander gestapelt.“</i> [MS‑WEB] — Für die Abrechnung spielt das keine Rolle; die App führt den Stichhaufen als Liste und zeigt auf Wunsch den letzten Stich.</p>
+@ 6.5 2 Sküs und Pagat – ausdrücklich <b>keine</b> Sonderregeln
+<ul><li><b><b>Sküs</b></b> · Rolle in Strohmandeln: schlicht der <b>höchste Tarock</b> [MS‑WEB], [FURR]. Kein Excuse, kein „Narr“, keine Ausnahme vom Farb‑/Tarockzwang, kein Zurücknehmen gegen eine Leerkarte, keine Sonderbehandlung im letzten Stich. Er kann <b>nicht gestochen</b> werden.</li><li><b><b>XXI (Mond)</b></b> · Rolle in Strohmandeln: normaler zweithöchster Tarock. Kann <b>nur</b> vom Sküs gefangen werden (<b>Mondfang</b>, §5.8).</li><li><b><b>I (Pagat)</b></b> · Rolle in Strohmandeln: der <b>niedrigste</b> Tarock und zugleich ein Fünfer‑Zähler. Er verliert gegen <b>jeden</b> anderen Tarock, sticht aber <b>jede</b> Farbkarte. Einzige Sonderregel: die Prämie <i>Pagat ultimo</i> (§5.3). Keine Pflicht, ihn als letzten Tarock zu spielen; kein Schutz.</li></ul>
+<p>Das ist für Spieler wichtig, die vom französischen Tarot kommen – dort ist der Narr eine Ausnahmekarte. In der gesamten österreichischen Tarockfamilie („Typ III“ nach Dummett/McLeod) ist er es <b>nicht</b>.</p>
+@ 6.6 2 Einsichtsrechte
+<ul>
+<li>„Jeder Spieler hat das Recht, in den <b>unmittelbar zuvor</b> gespielten Stich des Gegners Einsicht zu nehmen.“ [MS‑WEB]</li>
+<li>„In den meisten Runden ist es auch zulässig, dass ein Spieler während eines Spieles <b>seine eigenen Stiche nochmals einsieht</b>, doch gilt dieses <b>Nachwassern</b> als unfein.“ [MS‑WEB]</li>
+</ul>
+<p><b>App:</b> Button „Letzter Stich“ immer aktiv. Button „Eigene Stiche“ per Einstellung <b>⚙ Flag allow_reviewing_own_tricks</b> (Default true im Lern‑ und Einzelspielermodus, Default false im Turniermodus). Im LAN wird die Nutzung dem Gegner <b>nicht</b> angezeigt (es ist keine Regelverletzung).</p>
+@ 6.7 2 Renonce (Regelverstoß) und sonstige Fehler
+<p>[MS‑WEB §Renonceregeln], die einzige Quelle dazu:</p>
+<ul><li><b>Farbe nicht bedient <b>oder</b> Fehlfarbe nicht mit Tarock gestochen</b> · Folge: <b>Renonce.</b> Der Gegner <b>gewinnt das Spiel und alle bisher realisierten Prämien</b>, ohne weiterspielen zu müssen. Der Renoncierende darf seine bisher realisierten Prämien <b>nicht</b> verrechnen. Der Gegner <b>kann</b> stattdessen verlangen, dass weitergespielt und korrigiert wird, um sich die Chance auf weitere Prämien (z. B. Grammel‑Punkt) zu wahren.</li><li><b>Mit Tarock gestochen, <b>obwohl</b> die passende Farbe als Deckblatt aufliegt</b> · Folge: <b>Kein Renonce!</b> Weil der Gegner die aufliegenden Karten ebenfalls sieht, ist er verpflichtet, sofort auf den Fehler hinzuweisen und Korrektur zu verlangen. <i>„Der Fehler selbst bleibt sanktionslos.“</i></li><li><b>Versehentlich <b>zwei</b> Karten gespielt</b> · Folge: Eine der beiden darf zurückgenommen werden. <i>„Hier gilt der Grundsatz, dass es jedem Spieler unbenommen bleiben kann, Informationen über sein Blatt preiszugeben und sich damit selbst zu schaden.“</i></li><li><b>Versehentlich <b>zwei</b> Strohmann‑Karten aufgedeckt (erste ist kein König/Trullstück)</b> · Folge: Beide dem Gegner zeigen, beide wieder verdeckt zurücklegen (§4.7)</li><li><b><b>Vergeben</b> (Misdeal)</b> · Folge: Strafe <b>1 Spielpunkt</b> (in einer verdoppelten Runde <b>2</b>), Neugabe durch denselben Geber</li></ul>
+<p><b>Für die App:</b> Regelverstöße sind <b>unmöglich</b> – die Engine bietet nur legale Züge an. Die Renonce‑Regeln sind trotzdem zu implementieren, und zwar für zwei Zwecke:</p>
+<ol>
+<li><b>Lernmodus:</b> Der Erklärtext für „warum ist diese Karte nicht erlaubt“ (§11.4) beruft sich auf sie.</li>
+<li><b>Turnier‑/Papiermodus (LAN mit physischen Karten):</b> Schiedsrichterfunktion „Renonce eintragen“.</li>
+</ol>
+<p>Die zweite Zeile der Tabelle ist bemerkenswert und verdient einen eigenen Hinweis im Lernmodus: <b>Das Übersehen des eigenen Deckblatts ist in Strohmandeln straffrei</b>, weil beide Spieler es sehen. Die App verhindert den Zug ohnehin und zeigt stattdessen den Hinweistext aus §11.4.</p>
+@ 6.8 2 Referenz‑Pseudocode für legale Züge
+<p>forceWin() filtert im Trischaken‑Profil auf die <b>stichgewinnenden</b> Karten, falls es welche gibt – es erzwingt <b>nicht</b> die höchste Karte (§5.9.2). Die Pagat‑Beschränkung wird <b>vor</b> dem Stichzwang angewandt: könnte man nur mit dem Pagat überstechen, besitzt aber noch weitere Tarock, spielt man ein anderes Tarock und verzichtet auf den Stich.</p>
+<p>---</p>
+@ 7 1 Abrechnung
+<ul><li>7.1  Modell</li><li>7.2  Auswertungsreihenfolge (verbindlicher Algorithmus)</li><li>7.3  Abrechnung jedes Vertrags und jeder Prämie, gewonnen und verloren (Default‑Profil)</li><li>7.4  Durchgerechnete Abrechnungsbeispiele</li></ul>
+@ 7.1 2 Modell
+<ul>
+<li><b>Nullsumme je Spieler.</b> Was der eine gewinnt, verliert der andere. Ein Spiel erzeugt für jeden Sitz einen Integer delta[seat] mit delta[0] + delta[1] == 0.</li>
+<li><b>Einheit:</b> <i>Spielpunkt</i>. In der Hartwährungs‑Variante [MS‑WZ] entspricht <b>1 Spielpunkt = 10 Cent</b> („einfaches Spiel 20 Cent“ = 2 Spielpunkte usw.). <b>⚙ Flag hard_score_cents_per_point, Default 10, Anzeige optional.</b></li>
+<li><b>Schreibweise:</b> [TIROL] schreibt <b>nur die Pluspunkte</b> an; die App führt intern immer beide Vorzeichen und zeigt je nach Profil die eine oder andere Darstellung.</li>
+</ul>
+@ 7.2 2 Auswertungsreihenfolge (verbindlicher Algorithmus)
+<p><b>Wichtig zu Schritt 11:</b> Die Verdopplung nach Unentschieden/Nullergebnis betrifft <i>„die nächste Runde, bestehend aus 2 Spielen“</i> [MS‑WEB] – also <b>beide</b> folgenden Spiele, nicht nur das nächste.</p>
+@ 7.3 2 Abrechnung jedes Vertrags und jeder Prämie, gewonnen und verloren (Default‑Profil)
+<p>Alle Werte sind die <b>Gutschrift beim begünstigten Spieler</b>; der andere Spieler bekommt denselben Betrag abgezogen.</p>
+<ul><li><b>1</b> · Ereignis: <b>Einfaches Spiel gewonnen</b> (≥ 35/2 Blatt) · Begünstigter: der Gewinner · Wert: +1</li><li><b>2</b> · Ereignis: <b>Einfaches Spiel</b>, niemand ≥ 35/2 Blatt · Begünstigter: – · Wert: 0:0, <b>Nullrunde</b></li><li><b>3</b> · Ereignis: <b>Aufgenommenes Spiel gewonnen</b> · Begünstigter: Aufnehmer · Wert: +3</li><li><b>4</b> · Ereignis: <b>Aufgenommenes Spiel verloren</b> · Begünstigter: Gegner · Wert: +4</li><li><b>5</b> · Ereignis: <b>Grammel‑Punkt</b> (eigene Stiche ≥ 45 Punkte) · Begünstigter: der Erreicher · Wert: +1</li><li><b>6</b> · Ereignis: <b>Trull in den Stichen</b> (Sküs+XXI+I) · Begünstigter: der Besitzer · Wert: +1</li><li><b>7</b> · Ereignis: <b>Vier Könige in den Stichen</b> · Begünstigter: der Besitzer · Wert: +1</li><li><b>8</b> · Ereignis: <b>Pagat ultimo gelungen</b> · Begünstigter: der Pagat‑Spieler · Wert: +1</li><li><b>9</b> · Ereignis: <b>Pagat im letzten Stich abgefangen</b> · Begünstigter: der Fänger · Wert: +1</li><li><b>10</b> · Ereignis: <b>Uhu gelungen</b> (II gewinnt Stich 26) · Begünstigter: der Uhu‑Spieler · Wert: +1</li><li><b>11</b> · Ereignis: <b>Uhu misslungen</b> (II in Stich 26 gespielt und verloren) · Begünstigter: der Fänger · Wert: +1</li><li><b>12</b> · Ereignis: <b>Kakadu gelungen / misslungen</b> (III, Stich 25) · Begünstigter: analog · Wert: +1</li><li><b>13</b> · Ereignis: <b>Rostopschin</b> (Rufworte + 2 Stiche) · Begünstigter: der Rufer · Wert: +1</li><li><b>14</b> · Ereignis: Rostopschin <b>ohne</b> Rufworte oder misslungen · Begünstigter: – · Wert: 0 (unverlierbar)</li><li><b>15</b> · Ereignis: <b>Valat</b> (27 Stiche) · Begünstigter: der Valat‑Spieler · Wert: +12</li><li><b>16</b> · Ereignis: <b>Vergeben</b> · Begünstigter: der Gegner des Gebers · Wert: +1 (in doppelter Runde +2)</li><li><b>17</b> · Ereignis: <b>Renonce</b> · Begünstigter: der Gegner · Wert: Spiel + <b>alle bis dahin realisierten Prämien</b>; Prämien des Renoncierenden verfallen</li></ul>
+<p><b>Maximale Einzelabrechnung</b> im Default‑Profil (ohne Kontra, ohne Rundenverdopplung): Valat 12 + Spiel 3 + Grammel 1 + Trull 1 + 4 Könige 1 + Pagat 1 + Uhu 1 + Kakadu 1 + Rostopschin 1 = <b>22</b>. (Ein Valat impliziert alle Fangprämien beim selben Spieler.) Der Wertebereich int8_t reicht damit nicht; int16_t ist ausreichend, die Engine verwendet int32_t.</p>
+@ 7.4 2 Durchgerechnete Abrechnungsbeispiele
+<p><b>Beispiel 1 – knapper Gewinn des Aufnehmers (Zahlen aus §1.6).</b> Vorhand hat aufgenommen und erreicht 35 ⅔ (= 35/2 Blatt = gerundet 36), der Geber 34 ⅓. Vorhand hat außerdem Sküs, XXI und I in den Stichen (Trull), aber nur drei Könige. Der Pagat war nicht im letzten Stich.</p>
+<ul><li><b>Aufgenommenes Spiel gewonnen</b> · Vorhand: +3 · Geber: −3</li><li><b>Grammel‑Punkt (35⅔ &lt; 45)</b> · Vorhand: 0 · Geber: 0</li><li><b>Trull in den Stichen</b> · Vorhand: +1 · Geber: −1</li><li><b>Vier Könige</b> · Vorhand: 0 · Geber: 0</li><li><b><b>Summe</b></b> · Vorhand: <b>+4</b> · Geber: <b>−4</b></li></ul>
+<p><b>Beispiel 2 – der Aufnehmer scheitert knapp.</b> Der Geber hat aufgenommen und erreicht 35 ⅓ (= 35/1 Blatt). Das ist <b>weniger</b> als 35/2 Blatt → verloren (Flag draw_scope = simple_only, §1.7.1). Die Vorhand hat 34 ⅔, außerdem die vier Könige in den Stichen; der Geber hat den Pagat im letzten Stich gespielt und verloren.</p>
+<ul><li><b>Aufgenommenes Spiel verloren</b> · Geber (Aufnehmer): −4 · Vorhand: +4</li><li><b>Vier Könige in den Stichen</b> · Geber (Aufnehmer): 0 · Vorhand: +1</li><li><b>Pagat im letzten Stich abgefangen</b> · Geber (Aufnehmer): −1 · Vorhand: +1</li><li><b><b>Summe</b></b> · Geber (Aufnehmer): <b>−6</b> · Vorhand: <b>+6</b></li></ul>
+<p>Das illustriert die Asymmetrie: Der Aufnehmer verliert 6, obwohl er nur um <b>⅓ Punkt</b> unter der Schwelle lag. Genau davor warnt [MS‑WEB] beim Aufnahmeentscheid (§10.2).</p>
+<p><b>Beispiel 3 – einfaches Spiel mit Unentschieden.</b> Beide haben gepasst. Endstand 35 : 35. Niemand erreicht 35/2 Blatt. Prämien: die Vorhand hat den Uhu gemacht (II gewinnt Stich 26).</p>
+<ul><li><b>Einfaches Spiel</b> · Vorhand: 0 · Geber: 0</li><li><b>Uhu</b> · Vorhand: +1 · Geber: −1</li><li><b><b>Summe</b></b> · Vorhand: <b>+1</b> · Geber: <b>−1</b></li><li><b><b>Folge</b></b> · Vorhand: die <b>nächste Runde (2 Spiele) zählt doppelt</b> (§8.3)</li></ul>
+<p>Hinweis: Auch ein Nettoergebnis von <b>0:0</b> („Nullergebnis“) löst die Verdopplung aus [MS‑WEB]. Hier ist das Nettoergebnis wegen des Uhu <b>nicht</b> 0, aber das <b>Unentschieden im Spiel selbst</b> löst sie ebenfalls aus: <i>„Ist ein einfaches Spiel vorgesehen, so gibt es auch die Regel, dass dieses unentschieden gewertet wird, wenn keiner der Spieler 35 Punkte und 2 Blatt erreicht. … In diesen Fällen zählt die nächste Runde, bestehend aus 2 Spielen, doppelt.“</i> Beide Auslöser sind unabhängig voneinander zu prüfen.</p>
+<p><b>Beispiel 4 – Valat.</b> Die Vorhand hat aufgenommen und macht alle 27 Stiche.</p>
+<ul><li><b>Aufgenommenes Spiel gewonnen (70 : 0)</b> · Vorhand: +3 · Geber: −3</li><li><b>Grammel‑Punkt (70 ≥ 45)</b> · Vorhand: +1 · Geber: −1</li><li><b>Trull in den Stichen</b> · Vorhand: +1 · Geber: −1</li><li><b>Vier Könige in den Stichen</b> · Vorhand: +1 · Geber: −1</li><li><b>Pagat ultimo (der Pagat ist zwangsläufig irgendwo, aber nur im 27. Stich zählt er)</b> · Vorhand: +1 falls dort · Geber: ggf. −1</li><li><b>Valat</b> · Vorhand: +12 · Geber: −12</li><li><b><b>Summe (ohne Vögel)</b></b> · Vorhand: <b>+18</b> · Geber: <b>−18</b></li></ul>
+<p>---</p>
+@ 8 1 Matchstruktur (für die App)
+<ul><li>8.1  Die Runde</li><li>8.2  Partieformate</li><li>8.3  Verdoppelte Runde („Nullrunde“)</li><li>8.4  Persistenz, Abbruch, Wiederaufnahme</li><li>8.5  Statistiken (Wiederspielwert)</li></ul>
+@ 8.1 2 Die Runde
+<p><i>„Ergibt sich nach Addition von Spiel und Prämien eine Nullsumme (Nullergebnis), so zählt <b>die nächste Runde, bestehend aus 2 Spielen</b>, doppelt.“ [MS‑WEB], [MS‑WZ]</i></p>
+<p>Die <b>Runde</b> ist also die natürliche Zähleinheit: <b>2 Spiele</b>, sodass jeder Spieler einmal gegeben hat. Das ist auch fairnesstechnisch zwingend, weil die Vorhand einen Vorteil hat (sie erklärt sich zuerst und spielt aus).</p>
+@ 8.2 2 Partieformate
+<ul><li><b><b>Punktepartie (Default)</b></b> · Definition: <b>Wer zuerst 11 Punkte erreicht, hat eine Partie gewonnen.</b> Notiert werden nur die Pluspunkte · Quelle / Empfehlung: [TIROL]</li><li><b>Rundenpartie</b> · Definition: feste Zahl von Runden (z. B. 6 Runden = 12 Spiele); Sieger ist, wer die höhere Summe hat · Quelle / Empfehlung: Empfehlung dieser Spezifikation</li><li><b>Cent‑Partie</b> · Definition: Abrechnung in Hartwährung, 1 Spielpunkt = 10 Cent, offenes Ende · Quelle / Empfehlung: [MS‑WZ]</li><li><b>Einzelspiel</b> · Definition: genau ein Spiel (nur Lernmodus / „schnelle Runde“) · Quelle / Empfehlung: Empfehlung</li></ul>
+<p><b>Empfehlung für die App:</b> <b>Punktepartie bis 11</b> als Default für den Einzelspieler‑ und LAN‑Modus (kurz, klar, endet nach typisch 4–6 Spielen), Rundenpartie über 6 Runden als „Turnier“‑Option, Einzelspiel im Lernmodus.</p>
+<p>Wichtig bei „bis 11“: Weil nur Pluspunkte geschrieben werden, ist es ein <b>Wettlauf</b>, kein Nullsummen‑Konto. Die App führt beide Zählwerke parallel (race[seat] für die Partie, net[seat] für die Statistik) und zeigt je nach Profil eines von beiden. Der <b>Partieabbruch</b> erfolgt sofort nach der Abrechnung des Spiels, in dem 11 erreicht wurde – auch mitten in einer Runde.</p>
+@ 8.3 2 Verdoppelte Runde („Nullrunde“)
+<p>Auslöser (beide unabhängig prüfen, [MS‑WEB], [MS‑WZ]):</p>
+<ol>
+<li><b>Unentschieden</b> im einfachen Spiel (§1.7.1).</li>
+<li><b>Nullergebnis</b>: Spiel + Prämien ergeben in Summe 0:0.</li>
+</ol>
+<p>Wirkung: <b>die nächste Runde – also die nächsten zwei Spiele – zählt doppelt.</b> Auch die Strafe für Vergeben verdoppelt sich in einer solchen Runde auf 2 Punkte [MS‑WEB].</p>
+<p>Offene Detailfragen, die die Quellen nicht beantworten, und die Festlegungen dieser Spezifikation:</p>
+<ul><li><b>Was, wenn eine verdoppelte Runde <b>erneut</b> ein Nullergebnis liefert?</b> · Festlegung: Der Multiplikator <b>stapelt sich nicht</b>; die nächste Runde zählt wieder ×2, nicht ×4. (Konservativ, verhindert Ausreißer.) <b>⚙ Flag null_round_stacks, Default false</b></li><li><b>Verdoppelt sich das <b>laufende</b> oder das <b>nächste</b> Spiel, wenn das Nullergebnis mitten in einer Runde auftritt?</b> · Festlegung: Die <b>nächste vollständige Runde</b> (2 Spiele), beginnend mit dem nächsten Spiel. Läuft gerade eine Runde, wird der verbleibende Teil normal gewertet</li><li><b>Zählt die Verdopplung auch für die „bis 11“‑Wertung?</b> · Festlegung: Ja – es ist derselbe Wert</li></ul>
+@ 8.4 2 Persistenz, Abbruch, Wiederaufnahme
+<ul>
+<li>Der Partiezustand (Profil, Punktestände, Geberrotation, aktiver Multiplikator, Nullrunden‑Zähler) wird nach <b>jedem</b> Spiel gespeichert; ein abgebrochenes Spiel wird nicht gespeichert (das Spiel wird verworfen, das Geben bleibt beim selben Spieler).</li>
+<li>Im LAN gilt: Trennt sich ein Client, wird sein Sitz für 120 s reserviert; danach kann ihn ein Computerspieler übernehmen (Einstellung) oder die Partie endet unentschieden.</li>
+</ul>
+@ 8.5 2 Statistiken (Wiederspielwert)
+<p>Wegen der zwei Sichtbarkeitsstufen ist Strohmandeln statistisch interessanter als die meisten Zweierspiele. Empfohlene Kennzahlen pro Spieler:</p>
+<ul>
+<li><b>Aufnahmequote</b> und <b>Trefferquote der Aufnahme</b> (wie oft gewinnt der Aufnehmer?)</li>
+<li><b>Ø Stecherpunkte bei Aufnahme</b> (§10.2) – zeigt, ob jemand zu mutig oder zu zaghaft aufnimmt</li>
+<li><b>Ø Kartenpunkte</b> und Verteilungshistogramm um die 35er‑Schwelle</li>
+<li><b>Strohmann‑Abbaugeschwindigkeit</b>: nach welchem Stich sind die eigenen 6 bzw. 3 Päckchen aufgebraucht? (M&amp;S' zentrale Taktikempfehlung, §10.3 – eine direkt messbare Lernkurve)</li>
+<li><b>Pagat‑Bilanz</b>: heimgebracht / abgefangen / verloren</li>
+<li>Prämienzähler je Prämie</li>
+</ul>
+<p>---</p>
+@ 9 1 Grenzfälle, regionale Abweichungen, Empfehlungen
+<p>Jeder Punkt: Was steht in den Quellen, wo widersprechen sie sich, und <b>was die App tut</b> (▶ <b>Empfehlung</b>).</p>
+@ 9.1 2 Zwei völlig verschiedene Spiele mit demselben Namen (historisch)
+<p>Das heutige Strohmandeln ist <b>nicht</b> das Spiel, das 1829 so hieß [ENWIKI, mit Berufung auf [HIST] und [DUMMETT]]:</p>
+<ul><li><b>1800</b> · Spiel: <i>„Taroc en deux“</i> (78 Blatt): ein verdeckter Dummy von 25 Karten wird gegeben, aber <b>nie benutzt</b></li><li><b>1829</b> · Spiel: <i>„Tarok‑Tappen unter zwei Personen oder das sogenannte Strohmandel“</i> (54 Blatt): der <b>Stichgewinner nimmt jeweils die oberste Karte des Strohmann‑Stapels</b> und legt sie zu seinen Stichkarten. Sehr glücksabhängig</li><li><b>1839</b> · Spiel: Ein Wiener Spielbuch urteilt, das Spiel hänge mehr vom Glück als vom Können ab und werde „wohl nur von Leuten gewählt, die das edle Piquetspiel gar nicht kennen“</li><li><b>≤ 1890</b> · Spiel: Ulmann beschreibt bereits die <b>heutige</b> Form: drei Päckchen zu vier Karten als anfangs unbekannter Teil des eigenen Blattes. [MS‑WEB]: <i>„Strohmann‑Tarock dürfte spätestens in den 1880er Jahren entstanden sein“</i></li></ul>
+<p>▶ <b>Empfehlung:</b> Nur die moderne Form implementieren. Die historische 1829er‑Form ist als Randnotiz im Lernmodus (§11.6 Glossar, Eintrag „Strohmann“) erwähnenswert, aber kein Spielmodus.</p>
+@ 9.2 2 Beck: 1/2/3 oder 2? (Wertwiderspruch zwischen den beiden Wikipedias)
+<ul><li><b>[ENWIKI]</b> · Spielwerte: einfaches Spiel 1; aufgenommen gewonnen <b>2</b>, verloren <b>3</b> · Prämienwerte: Trull/Königstrull <b>im Blatt</b> 1, Pagat ultimo 1, Mondfang 1</li><li><b>[DEWIKI]</b> · Spielwerte: „1 Werteinheit für ein gewonnenes Spiel, wenn das Spiel <b>nicht</b> aufgenommen wurde; <b>2 Werteinheiten</b>, wenn aufgenommen“ · Prämienwerte: Trull/Königstrull <b>2</b>, Pagat als letzte Karte <b>2</b>, gefangener Mond <b>2</b></li></ul>
+<p>[DEWIKI] ist auch <b>in sich</b> widersprüchlich: im Fließtext heißt es, die Prämie betrage „den <b>einfachen Spielwert</b>“, in der Tabelle stehen dann 2 Werteinheiten, während ein nicht aufgenommenes gewonnenes Spiel nur 1 wert ist. [DEWIKI] nennt außerdem <b>keinen</b> erhöhten Wert für ein vom Aufnehmer <b>verlorenes</b> Spiel, was der in allen anderen Quellen tragenden Risiko‑Asymmetrie widerspricht.</p>
+<p>▶ <b>Empfehlung:</b> Im Profil AT-STROH-BECK-1972 die <b>[ENWIKI]‑Werte</b> verwenden (1 / 2 / 3, Prämien je 1). Sie sind granularer, passen zur Systematik aller anderen Quellen und stehen in der neueren, besser belegten Darstellung. <b>Der Widerspruch ist im Profiltext der App zu vermerken</b>, weil er nur durch Einsicht in Beck 1972 S. 40–45 aufzulösen wäre – ein Buch, das für diese Spezifikation <b>nicht im Volltext vorlag</b>.</p>
+@ 9.3 2 Wer spielt zum ersten Stich aus?
+<ul><li><b>[MS‑WEB], [MS‑WZ], [DEWIKI]/[BECK], [TIROL]</b> · Regel: <b>Immer die Vorhand</b></li><li><b>[FURR]</b> · Regel: Bei „beide passen“ die Vorhand, sonst <b>der Aufnehmer</b></li></ul>
+<p>▶ <b>Empfehlung: immer die Vorhand</b> (first_lead = forehand). Vier unabhängige deutschsprachige Quellen gegen eine englische Hausregelfassung. Furrs Regel ist zudem im aufgenommenen Spiel ein spürbarer Zusatzvorteil für den Aufnehmer, den die Wertetabelle nicht einpreist.</p>
+@ 9.4 2 Wert des einfachen Spiels: 1 oder 2?
+<ul><li><b>[MS‑WEB] klassische Variante</b> · Wert: 2</li><li><b>[MS‑WEB] erweiterte Variante</b> · Wert: 1 (+1 bei ≥ 45 Punkten ⇒ 2)</li><li><b>[MS‑WZ] (2007, dieselben Autoren)</b> · Wert: 2 (20 Cent), kein Grammel‑Punkt</li><li><b>[FURR]</b> · Wert: 2</li><li><b>[ENWIKI]/[BECK]</b> · Wert: 1</li></ul>
+<p>▶ <b>Empfehlung:</b> Im Default MS-ERW bei <b>1 + Grammel‑Punkt</b> bleiben (die Tabelle in [MS‑WEB] ist in sich geschlossen). Wer ohne Grammel‑Punkt spielt, nimmt Profil MS-WZ2007 mit 2. Die App darf die beiden Werte <b>nicht</b> mischen, sonst ist das einfache Spiel gegenüber dem aufgenommenen falsch skaliert.</p>
+@ 9.5 2 Ist ein abgefangener Pagat prämiert?
+<ul><li><b>[MS‑WEB]</b> · Regel: „Pagat ultimo … <b>und ein im letzten Stich abgefangener Pagat</b> kosten ebenfalls 1 Spielpunkt“ → <b>ja</b></li><li><b>[ENWIKI]</b> · Regel: „it is normal for bonuses for playing the ‚birds‘ … to go to the opponent if they fail to win“ → <b>ja</b>, und zwar auch für Uhu/Kakadu</li><li><b>[DEWIKI]/[BECK]</b> · Regel: „Dies bringt (je nachdem ob er überstochen wird oder nicht) den <b>Gewinn oder Verlust</b> des einfachen Spielwertes“ → <b>ja</b></li><li><b>[TIROL]</b> · Regel: nennt nur „Pagat ultimo … Tarock I macht den letzten Stich“ → <b>wohl nein</b></li><li><b>[MS‑WZ]</b> · Regel: nennt nur „Pagat, still: 10 Cent“ → unklar</li></ul>
+<p>▶ <b>Empfehlung: ja</b> (pagat_capture_bonus = true, bird_capture_bonus = true). Drei Quellen dafür, eine schweigt. Die Spiegelregel ist außerdem für die KI wichtig: ohne sie gäbe es keinen Anreiz, den gegnerischen Pagat im letzten Stich zu jagen, und das Endspiel würde flach.</p>
+@ 9.6 2 Grammel‑Punkt: Schwelle beim Gegner 25 oder 26? Und: gerundet oder exakt?
+<ul><li><b>[MS‑WEB], [MS‑EN]</b> · Formulierung: „mindestens 45 Punkte … Diesfalls hat sein Gegner <b>25 Punkte oder weniger</b>. Hat der Gegner <b>mindestens 26</b> Punkte, so muss er keinen Grammel‑Punkt zahlen“</li><li><b>[FURR]</b> · Formulierung: „With 45: If Declarer takes <b>at least 45</b> card points. Scores 4“ / „With 26: If Declarer takes <b>26 card points or less</b>: Scores 5 for the defender“</li><li><b>[ENWIKI]</b> · Formulierung: „Major win by declarer: Win by declarer with <b>45 or more</b> points“ / „Major win by defender: Win by defender with <b>44 or more</b> points“ (Furr‑Spalte)</li></ul>
+<p><b>Zwei getrennte Fragen, die frühere Fassungen dieser Spezifikation vermischt haben:</b></p>
+<p><b>(a) Welche Schwelle?</b> Bei 70 Gesamtpunkten sind „ich ≥ 45“ und „Gegner ≤ 25“ <b>äquivalent</b> (45 + 25 = 70). Furrs „Aufnehmer ≤ 26“ entspricht dagegen „Gegner ≥ <b>44</b>“ – das ist eine <b>andere</b> Regel und zu Furrs übriger Systematik konsistent (bei ihm gewinnt der Verteidiger das Spiel schon mit 35, also liegen auch seine Großgewinn‑Schwellen um 1 tiefer). ▶ <b>Default: M&amp;S</b> (grand_point_threshold = 45, grand_point_defender_threshold = 45); im Profil FURR-2009 grand_point_defender_threshold = 44.</p>
+<p><b>(b) Gerundet oder exakt gerechnet?</b> Hier lag ein <b>echter Fehler</b> in der vorigen Fassung (p3 &gt;= 135). Maßgeblich ist die <b>gerundete</b> Zahl: pointsRounded(p3) &gt;= 45, d. h. <b>p3 &gt;= 134</b>. Der Grund ist [MS‑WEB] selbst – „25 oder weniger“ und „mindestens 26“ lassen keinen Zwischenraum für „25 und 1 Blatt“, die Autoren rechnen dort also in ganzen Punkten (Dreierlagen, §1.5.2a). Genau ein Fall unterscheidet die beiden Lesarten: 44 ⅔ : 25 ⅓, am Tisch gezählt als <b>45 : 25</b>. Volle Herleitung samt Tabelle in §5.6. ▶ <b>Default: grand_point_uses_rounded_points = true (p3 ≥ 134).</b></p>
+@ 9.7 2 Zählt das Deckblatt zum „Blatt“ bei Trull‑/Königsansagen?
+<p>Keine Quelle sagt es ausdrücklich. Argumente für <b>ja</b>: [MS‑WEB] stellt die Deckblätter für <b>alle</b> Spielhandlungen den Handkarten gleich („kann der Spieler ebenso verfahren wie mit den Karten in seiner Hand“). Argument für <b>nein</b>: Die Ansage heißt ausdrücklich „im <b>Blatt</b>“, und die Deckblätter liegen auf dem Tisch, nicht im Blatt.</p>
+<p>▶ <b>Empfehlung: ja</b> (bonus_hand_includes_faceup = true). Die Deckblätter sind nach [MS‑WEB] Teil des Blattes; jede andere Lesart erzeugt eine willkürliche Ausnahme. <b>Betrifft nur die Profile MS-KLASS und BECK-1972</b> – im Default ist die Frage gegenstandslos, weil dort „in den Stichen“ gezählt wird. → <b>Offene Frage für die Rückfrage bei Spielkreisen.</b></p>
+@ 9.8 2 Verdoppelt Kontra auch die Prämien?
+<p>[MS‑WEB] sagt nur „Im Kontra werden die <b>Spielpunkte</b> verdoppelt“. In Königrufen werden Spiel und Prämien <b>getrennt</b> kontriert.</p>
+<p>▶ <b>Empfehlung:</b> Kontra verdoppelt <b>nur den Spielwert</b>, nicht die Prämien (<b>⚙ Flag kontra_doubles_bonuses = false</b>). Und: Kontra ist im Default ohnehin <b>abgeschaltet</b>, weil [MS‑WEB], [MS‑WZ] und [TIROL] übereinstimmend davon abraten (§5.10).</p>
+@ 9.9 2 Rostopschin: XVII/XVIII oder VII/VIII?
+<p><b>Belegbarer Fehler in [ENWIKI].</b> Die dortige Scoring‑Tabelle sagt „Taking successive tricks with <b>VII and VIII</b>“ und zitiert dafür [FURR]. Der Volltext von [FURR] (archive.org, S. 111) sagt jedoch wörtlich: <i>„taking consecutive tricks with the <b>XVII and the XVIII</b> of trumps“</i>. [MS‑WEB] sagt ebenfalls <b>XVII/XVIII</b>.</p>
+<p>▶ <b>Empfehlung: XVII und XVIII.</b> Zwei Primärquellen gegen einen Transkriptionsfehler im Wikipedia‑Tabellenzelleninhalt. Beim Nachprüfen (siehe <b>Prüfprotokoll</b>) wurde der Volltext von [FURR] erneut eingesehen und bestätigt: <i>„Rostopschin: This is a fun bonus for taking consecutive tricks with the <b>XVII and the XVIII</b> of trumps. To win it, you must call ‚Ros‘ when playing the XVII to a trick and then ‚Topschin‘ when playing the XVIII.“</i> Es ist nicht der einzige Fehler in dieser Tabelle → §9.14.</p>
+@ 9.10 2 Trischaken im Zweierspiel: „bunt gemischt“ und Stichzwang
+<p>Nur [TIROL] kennt Trischaken beim Strohmandeln; die Kurzbemerkung <i>„möglichst wenig Punkte / bunt gemischt; mit Stichzwang“</i> ist aus sich heraus nicht verständlich. <b>Zwei der drei Unklarheiten sind inzwischen geklärt</b> (§5.9.1–5.9.3):</p>
+<ul><li><b>„bunt gemischt“</b> · Status: <b>geklärt.</b> Fachausdruck: „es braucht nicht austarockiert zu werden, jeder Ausspieler hat die Wahl, ob er Tarock oder Farbe anspielt“ (LTA‑GK1 Kap. 11; tarock-konigrufen8.webnode.at/trischaken/; koenigrufen.md §6.4). In Strohmandeln ohne praktische Wirkung, weil es dort ohnehin keine Austarockier‑Pflicht gibt</li><li><b>„mit Stichzwang“</b> · Status: <b>geklärt.</b> = <i>überstechen, wenn unter Farb‑/Tarockzwang möglich</i> – <b>nicht</b> „die höchste Karte spielen“. Innerhalb der stichgewinnenden Karten ist die Wahl frei</li><li><b>Pagat‑Regel</b> · Status: <b>offen.</b> In den Negativspielen desselben Autors gilt „Der Pagat darf erst als letztes Tarock gespielt werden“; das Strohmandeln‑Blatt schweigt. ⚙ trischaken_pagat_last_tarock, vorläufig true</li><li><b>Gleichstand</b> · Status: <b>offen.</b> [TIROL] regelt ihn nicht; vorläufig 0 : 0 und Nullrunde</li></ul>
+<p>▶ <b>Empfehlung:</b> Normales Strohmandeln mit Strohmännern, umgekehrtes Zählziel, Stichzwang nach §5.9.2, Pagat‑Regel nach §5.9.3. Vor Auslieferung des Profils als „Tiroler Regeln“ bleibt eine Rückfrage bei Markus Mair (tarock.tirol) zu Pagat‑Regel und Gleichstand empfohlen.</p>
+@ 9.11 2 Ansagezeitpunkt im Tiroler Profil
+<p>[TIROL] tabelliert „still 1 / angesagt 2“, nennt aber <b>keinen</b> Ansagezeitpunkt und keine Strafe für eine misslungene Ansage.</p>
+<p>▶ <b>Empfehlung (Ergänzung dieser Spezifikation, klar als solche markiert):</b> Ansage <b>nach der Erstaufdeckung und vor dem ersten Ausspiel</b>; misslungene Ansage = angesagter Wert an den Gegner. Das ist die in Königrufen übliche Systematik. <b>Offene Frage.</b></p>
+@ 9.12 2 Ungarn: „Strohmandli“ mit 42 Blatt
+<p><i>„Strohmandeln wird heute nicht nur in Österreich, sondern auch in Ungarn gespielt. Dort heißt es <b>Strohmandli</b>. In anderen Ländern der ehemaligen Monarchie scheint es nicht verbreitet zu sein.“ [MS‑WEB]</i></p>
+<p>Die dort verbreitete Fassung [HU‑SCO] ist ein <b>eigenständiges Spiel</b>:</p>
+<ul><li><b>Blatt</b> · Österreich (diese Spec): 54 · Ungarn [HU‑SCO]: <b>42</b> (wie ungarisches Tarokk)</li><li><b>Handkarten</b> · Österreich (diese Spec): 15 · Ungarn [HU‑SCO]: <b>12</b></li><li><b>Strohmänner</b> · Österreich (diese Spec): 3 Päckchen à <b>4</b> · Ungarn [HU‑SCO]: 3 Päckchen à <b>3</b></li><li><b>Aufnehmen</b> · Österreich (diese Spec): ja · Ungarn [HU‑SCO]: <b>nein</b> – es gibt keinen Aufnehmer und kein Lizit</li><li><b>Gewinnschwelle</b> · Österreich (diese Spec): 35/2 Blatt von 70 · Ungarn [HU‑SCO]: <b>48</b> von 94 (einfache Addition, ohne Dreierlagen)</li><li><b>Figuren</b> · Österreich (diese Spec): Trull, 4 Könige, Pagat, Uhu … · Ungarn [HU‑SCO]: Játék 48/Kassza 60/Duplajáték 71, Volát, Pagátfogás, Uhu, Pagátulti, Fej, Tulétroá, Négy király</li><li><b>Aufdeckregel</b> · Österreich (diese Spec): identisch (Tarock/König aufnehmen, sonst Deckblatt) · Ungarn [HU‑SCO]: <b>identisch</b></li></ul>
+<p>▶ <b>Empfehlung:</b> <b>Nicht</b> implementieren. Die Strohmann‑Mechanik ist dieselbe, alles andere ist ein anderes Spiel; es gehört eher zur ungarischen Regelfamilie (/home/defaultuser/ps/tarock-spec/hungarian.md) als hierher. Falls es später gewünscht wird: eigenes Profil HU-STROHMANDLI-42, Deckprofil HU-42.</p>
+@ 9.13 2 Die 40‑Blatt‑Variante der Zwanzigerrufen‑Kreise
+<p><i>„Strohmann‑Tarock wie oben beschrieben wird von Tarockspielern gespielt, die zu viert Königrufen spielen. Wer zu viert <b>Zwanzigerrufen</b> mit vierzig Karten spielt, wird auch Strohmann‑Tarock mit <b>40 Karten</b> spielen. Jeder Spieler erhält <b>10 Karten</b>, und die Strohmänner bestehen aus <b>einem Päckchen zu vier und zwei Päckchen zu drei</b> Karten. Im Übrigen gelten die Regeln des Zwanzigerrufens und die der oben beschriebenen Variante von Strohmann‑Tarock entsprechend.“ [MS‑EN]</i></p>
+<p>Rechenprobe: 40 Karten − 2 × 10 Handkarten = 20 Karten = 2 × (4 + 3 + 3) ✔. Jeder Spieler hat 20 Karten, es gibt 20 Stiche.</p>
+<p><b>Zusammensetzung des 40‑Blatts</b> (aus den Zwanzigerrufen‑Regeln, nicht aus [MS‑EN], das nur „die Regeln des Zwanzigerrufens gelten entsprechend“ sagt):</p>
+<ul>
+<li><b>20 Tarock:</b> Sküs, XXI…IIII, I – entfernt werden <b>Tarock II und Tarock III</b>.</li>
+<li><b>20 Farbkarten:</b> je Farbe K, D, C, B und <b>eine „Glatze“</b>. Üblich sind ♠10 ♣10 ♥A ♦A; manche Kreise nehmen stattdessen ♥4 ♦4, weil die leichter zu erkennen sind. Entfernt werden also ♠9 ♠8 ♠7, ♣9 ♣8 ♣7, ♥2 ♥3 ♥4, ♦2 ♦3 ♦4 (bei der Glatzen‑Variante entsprechend ♥A ♥2 ♥3 usw.).</li>
+</ul>
+<p><b>Wertung und Zählung ändern sich gegenüber dem 54er‑Spiel grundlegend</b> – die frühere Behauptung „Kartenwerte und Zählung bleiben“ war falsch:</p>
+<ul><li><b>Trull Sküs XXI I</b> · Strohmandeln 54: 5 · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): 5</li><li><b>übrige Tarock</b> · Strohmandeln 54: 1 · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): 1</li><li><b>K / D / C / B</b> · Strohmandeln 54: 5 / 4 / 3 / 2 · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): 5 / 4 / 3 / 2</li><li><b>Zahlkarten</b> · Strohmandeln 54: 1 · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): <b>Glatzen zählen 0</b>; andere Zahlkarten gibt es nicht</li><li><b>Zählverfahren</b> · Strohmandeln 54: Dreierlagen −2 (§1.5) · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): <b>einfache Addition</b>, kein Drittel‑Abzug, kein Stichbonus</li><li><b>Gesamtpunkte</b> · Strohmandeln 54: 70 · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): <b>88</b> (= 3·5 + 17·1 + 4·(5+4+3+2+0))</li><li><b>Gewinnschwelle</b> · Strohmandeln 54: 35/2 Blatt (36) · Strohmandeln 40 (Zwanzigerrufen‑Konventionen): <b>45</b> („mehr als die Hälfte“)</li></ul>
+<ul>
+<li><b>Uhu und Kakadu entfallen ersatzlos</b>, weil II und III nicht im Blatt sind. Ein <b>Quapil</b> (IIII) wäre technisch möglich, ist aber in keiner Quelle für das 40er‑Spiel belegt.</li>
+<li>Der <b>Märchenstich/Kaiserstich</b> (Sküs+XXI+I im selben Stich → Pagat gewinnt), den Zwanzigerrufen kennt, kann im Zweierspiel <b>nicht</b> auftreten (ein Stich hat nur zwei Karten).</li>
+<li>Die <b>Grammel‑Punkt‑Schwelle 45</b> des 54er‑Spiels ist im 40er‑Spiel <b>sinnlos</b>, weil 45 dort bereits die Gewinnschwelle ist. Sie müsste neu kalibriert werden; proportional übertragen (45 von 70 ≙ 64,3 %) käme man auf <b>57 von 88</b>. Dafür gibt es aber <b>keine Quelle</b>, und die Engine darf so etwas nicht stillschweigend erfinden – im Profil AT-STROH-40 ist bonus_grand_point daher vorerst false.</li>
+</ul>
+<p>▶ <b>Empfehlung:</b> Profil AT-STROH-40 <b>vorsehen, aber nicht in der ersten Version ausliefern</b>. Deck, Kartenwerte, Zählverfahren und Gewinnschwelle stehen jetzt fest; <b>offen bleiben</b> die Prämientarife (Grammel‑Punkt‑Schwelle, Valat‑Wert bei 88 statt 70 Punkten) sowie die Frage, ob die Zwanzigerrufen‑Kreise überhaupt mit Prämien spielen. Erst nach Fertigstellung der Zwanzigerrufen‑Spezifikation entscheiden.</p>
+@ 9.14 2 [ENWIKI]s Furr‑Spalte: drei Abweichungen vom Volltext
+<p>Beim Abgleich der Scoring‑Tabelle in [ENWIKI] mit dem <b>Volltext</b> von [FURR] (Kap. 5.05, S. 109–111) fallen drei Unstimmigkeiten auf. Die App richtet sich im Profil EN-STROH-FURR-2009 nach dem <b>Volltext</b>.</p>
+<ul><li><b><i>Trull or Royal Trull (tricks)</i></b> · [ENWIKI]: Furr <b>1</b> · [FURR] im Volltext: <b>Kommt in Furrs Bonusliste überhaupt nicht vor.</b> Sie lautet vollständig: „With 45 … With 26 … Slam … The Birds (Pagat Ultimo, An Owl, A Cockatoo) … Rostopschin“ · Bewertung: <b>Fehler in [ENWIKI]</b></li><li><b><i>Rostopschin</i></b> · [ENWIKI]: „Taking successive tricks with <b>VII and VIII</b>“ · [FURR] im Volltext: „taking consecutive tricks with the <b>XVII and the XVIII</b> of trumps“ · Bewertung: <b>Fehler in [ENWIKI]</b> (§9.9)</li><li><b><i>Quapil</i></b> · [ENWIKI]: Furr <b>–</b> · [FURR] im Volltext: korrekt: Furr kennt den Quapil nicht („omits the Quapil“, so auch [ENWIKI] im Fließtext) · Bewertung: stimmt</li></ul>
+<p>Ergänzend, weil in [ENWIKI]s Tabelle nicht sichtbar:</p>
+<ul>
+<li>[FURR] kennt <b>keinen Mondfang</b> und <b>keine Ansagen</b>: <i>„however, none of them may be announced!“</i> – mit der einzigen Ausnahme des Rostopschin, der ohne die Rufworte „Ros!“/„Topschin!“ gar nicht zustande kommt.</li>
+<li>[FURR] lässt bei fehlender Farbe <b>und</b> fehlendem Tarock <b>jede</b> Karte zu: <i>„If they cannot do either, then they may play any card – though it will not win.“</i> Deckungsgleich mit [MS‑WEB] (§6.2).</li>
+<li>[FURR]s Zählregel ist eine Kurzform der Dreierlagen: <i>„two odd empty cards count for 1 and one odd empty card counts for nothing“</i> – rechnerisch identisch mit §1.5.2a, aber nur für Leerkarten formuliert. Die Engine verwendet die allgemeine Formel aus §1.5.1.</li>
+</ul>
+<p>▶ <b>Empfehlung:</b> Im Profil EN-STROH-FURR-2009 <b>keine</b> Trull‑/Königstrull‑Prämie (so bereits §5.11), Rostopschin mit XVII/XVIII, kein Quapil, kein Mondfang. <b>Der Widerspruch zu [ENWIKI] ist im Profiltext der App zu vermerken</b>, damit Nutzer, die die Wikipedia‑Tabelle kennen, ihn nicht für einen App‑Fehler halten.</p>
+@ 9.15 2 Zusammenfassung aller Profil‑Flags
+<ul><li><b>strawmen_dealt_before_bidding</b> · Default: true · §: 2.4</li><li><b>throw_in_no_tarock</b> · Default: true · §: 2.5</li><li><b>redeal_if_both_pass</b> · Default: simple_game · §: 3.2</li><li><b>redeal_dealer</b> · Default: same_dealer · §: 3.2</li><li><b>draw_scope</b> · Default: simple_only · §: 1.7.1</li><li><b>first_lead</b> · Default: forehand · §: 6.1</li><li><b>open_cards_taken_immediately</b> · Default: true · §: 4.2</li><li><b>last_card_is_secret</b> · Default: true · §: 4.5</li><li><b>last_card_stays_faceDown_on_table</b> · Default: false · §: 4.5</li><li><b>bonus_hand_includes_faceup</b> · Default: true · §: 5.2.1 / 9.7</li><li><b>bonus_trull_mode</b> · Default: tricks_silent · §: 5.2</li><li><b>bonus_kings_mode</b> · Default: tricks_silent · §: 5.2</li><li><b>pagat_capture_bonus</b> · Default: true · §: 5.3</li><li><b>bonus_uhu / bonus_kakadu</b> · Default: true · §: 5.4</li><li><b>bonus_quapil</b> · Default: false · §: 5.4</li><li><b>bird_capture_bonus</b> · Default: true · §: 5.4</li><li><b>bonus_rostopschin</b> · Default: true · §: 5.5</li><li><b>rostopschin_cards</b> · Default: {XVII, XVIII} · §: 5.5 / 9.9</li><li><b>rostopschin_call_spelling</b> · Default: "Ross" · §: 5.5</li><li><b>bonus_grand_point</b> · Default: true · §: 5.6</li><li><b>grand_point_threshold</b> · Default: 45 · §: 5.6</li><li><b>grand_point_defender_threshold</b> · Default: 45 (FURR: 44) · §: 5.6 / 9.6</li><li><b>grand_point_role_bound</b> · Default: false (FURR: true) · §: 5.6 / 9.6</li><li><b>grand_point_uses_rounded_points</b> · Default: true · §: 5.6 / 9.6</li><li><b>bonus_mondfang</b> · Default: false · §: 5.8</li><li><b>valat_replaces_game</b> · Default: false · §: 5.7</li><li><b>kontra_enabled</b> · Default: false · §: 5.10</li><li><b>kontra_doubles_bonuses</b> · Default: false · §: 9.8</li><li><b>trischaken_on_both_pass</b> · Default: false · §: 5.9</li><li><b>trischaken_pagat_last_tarock</b> · Default: true · §: 5.9.3</li><li><b>null_round_stacks</b> · Default: false · §: 8.3</li><li><b>match_format / match_target</b> · Default: race11 / 11 · §: 8.2</li><li><b>allow_reviewing_own_tricks</b> · Default: true · §: 6.6</li><li><b>hard_score_cents_per_point</b> · Default: 10 · §: 7.1</li></ul>
+<p>---</p>

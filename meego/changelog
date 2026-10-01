@@ -1,3 +1,14 @@
+harbour-tarock (0.6.2) unstable; urgency=low
+
+  * Die Regelseite zeigte nur Überschriften, und ein angetipptes Kapitel
+    ging nicht auf -- auf Sailfish wie auf MeeGo, weil der Regelindex
+    keine Texte kannte. Jetzt liegen die Kapitel 1 bis 9 der vier
+    Regelwerke als Anzeigetexte bei (assets/rules, aus docs/ erzeugt),
+    auch für Tapp-Tarock und Strohmandeln, die bisher gar keine Kapitel
+    hatten. "Mehr dazu" öffnet damit das gemeinte Kapitel mit Inhalt.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Thu, 01 Oct 2026 21:40:00 +0200
+
 harbour-tarock (0.6.1) unstable; urgency=low
 
   * Das 0.6.0-Paket stürzte am N950 beim Start ab, noch bevor ein Fenster

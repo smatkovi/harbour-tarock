@@ -205,6 +205,9 @@ Page {
                             width: parent.width
                             visible: chapterItem.open && text !== ""
                             wrapMode: Text.WordWrap
+                            // The chapter text comes as Qt rich text from
+                            // assets/rules (tools/make-rules.py).
+                            textFormat: Text.RichText
                             color: Theme.secondaryColor
                             font.pixelSize: Theme.fontSizeExtraSmall
                             text: modelData.text ? modelData.text : ""

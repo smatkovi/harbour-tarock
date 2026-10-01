@@ -125,11 +125,18 @@ foreach(file ${TAROCK_LESSON_FILES})
     set_source_files_properties(${file} PROPERTIES QT_RESOURCE_ALIAS "lessons/${stem}/${name}")
 endforeach()
 
+# Die Regeltexte (docs/design.md §7.7); RulesIndex liest ":/rules/<profil>.de.txt".
+file(GLOB TAROCK_RULE_FILES ${TAROCK_ROOT}/assets/rules/*.txt)
+foreach(file ${TAROCK_RULE_FILES})
+    get_filename_component(name ${file} NAME)
+    set_source_files_properties(${file} PROPERTIES QT_RESOURCE_ALIAS "rules/${name}")
+endforeach()
+
 qt_add_resources(tarock tarock_data
     PREFIX "/"
     BASE "${TAROCK_ROOT}"
     FILES "${TAROCK_ROOT}/sailfish/icons/icon-256.png" ${TAROCK_LESSON_FILES}
-          ${TAROCK_DECK_FILES}
+          ${TAROCK_DECK_FILES} ${TAROCK_RULE_FILES}
 )
 
 # The Android Qt package has no Linguist tools, so use lrelease of the host Qt.
