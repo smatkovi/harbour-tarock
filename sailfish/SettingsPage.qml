@@ -243,6 +243,22 @@ Page {
                 onCheckedChanged: page.engine.animationsEnabled = checked
             }
 
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Trick waits for a tap")
+                description: qsTr("The finished trick stays on the table until you tap it")
+                checked: page.engine.waitAfterTrick
+                onCheckedChanged: page.engine.waitAfterTrick = checked
+            }
+
+            TextSwitch {
+                width: parent.width
+                text: qsTr("Talon waits for a tap")
+                description: qsTr("The talon and laid-open cards stay until you tap them")
+                checked: page.engine.waitAfterReveal
+                onCheckedChanged: page.engine.waitAfterReveal = checked
+            }
+
             // animationSpeed is the per cent of the normal flight duration, so
             // the small numbers are the quick cards.
             Slider {
@@ -269,6 +285,8 @@ Page {
                     page.engine.deck = "iug1904"
                     page.engine.animationsEnabled = true
                     page.engine.animationSpeed = 100
+                    page.engine.waitAfterTrick = true
+                    page.engine.waitAfterReveal = true
                 }
             }
         }

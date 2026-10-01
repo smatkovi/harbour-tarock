@@ -319,7 +319,11 @@ Item {
     function onReveal(what) {
         revealBox.what = what
         revealActive = true
-        revealTimer.restart()
+        // With waitAfterReveal the box stays until it is tapped.
+        if (engine.waitAfterReveal)
+            revealTimer.stop()
+        else
+            revealTimer.restart()
     }
 
     function finishReveal() {
@@ -776,6 +780,22 @@ Item {
         feltColor: table.feltEdgeColor
     }
 
+    // With waitAfterTrick the finished trick lies on the table until the
+    // player taps it or the button; the engine then lets it fly to the winner.
+    MouseArea {
+        anchors.fill: trickArea
+        enabled: table.engine.visualPhase === 2 && table.engine.waitAfterTrick
+        onClicked: table.engine.continueTrick()
+    }
+
+    TableButton {
+        anchors.horizontalCenter: trickArea.horizontalCenter
+        anchors.bottom: trickArea.bottom
+        visible: table.engine.visualPhase === 2 && table.engine.waitAfterTrick
+        text: qsTr("Next trick")
+        onClicked: table.engine.continueTrick()
+    }
+
     Text {
         id: statusLabel
         anchors.bottom: actionBand.top
@@ -1056,6 +1076,15 @@ Item {
                         faceUp: table.cardIdOf(modelData) >= 0
                     }
                 }
+            }
+
+            Text {
+                width: parent.width
+                visible: table.engine.waitAfterReveal
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Style.fontSizeExtraSmall
+                color: Style.secondaryColor
+                text: qsTr("Tap to continue")
             }
         }
 

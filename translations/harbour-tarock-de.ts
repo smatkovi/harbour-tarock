@@ -1608,6 +1608,22 @@
 <context>
     <name>SettingsPage</name>
     <message>
+        <source>Trick waits for a tap</source>
+        <translation>Stich wartet auf Antippen</translation>
+    </message>
+    <message>
+        <source>The finished trick stays on the table until you tap it</source>
+        <translation>Der fertige Stich bleibt liegen, bis du ihn antippst</translation>
+    </message>
+    <message>
+        <source>Talon waits for a tap</source>
+        <translation>Talon wartet auf Antippen</translation>
+    </message>
+    <message>
+        <source>The talon and laid-open cards stay until you tap them</source>
+        <translation>Talon und offen gelegte Karten bleiben liegen, bis du sie antippst</translation>
+    </message>
+    <message>
         <source>Settings</source>
         <translation>Einstellungen</translation>
     </message>
@@ -2254,6 +2270,14 @@
 </context>
 <context>
     <name>TarockTable</name>
+    <message>
+        <source>Next trick</source>
+        <translation>Nächster Stich</translation>
+    </message>
+    <message>
+        <source>Tap to continue</source>
+        <translation>Zum Weitermachen antippen</translation>
+    </message>
     <message>
         <source>Not allowed</source>
         <translation>Nicht erlaubt</translation>

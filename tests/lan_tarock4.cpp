@@ -124,6 +124,11 @@ int main(int argc, char** argv)
     // vorbei ist; hier tut es die Prüfung selbst, sofort.
     host.setAnimationsEnabled(false);
     guest.setAnimationsEnabled(false);
+    // Und niemand tippt den liegenden Stich oder den Talon weiter.
+    host.setWaitAfterTrick(false);
+    host.setWaitAfterReveal(false);
+    guest.setWaitAfterTrick(false);
+    guest.setWaitAfterReveal(false);
     QObject::connect(&host, &TarockEngine::cardAnimationRequested,
                      &host, [&host](int, int) { host.completeCardAnimation(); },
                      Qt::QueuedConnection);

@@ -1,3 +1,15 @@
+harbour-tarock (0.7.0) unstable; urgency=low
+
+  * Der fertige Stich bleibt liegen, bis man ihn antippt oder "Nächster
+    Stich" drückt; der aufgedeckte Talon und offen gelegte Karten bleiben
+    ebenso, bis man sie antippt. Beides ist voreingestellt an und lässt
+    sich in den Einstellungen abschalten -- dann läuft es wie bisher nach
+    einer kurzen Pause von selbst weiter.
+  * Android: die Regelkapitel werden als Rich Text gezeigt, wie auf
+    Sailfish und MeeGo.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Thu, 01 Oct 2026 22:30:00 +0200
+
 harbour-tarock (0.6.2) unstable; urgency=low
 
   * Die Regelseite zeigte nur Überschriften, und ein angetipptes Kapitel

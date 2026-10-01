@@ -248,6 +248,30 @@ SubPage {
         font.pixelSize: AppTheme.fontSizeExtraSmall
     }
 
+    TextSwitch {
+        x: AppTheme.horizontalPageMargin
+        text: qsTr("Trick waits for a tap")
+        checked: page.engine.waitAfterTrick
+        onCheckedChanged: page.engine.waitAfterTrick = checked
+    }
+    TextBlock {
+        text: qsTr("The finished trick stays on the table until you tap it")
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
+    }
+
+    TextSwitch {
+        x: AppTheme.horizontalPageMargin
+        text: qsTr("Talon waits for a tap")
+        checked: page.engine.waitAfterReveal
+        onCheckedChanged: page.engine.waitAfterReveal = checked
+    }
+    TextBlock {
+        text: qsTr("The talon and laid-open cards stay until you tap them")
+        color: AppTheme.secondaryColor
+        font.pixelSize: AppTheme.fontSizeExtraSmall
+    }
+
     // animationSpeed is the per cent of the normal flight duration, so the
     // small numbers are the quick cards.
     TextBlock {
@@ -279,6 +303,8 @@ SubPage {
             page.engine.deck = "iug1904"
             page.engine.animationsEnabled = true
             page.engine.animationSpeed = 100
+            page.engine.waitAfterTrick = true
+            page.engine.waitAfterReveal = true
         }
     }
 }

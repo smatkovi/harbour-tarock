@@ -70,6 +70,8 @@ int main(int argc, char** argv)
     TarockEngine first;
     TarockEngine second;
     host.setAnimationsEnabled(false);
+    host.setWaitAfterTrick(false);
+    host.setWaitAfterReveal(false);
     LanTable* hostTable = qobject_cast<LanTable*>(host.tableObject());
     LanTable* firstTable = qobject_cast<LanTable*>(first.tableObject());
     LanTable* secondTable = qobject_cast<LanTable*>(second.tableObject());

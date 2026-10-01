@@ -85,6 +85,8 @@ const char* const kDeckPickedKey = "settings/deck-picked";
 const char* const kDifficultyKey = "settings/difficulty";
 const char* const kAnimationsKey = "settings/animations";
 const char* const kAnimationSpeedKey = "settings/animation-speed";
+const char* const kWaitAfterTrickKey = "settings/wait-after-trick";
+const char* const kWaitAfterRevealKey = "settings/wait-after-reveal";
 
 struct ActionName {
     ActionType type;
@@ -217,8 +219,14 @@ TarockEngine::TarockEngine(QObject* parent)
 
 void TarockEngine::onTrickPauseTimeout()
 {
+    continueTrick();
+}
+
+void TarockEngine::continueTrick()
+{
     if (m_visualPhase != TrickPause)
         return;
+    m_trickPauseTimer.stop();
     setVisualPhase(TrickFlight);
     emit stateChanged();
     emit trickAnimationRequested(m_flyingWinner);
@@ -257,6 +265,8 @@ void TarockEngine::loadSettings()
     m_animationsEnabled = settings.value(QLatin1String(kAnimationsKey), m_animationsEnabled).toBool();
     m_animationSpeed = qBound(25, settings.value(QLatin1String(kAnimationSpeedKey),
                                                  m_animationSpeed).toInt(), 300);
+    m_waitAfterTrick = settings.value(QLatin1String(kWaitAfterTrickKey), m_waitAfterTrick).toBool();
+    m_waitAfterReveal = settings.value(QLatin1String(kWaitAfterRevealKey), m_waitAfterReveal).toBool();
     m_hasSaved = settings.contains(QLatin1String(kStateKey));
 }
 
@@ -269,6 +279,8 @@ void TarockEngine::saveSettings()
     settings.setValue(QLatin1String(kDifficultyKey), static_cast<int>(m_difficulty));
     settings.setValue(QLatin1String(kAnimationsKey), m_animationsEnabled);
     settings.setValue(QLatin1String(kAnimationSpeedKey), m_animationSpeed);
+    settings.setValue(QLatin1String(kWaitAfterTrickKey), m_waitAfterTrick);
+    settings.setValue(QLatin1String(kWaitAfterRevealKey), m_waitAfterReveal);
     settings.sync();
 }
 
@@ -752,7 +764,10 @@ bool TarockEngine::perform(int seat, const Action& action)
         setVisualPhase(Reveal);
         emit stateChanged();
         emit revealRequested(reveal);
-        m_watchdog.start(kRevealWatchdogMs);
+        // Wer auf den Tipp des Spielers wartet, braucht keinen Wächter; der
+        // würde den Talon nach neun Sekunden von selbst zuklappen.
+        if (!m_waitAfterReveal)
+            m_watchdog.start(kRevealWatchdogMs);
         return true;
     }
 
@@ -768,7 +783,10 @@ void TarockEngine::completeCardAnimation()
     if (m_flyingWinner >= 0 && m_core.trick().empty()) {
         setVisualPhase(TrickPause);
         emit stateChanged();
-        m_trickPauseTimer.start(trickPauseMs());
+        // Mit waitAfterTrick bleibt der Stich liegen, bis continueTrick()
+        // kommt -- vom Tisch, wenn der Spieler ihn antippt.
+        if (!m_waitAfterTrick)
+            m_trickPauseTimer.start(trickPauseMs());
         return;
     }
     finishIdle();
@@ -819,6 +837,28 @@ void TarockEngine::setAnimationsEnabled(bool value)
     if (value == m_animationsEnabled)
         return;
     m_animationsEnabled = value;
+    saveSettings();
+    emit settingsChanged();
+}
+
+void TarockEngine::setWaitAfterTrick(bool value)
+{
+    if (value == m_waitAfterTrick)
+        return;
+    m_waitAfterTrick = value;
+    // Wer das Warten gerade abschaltet, soll nicht auf einem liegenden
+    // Stich sitzen bleiben.
+    if (!value && m_visualPhase == TrickPause && !m_trickPauseTimer.isActive())
+        m_trickPauseTimer.start(trickPauseMs());
+    saveSettings();
+    emit settingsChanged();
+}
+
+void TarockEngine::setWaitAfterReveal(bool value)
+{
+    if (value == m_waitAfterReveal)
+        return;
+    m_waitAfterReveal = value;
     saveSettings();
     emit settingsChanged();
 }

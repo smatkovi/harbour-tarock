@@ -116,6 +116,12 @@ class TarockEngine : public QObject
     Q_PROPERTY(bool animationsEnabled READ animationsEnabled WRITE setAnimationsEnabled NOTIFY settingsChanged)
     // Per cent of the normal duration: 100 is normal, 50 twice as fast.
     Q_PROPERTY(int animationSpeed READ animationSpeed WRITE setAnimationSpeed NOTIFY settingsChanged)
+    // Der fertige Stich bleibt liegen, bis der Spieler weiterschaltet
+    // (continueTrick), statt nach einer Pause von selbst zum Gewinner zu
+    // fliegen; und der aufgedeckte Talon bleibt offen, bis er angetippt
+    // wird. Beides voreingestellt an.
+    Q_PROPERTY(bool waitAfterTrick READ waitAfterTrick WRITE setWaitAfterTrick NOTIFY settingsChanged)
+    Q_PROPERTY(bool waitAfterReveal READ waitAfterReveal WRITE setWaitAfterReveal NOTIFY settingsChanged)
 
 public:
     enum VisualPhase { Idle = 0, CardFlight = 1, TrickPause = 2, TrickFlight = 3, Reveal = 4 };
@@ -146,6 +152,9 @@ public:
     // The same, but a warning the table has already shown no longer stops it.
     Q_INVOKABLE bool actConfirmed(const QString& type, int a = -1, int b = -1);
     Q_INVOKABLE void completeCardAnimation();
+    // Schaltet einen liegenden Stich weiter (Phase TrickPause -> TrickFlight);
+    // mit waitAfterTrick der einzige Weg, sonst kürzt es die Pause ab.
+    Q_INVOKABLE void continueTrick();
     Q_INVOKABLE void completeTrickAnimation();
     Q_INVOKABLE void completeReveal();
 
@@ -225,6 +234,10 @@ public:
     void setAnimationsEnabled(bool value);
     int animationSpeed() const { return m_animationSpeed; }
     void setAnimationSpeed(int value);
+    bool waitAfterTrick() const { return m_waitAfterTrick; }
+    void setWaitAfterTrick(bool value);
+    bool waitAfterReveal() const { return m_waitAfterReveal; }
+    void setWaitAfterReveal(bool value);
 
     LearnEngine* learn() const { return m_learn; }
 
@@ -319,6 +332,8 @@ private:
     QList<PendingRequest> m_pendingRequests;
     bool m_animationsEnabled = true;
     int m_animationSpeed = 100;
+    bool m_waitAfterTrick = true;
+    bool m_waitAfterReveal = true;
     int m_handsPerMatch = 4;         // one Radl at a table of four
     // Voreinstellung ist das historische Blatt; fehlt es auf dem Gerät,
     // zeichnet Card.qml die Karten wie bisher selbst.

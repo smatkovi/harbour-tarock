@@ -1601,6 +1601,22 @@
 <context>
     <name>SettingsPage</name>
     <message>
+        <source>Trick waits for a tap</source>
+        <translation>Az ütés érintésre vár</translation>
+    </message>
+    <message>
+        <source>The finished trick stays on the table until you tap it</source>
+        <translation>A befejezett ütés az asztalon marad, amíg meg nem érinted</translation>
+    </message>
+    <message>
+        <source>Talon waits for a tap</source>
+        <translation>A talon érintésre vár</translation>
+    </message>
+    <message>
+        <source>The talon and laid-open cards stay until you tap them</source>
+        <translation>A talon és a felfedett lapok addig maradnak, amíg meg nem érinted őket</translation>
+    </message>
+    <message>
         <source>Settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2247,6 +2263,14 @@
 </context>
 <context>
     <name>TarockTable</name>
+    <message>
+        <source>Next trick</source>
+        <translation>Következő ütés</translation>
+    </message>
+    <message>
+        <source>Tap to continue</source>
+        <translation>Érintsd meg a folytatáshoz</translation>
+    </message>
     <message>
         <source>Not allowed</source>
         <translation type="unfinished"></translation>
