@@ -1,3 +1,13 @@
+harbour-tarock (0.6.1) unstable; urgency=low
+
+  * Das 0.6.0-Paket stürzte am N950 beim Start ab, noch bevor ein Fenster
+    da war: der MeeGo-Bau kannte keine Header-Abhängigkeiten, und so lagen
+    die Regelprofile als alte Objektdateien neben einem RuleProfileBuilder,
+    der um die Strohmandel-Felder gewachsen war. Der Bau prüft jetzt die
+    Header mit, das Paket ist sauber neu gebaut.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Thu, 01 Oct 2026 21:00:00 +0200
+
 harbour-tarock (0.6.0) unstable; urgency=low
 
   * Tarock zu zweit: Strohmandeln. Statt eines Talons bekommt jeder drei

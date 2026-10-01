@@ -79,19 +79,25 @@ MK=$OUT/Makefile
     objs=
     for s in $ENGINE_SRC; do
         o=$(basename "$s" .cpp).o; objs="$objs $o"
-        echo "$o: \$(SRC)/$s"; printf '\t$(CXX) $(CXXFLAGS) -c $< -o $@\n'
+        echo "$o: \$(SRC)/$s"; printf '\t$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@\n'
     done
     for h in $MOC_HEADERS; do
         n=$(basename "$h" .h); objs="$objs moc_$n.o"
         echo "moc_$n.cpp: \$(SRC)/$h"; printf '\t$(MOC) $< -o $@\n'
-        echo "moc_$n.o: moc_$n.cpp"; printf '\t$(CXX) $(CXXFLAGS) -c $< -o $@\n'
+        echo "moc_$n.o: moc_$n.cpp"; printf '\t$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@\n'
     done
     echo "ENGINE_OBJS=$objs"; echo
     echo "all: harbour-tarock"
     echo "main.moc: \$(SRC)/$MAIN"; printf '\t$(MOC) $< -o $@\n'
-    echo "main.o: \$(SRC)/$MAIN main.moc"; printf '\t$(CXX) $(CXXFLAGS) -I. -c $< -o $@\n'
+    echo "main.o: \$(SRC)/$MAIN main.moc"; printf '\t$(CXX) $(CXXFLAGS) -MMD -MP -I. -c $< -o $@\n'
     echo "harbour-tarock: main.o \$(ENGINE_OBJS)"
     printf '\t$(CXX) $(LDFLAGS) -o $@ $^ $(LIBS)\n'
+    # Header-Abhängigkeiten aus den .d-Dateien des Compilers. Ohne sie blieb
+    # nach einer Änderung an RuleProfile.h jede unveränderte .cpp als altes
+    # Objekt stehen; das 0.6.0-Paket trug so ein makeKoenigrufen() mit dem
+    # alten Aufbau des RuleProfileBuilder neben einem build() mit dem neuen
+    # und stürzte am N950 beim Start ab, noch bevor ein Fenster da war.
+    echo "-include \$(wildcard *.d)"
 } > "$MK"
 
 nice make -C "$OUT" -j"$JOBS" all

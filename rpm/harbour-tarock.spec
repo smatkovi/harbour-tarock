@@ -1,5 +1,5 @@
 Name: harbour-tarock
-Version: 0.6.0
+Version: 0.6.1
 Release: 1
 Summary: Königrufen and Hungarian Tarokk with a learning mode
 License: GPL-3.0-or-later
@@ -57,6 +57,11 @@ cp -a assets/decks %{buildroot}/usr/share/%{name}/assets/
 # for them here first on the device.
 mkdir -p %{buildroot}/usr/share/%{name}/lessons
 cp -a assets/lessons/* %{buildroot}/usr/share/%{name}/lessons/
+
+# The rule texts of the reference (docs/design.md §7.7), one file per profile;
+# RulesIndex looks for them here first on the device.
+mkdir -p %{buildroot}/usr/share/%{name}/rules
+cp -a assets/rules/*.txt %{buildroot}/usr/share/%{name}/rules/
 
 mkdir -p %{buildroot}/usr/share/%{name}/translations
 install -m 644 build/harbour-tarock-de.qm %{buildroot}/usr/share/%{name}/translations/
