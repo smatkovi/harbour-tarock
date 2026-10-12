@@ -151,9 +151,20 @@ int main(int argc, char** argv)
     // Strohmandeln. Der Gast bekommt immer den Platz nach dem Gastgeber.
     const int seatCount = argc > 2 ? QString::fromLocal8Bit(argv[2]).toInt() : 4;
     std::printf("Regeln: %s, %d Plätze\n", profileKey.toLocal8Bit().constData(), seatCount);
+    // Beide haben vorher allein gespielt -- der Normalfall auf einem Gerät,
+    // und bis 0.7.0 der Grund, warum der Tisch nie anfing: die Netzseite
+    // hielt die eigene Partie für die des Tisches und zeigte "Partie
+    // starten" nicht; der Gast landete auf seinem alten Blatt.
+    host.startMatch(profileKey, seatCount);
+    guest.startMatch(profileKey, seatCount);
+    check(host.active() && guest.active(), "beide haben vorher eine eigene Partie");
     check(host.hostTable(profileKey, seatCount), "der Tisch geht auf");
+    check(!hostTable->started(), "der offene Tisch gilt nicht als gestartet");
     guest.joinTable(QStringLiteral("127.0.0.1"));
+    check(!guest.active(), "der Gast legt seine eigene Partie beiseite");
+    check(guest.canResume(), "und sie bleibt gespeichert");
     check(waitFor(app, [&] { return guestTable->mySeat() >= 1; }), "der Gast bekommt einen Platz");
+    check(!guest.active() && !guestTable->started(), "vor dem Anfang läuft beim Gast nichts");
     std::printf("Gast sitzt auf Platz %d\n", guestTable->mySeat() + 1);
     check(hostTable->seatIsGuest(guestTable->mySeat()), "der Gastgeber kennt den Platz");
 
@@ -165,6 +176,8 @@ int main(int argc, char** argv)
 
     host.startTableMatch();
     check(host.active() && host.players() == seatCount, "die Partie läuft beim Gastgeber");
+    check(hostTable->started(), "der Tisch gilt jetzt als gestartet");
+    check(waitFor(app, [&] { return guestTable->started(); }), "und beim Gast auch");
     check(waitFor(app, [&] { return guest.active() && !guest.hand().isEmpty(); }),
           "der Gast sieht seine Karten");
 

@@ -153,8 +153,8 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: page.engine.table.role !== 0 ? qsTr("Zurück zum Tisch der anderen")
-                                                   : qsTr("Mit anderen Geräten")
+                text: page.engine.table.role !== 0 ? qsTr("Zurueck zum Tisch der anderen")
+                                                   : qsTr("Mit anderen Geraeten")
                 onClicked: page.pageStack.push(Qt.resolvedUrl("NetPage.qml"))
             }
 

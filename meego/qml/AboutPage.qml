@@ -46,7 +46,7 @@ SubPage {
         width: parent.width - 2 * AppTheme.horizontalPageMargin
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
-        text: qsTr("Königrufen and Hungarian Tarokk with a learning mode")
+        text: qsTr("Koenigrufen and Hungarian Tarokk with a learning mode")
         color: AppTheme.secondaryHighlightColor
         font.pixelSize: AppTheme.fontSizeSmall
     }
@@ -81,7 +81,7 @@ SubPage {
     Repeater {
         model: [
             { profile: "AT-KR-OOE-2023-04", source: "docs/koenigrufen.md",
-              title: qsTr("Königrufen, Upper Austria") },
+              title: qsTr("Koenigrufen, Upper Austria") },
             { profile: "HU-ILLU-ITVB-2019", source: "docs/hungarian.md",
               title: qsTr("Hungarian Tarokk, Illusztrált") },
             { profile: "AT-TAPP", source: "docs/tapptarock.md",

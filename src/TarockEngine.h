@@ -302,6 +302,7 @@ private slots:
 
 private:
     void loadSettings();
+    void setAsideForGuest();
     void saveSettings();
     void persist();
     void clearSaved();

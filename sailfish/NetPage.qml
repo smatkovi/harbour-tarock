@@ -19,12 +19,14 @@ Page {
         table.bluetooth.refresh()
     }
 
-    // Sobald die Partie läuft, gehört der Bildschirm dem Tisch.
+    // Sobald die Partie am Tisch läuft, gehört der Bildschirm dem Tisch. Ob
+    // sie läuft, sagt der Tisch -- engine.active ist auch wahr, solange die
+    // eigene Solopartie im Kern liegt.
     Connections {
         target: page.engine
         onStateChanged: {
-            if (page.engine.active && page.table.role !== 0
-                    && pageStack.currentPage === page && page.table.guest)
+            if (page.engine.active && page.table.guest && page.table.started
+                    && pageStack.currentPage === page)
                 pageStack.replace(Qt.resolvedUrl("TablePage.qml"))
         }
     }
@@ -90,7 +92,9 @@ Page {
 
             Button {
                 anchors.horizontalCenter: parent.horizontalCenter
-                visible: page.table.role === 1 && !page.engine.active
+                // Nach dem Tisch, nicht nach engine.active: wer vorher allein
+                // gespielt hat, hat noch eine aktive Partie und sah den Knopf nie.
+                visible: page.table.role === 1 && !page.table.started
                 text: qsTr("Partie starten")
                 onClicked: {
                     page.engine.startTableMatch()

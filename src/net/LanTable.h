@@ -34,6 +34,10 @@ class LanTable : public QObject
     Q_PROPERTY(QObject* browser READ browserObject CONSTANT)
     Q_PROPERTY(QObject* bluetooth READ bluetoothObject CONSTANT)
     Q_PROPERTY(bool bluetoothOpen READ bluetoothOpen NOTIFY changed)
+    // Läuft am Tisch schon die Partie? Die Netzseite richtet sich danach,
+    // nicht nach engine.active -- das ist auch wahr, solange die eigene
+    // Solopartie noch im Kern liegt.
+    Q_PROPERTY(bool started READ started NOTIFY changed)
 
 public:
     enum Role { None = 0, Host = 1, Guest = 2 };
@@ -56,6 +60,7 @@ public:
     QObject* browserObject() { return &m_browser; }
     QObject* bluetoothObject() { return &m_bluetooth; }
     bool bluetoothOpen() const { return m_session.bluetoothHosting(); }
+    bool started() const { return m_started; }
 
     // --- Gastgeber ---------------------------------------------------------
     bool startHosting(const QString& name, const QString& profileKey, int players, QString* error);

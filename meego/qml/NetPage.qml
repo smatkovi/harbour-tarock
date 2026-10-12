@@ -26,7 +26,7 @@ import com.nokia.meego 1.0
 SubPage {
     id: page
     objectName: "netPage"
-    title: qsTr("Mit anderen Geräten")
+    title: qsTr("Mit anderen Geraeten")
 
     property variant engine: tarockEngine
     property variant table: tarockEngine.table
@@ -36,9 +36,19 @@ SubPage {
         page.table.bluetooth.refresh()
     }
 
+    // Sobald die Partie am Tisch läuft, gehört der Bildschirm dem Tisch.
+    Connections {
+        target: page.engine
+        onStateChanged: {
+            if (page.engine.active && page.table.guest && page.table.started
+                    && page.pageStack.currentPage === page)
+                page.pageStack.replace(Qt.resolvedUrl("TablePage.qml"))
+        }
+    }
+
     TextBlock {
         width: parent.width
-        text: qsTr("Auf jedem Gerät muss dieses Tarock laufen. Über WLAN müssen alle im selben "
+        text: qsTr("Auf jedem Geraet muss dieses Tarock laufen. Ueber WLAN muessen alle im selben "
                    + "Netz sein; ohne Netz geht es über Bluetooth, dafür die Geräte einmal in "
                    + "den Systemeinstellungen koppeln. Plätze, die frei bleiben, spielt der "
                    + "Computer.")
@@ -64,7 +74,9 @@ SubPage {
 
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: page.table.role === 1 && !page.engine.active
+        // Nach dem Tisch, nicht nach engine.active: wer vorher allein gespielt
+        // hat, hat noch eine aktive Partie und sah den Knopf nie.
+        visible: page.table.role === 1 && !page.table.started
         text: qsTr("Partie starten")
         onClicked: {
             page.engine.startTableMatch()
@@ -79,7 +91,7 @@ SubPage {
         onClicked: page.engine.leaveTable()
     }
 
-    SectionLabel { text: qsTr("Tisch eröffnen") }
+    SectionLabel { text: qsTr("Tisch eroeffnen") }
 
     SectionLabel { text: qsTr("Regeln") }
 
@@ -118,15 +130,15 @@ SubPage {
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
         enabled: page.table.role === 0
-        text: qsTr("Eröffnen")
+        text: qsTr("Eroeffnen")
         onClicked: page.engine.hostTable(profileRow.key, playersRow.count)
     }
 
     TextBlock {
         width: parent.width
         text: (page.table.browser.localAddresses !== ""
-               ? qsTr("Dieses Gerät im Netz: %1").arg(page.table.browser.localAddresses)
-               : qsTr("Dieses Gerät hängt in keinem Netz"))
+               ? qsTr("Dieses Geraet im Netz: %1").arg(page.table.browser.localAddresses)
+               : qsTr("Dieses Geraet haengt in keinem Netz"))
               + "\n"
               + (page.table.bluetooth.available
                  ? qsTr("Bluetooth: %1").arg(page.table.bluetooth.localName !== ""
@@ -138,7 +150,7 @@ SubPage {
 
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
-        text: page.table.browser.searching ? qsTr("Suche läuft ...") : qsTr("Suchen")
+        text: page.table.browser.searching ? qsTr("Suche laeuft ...") : qsTr("Suchen")
         enabled: !page.table.browser.searching
         onClicked: {
             page.table.browser.search()
@@ -179,20 +191,20 @@ SubPage {
                     elide: Text.ElideRight
                     font.pixelSize: AppTheme.fontSizeExtraSmall
                     color: AppTheme.secondaryColor
-                    text: qsTr("%1 Plätze, %2 frei").arg(modelData.players).arg(modelData.openSeats)
+                    text: qsTr("%1 Plaetze, %2 frei").arg(modelData.players).arg(modelData.openSeats)
                           + " · " + modelData.address
                 }
             }
         }
     }
 
-    SectionLabel { text: qsTr("Über Bluetooth beitreten") }
+    SectionLabel { text: qsTr("Ueber Bluetooth beitreten") }
 
     TextBlock {
         width: parent.width
         visible: page.table.bluetooth.devices.length === 0
         text: page.table.bluetooth.available
-              ? qsTr("Keine gekoppelten Geräte. Die Geräte einmal in den Systemeinstellungen "
+              ? qsTr("Keine gekoppelten Geraete. Die Geraete einmal in den Systemeinstellungen "
                      + "koppeln, dann hier erneut suchen.")
               : qsTr("Bluetooth ist ausgeschaltet.")
     }

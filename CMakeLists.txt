@@ -96,4 +96,10 @@ if(TAROCK_BUILD_TESTS)
             message(STATUS "harbour-tarock: tests/${t}.cpp is not there yet, skipping it")
         endif()
     endforeach()
+    # Kein Test: ein Gastgeber ohne Fenster für die Probe mit einem echten
+    # zweiten Gerät (tests/lan_host.cpp), gebaut für das Zielgerät.
+    add_executable(lan_host tests/lan_host.cpp ${TAROCK_CORE_SOURCES} ${TAROCK_ENGINE_SOURCES})
+    target_include_directories(lan_host PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_compile_definitions(lan_host PRIVATE TAROCK_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+    target_link_libraries(lan_host Qt5::Core Qt5::DBus Qt5::Gui Qt5::Network Qt5::Qml)
 endif()

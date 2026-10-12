@@ -236,7 +236,7 @@ SubPage {
 
     Repeater {
         model: [
-            { title: qsTr("Königrufen, Upper Austria"), source: "docs/koenigrufen.md" },
+            { title: qsTr("Koenigrufen, Upper Austria"), source: "docs/koenigrufen.md" },
             { title: qsTr("Hungarian Tarokk, Illusztrált"), source: "docs/hungarian.md" },
             { title: qsTr("Tapp- and Dreiertarock"), source: "docs/tapptarock.md" },
             { title: qsTr("Strohmandeln"), source: "docs/strohmandeln.md" }

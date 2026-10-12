@@ -1,3 +1,15 @@
+harbour-tarock (0.7.1) unstable; urgency=low
+
+  * Der Tisch mit anderen Geräten fing nicht an, wenn man vorher allein
+    gespielt hatte: "Partie starten" blieb verborgen, weil die eigene
+    Partie noch als die laufende galt, und ein Gast landete auf seinem
+    alten Blatt. Jetzt richtet sich die Netzseite nach dem Tisch; der Gast
+    legt seine Partie beiseite und bekommt sie beim Verlassen zurück.
+  * MeeGo und Android: der Gast wechselt von selbst zum Tisch, sobald der
+    Gastgeber die Partie beginnt.
+
+ -- Sebastian Matkovich <sebastian.matkovich@gmail.com>  Mon, 12 Oct 2026 19:40:00 +0200
+
 harbour-tarock (0.7.0) unstable; urgency=low
 
   * Der fertige Stich bleibt liegen, bis man ihn antippt oder "Nächster

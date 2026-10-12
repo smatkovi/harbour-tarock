@@ -28,6 +28,13 @@ SUBST = {
     "‘": "'", "’": "'",
     "…": "...",
     " ": " ",
+    # Umlauts too, although Latin-1 has them: Qt 4.7 hands qsTr() the key as
+    # Latin-1 bytes and, finding no translation, reads those bytes back as
+    # UTF-8 -- a lone 0xE4 is no UTF-8 and comes out as a question-mark box
+    # ("Mit anderen Ger?ten" on the N950, 12.10.2026). The German
+    # <translation> keeps its umlauts; only the key is ASCII.
+    "\u00e4": "ae", "\u00f6": "oe", "\u00fc": "ue",
+    "\u00c4": "Ae", "\u00d6": "Oe", "\u00dc": "Ue", "\u00df": "ss",
 }
 
 

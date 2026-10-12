@@ -395,7 +395,9 @@ void TarockEngine::setDifficulty(int value)
 
 void TarockEngine::publishViews()
 {
-    if (!m_table.hosting() || !m_active)
+    // Erst ab dem Anfang der Tischpartie: vorher läuft im Kern noch die
+    // eigene Solopartie des Gastgebers, und die geht die Gäste nichts an.
+    if (!m_table.hosting() || !m_table.started() || !m_active)
         return;
     QVariantList schrift;
     QVariantList geld;
@@ -449,14 +451,30 @@ void TarockEngine::startTableMatch()
 
 void TarockEngine::joinTable(const QString& address)
 {
+    setAsideForGuest();
     m_table.join(LanSession::normalizeAddress(address), seatName(0));
     emit stateChanged();
 }
 
 void TarockEngine::joinTableBluetooth(const QString& address)
 {
+    setAsideForGuest();
     m_table.joinBluetooth(address, seatName(0));
     emit stateChanged();
+}
+
+void TarockEngine::setAsideForGuest()
+{
+    // Die eigene Partie bleibt gespeichert (persist() hat sie nach jedem Zug
+    // abgelegt), aber sie ist ab jetzt nicht mehr die aktive: sonst zeigt der
+    // Tisch dem Gast sein altes Blatt, und die Netzseite hält die Partie
+    // für gestartet, bevor der Gastgeber sie begonnen hat. Beim Verlassen
+    // holt resume() sie zurück.
+    m_aiTimer.stop();
+    m_trickPauseTimer.stop();
+    m_watchdog.stop();
+    m_active = false;
+    m_awaitingView = true;
 }
 
 void TarockEngine::leaveTable()
@@ -540,6 +558,9 @@ void TarockEngine::onTableMatchStarted(const QString& profileKeyName, int player
     m_aiTimer.stop();
     m_trickPauseTimer.stop();
     m_watchdog.stop();
+    // Bis der erste Sichtzustand da ist, liegt im Kern noch das alte Blatt;
+    // kein Wunsch geht vorher hinaus.
+    m_awaitingView = true;
     m_active = true;
     emit resetVisuals();
     emit matchStarted();
@@ -553,6 +574,12 @@ void TarockEngine::onTableRefused(const QString& reason)
     // Das Tippen bleibt gesperrt, bis der Zustand kommt: der Gastgeber
     // schickt nach jeder Ablehnung einen, und ohne diese Bremse fragt ein
     // Gast in einer Schleife.
+    //
+    // Kam gar keine Verbindung zustande (der Tisch ist weg, voll oder eine
+    // andere Fassung), ist der Gast wieder niemand am Netz -- und seine
+    // beiseitegelegte Partie kommt zurück, wie nach einem geschlossenen Tisch.
+    if (m_table.role() == LanTable::None && !m_active && canResume())
+        resume();
     emit stateChanged();
 }
 

@@ -38,6 +38,16 @@ SubPage {
 
     Component.onCompleted: page.table.browser.search()
 
+    // Sobald die Partie am Tisch läuft, gehört der Bildschirm dem Tisch.
+    Connections {
+        target: page.engine
+        function onStateChanged() {
+            if (page.engine.active && page.table.guest && page.table.started
+                    && page.StackView.view.currentItem === page)
+                page.StackView.view.replace(Qt.resolvedUrl("TablePage.qml"))
+        }
+    }
+
     Label {
         width: parent.width
         wrapMode: Text.WordWrap
@@ -69,7 +79,9 @@ SubPage {
 
     Button {
         anchors.horizontalCenter: parent.horizontalCenter
-        visible: page.table.role === 1 && !page.engine.active
+        // Nach dem Tisch, nicht nach engine.active: wer vorher allein gespielt
+        // hat, hat noch eine aktive Partie und sah den Knopf nie.
+        visible: page.table.role === 1 && !page.table.started
         text: qsTr("Partie starten")
         onClicked: {
             page.engine.startTableMatch()
